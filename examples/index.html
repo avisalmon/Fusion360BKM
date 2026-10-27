@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fusion 360 BKM: Examples</title>
+<meta name="description" content="Objects designed in Autodesk Fusion from a chat: each example is a script, its screenshots, the .f3d archive and exactly what was verified. The first ones mirror the Babook Fusion 360 course.">
+<link rel="stylesheet" href="example.css">
+<style>
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 18px 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; text-decoration: none; color: var(--ink); display: block; }
+.card:hover { border-color: var(--accent); }
+.card .num { font-size: 13px; color: var(--muted); font-weight: 600; }
+.card h3 { margin: 2px 0 6px; font-size: 17px; }
+.card p { margin: 0; font-size: 14px; color: var(--muted); }
+.card .tag { display: inline-block; margin-top: 8px; font-size: 12px; color: var(--ok); }
+.card .tag.todo { color: var(--warn); }
+</style>
+</head>
+<body>
+<main>
+<nav class="crumbs"><a href="../index.html">Fusion 360 BKM</a> / Examples</nav>
+<h1>Examples</h1>
+<p class="lead">Objects designed in Fusion <b>from the chat</b>: for each, the script that builds it, screenshots taken
+from Fusion, the <code>.f3d</code> archive to open, and a page that says exactly what was verified and when. The first
+examples mirror the by-hand <a href="https://babook.co.il/courses/fusion360/">Babook Fusion 360 course</a> (Hebrew):
+watch the lesson, then see the same object as a script.</p>
+
+<div class="cards">
+<div class="card"><span class="num">01 · Babook lesson 2</span><h3>Coin</h3><p>A disc with a rim and raised text: sketch, circle, extrude, emboss.</p><span class="tag todo">to do (next)</span></div>
+<div class="card"><span class="num">02 · Babook lesson 3</span><h3>Tweezers</h3><p>A thin profile, extruded, mirrored, tapered; the thickness as a parameter.</p><span class="tag todo">to do</span></div>
+<div class="card"><span class="num">03 · Babook lesson 4</span><h3>Key</h3><p>A profile with cuts, a pattern of teeth, a hole in the bow, fillets.</p><span class="tag todo">to do</span></div>
+<div class="card"><span class="num">04 · Babook lesson 5</span><h3>Vacuum nozzle</h3><p>Round to rectangle with a loft, shelled, fitted to a real hose.</p><span class="tag todo">to do (needs a loft helper)</span></div>
+<div class="card"><span class="num">05 · Babook lesson 6</span><h3>Mug</h3><p>A revolve, a handle swept along a path, shelled and filleted.</p><span class="tag todo">to do (needs a sweep helper)</span></div>
+<a class="card" href="../templates/parametric_box/README.md"><span class="num">template</span><h3>Parametric box</h3><p>The starting point for your own design: base, lid, standoffs, cutout; eight parameters.</p><span class="tag">built, checked by numbers and by eye</span></a>
+</div>
+
+<h2>How every example is made</h2>
+<ul>
+<li><code>examples/NN_name/design.py</code> builds it from a clean document (<code>python scripts\fusion.py run examples\NN_name\design.py</code>) and ends with a <code>result</code> of bodies, bounding boxes and parameters; <code>media/</code> the screenshots; <code>index.html</code> the page; <code>&lt;name&gt;.f3d</code> the archive.</li>
+<li>Everything goes through <code>scripts/fusion.py</code> and the CopilotBridge add-in running inside Fusion; the helpers in <code>CopilotBridge/bridge_helpers.py</code> take and report millimetres.</li>
+<li>An example is marked verified only after a run whose numbers matched the spec and a screenshot that was looked at; the badge says when and in which Fusion version. Printing is recorded only when a print was made and measured.</li>
+<li>Each example also teaches the repo something: a helper, a reference fact, a gotcha, a skill update. That is written on its page.</li>
+</ul>
+
+<footer>Fusion 360 BKM · designed from a chat through the CopilotBridge add-in · Autodesk Fusion 2706 on Windows 11.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+    "autodeskProduct": "Fusion360",
+    "type": "addin",
+    "id": "a3f1c2d4-7b8e-4f90-9c1a-5d6e7f8a9b0c",
+    "author": "Copilot",
+    "description": {
+        "": "Local HTTP bridge (127.0.0.1:8787) that executes Python inside Fusion 360 so designs can be driven from chat."
+    },
+    "version": "0.1.0",
+    "runOnStartup": true,
+    "supportedOS": "windows|mac",
+    "editEnabled": true
+}

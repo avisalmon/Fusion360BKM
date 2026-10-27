@@ -1,0 +1,18 @@
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["env"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# Design scripts run inside Fusion with the helpers injected into their globals
+# (new_design, add_param, extrude, ...): the names are defined, just not in the file.
+"templates/**/*.py" = ["F821"]
+"examples/**/*.py" = ["F821"]
+"my_designs/**/*.py" = ["F821"]

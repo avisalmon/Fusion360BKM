@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fusion 360 BKM | מתכננים בתלת-מימד עם AI לצידכם</title>
+<meta name="description" content="Fusion 360 מהצ'אט: מתקינים, לומדים לתכנן ביד בקורס של Babook, ואז נותנים ל-AI לתכנן איתכם חלקים, לייצא להדפסה ולבנות דוגמאות. Design in Autodesk Fusion from a chat: set up, learn by hand, then the AI magic and verified examples.">
+<style>
+  :root {
+    --bg: #f7f8fb; --panel: #ffffff; --ink: #17202e; --muted: #556173; --line: #dfe4ec;
+    --accent: #c2410c; --accent-ink: #ffffff; --accent-soft: #fdebe0;
+    --cool: #0a6b8f; --cool-soft: #e2f1f6; --code-bg: #101722; --code-ink: #e6edf5;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 4px 16px rgba(16, 24, 40, .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e131b; --panel: #161d28; --ink: #e9eef5; --muted: #a3afc0; --line: #273142;
+      --accent: #f59e6b; --accent-ink: #2a1206; --accent-soft: #3a2416;
+      --cool: #4cc9d9; --cool-soft: #11303a; --code-bg: #0a0f16; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: "Segoe UI", "Heebo", Arial, sans-serif; font-size: 17px; line-height: 1.7; }
+  .he [lang="en"], .en [lang="he"] { display: none !important; }
+  a { color: var(--cool); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  .top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; }
+  .brand { font-weight: 700; display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; }
+  .brand-dot { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); }
+  .lang-switch { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .lang-switch button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 14px; padding: 4px 14px; cursor: pointer; min-height: 32px; }
+  .lang-switch button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .hero { padding: 56px 0 36px; }
+  .hero h1 { font-size: 42px; line-height: 1.15; margin-bottom: 14px; }
+  .hero p.sub { font-size: 20px; color: var(--muted); max-width: 760px; }
+  .stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 28px 0 8px; }
+  .stage { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); text-decoration: none; color: var(--ink); display: block; }
+  .stage:hover { border-color: var(--accent); }
+  .stage .n { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .04em; }
+  .stage h3 { font-size: 19px; margin: 2px 0 6px; }
+  .stage p { font-size: 15px; color: var(--muted); }
+  section { padding: 44px 0; border-top: 1px solid var(--line); }
+  section h2 { font-size: 30px; line-height: 1.2; margin-bottom: 8px; }
+  section p.sub { color: var(--muted); font-size: 18px; max-width: 800px; margin-bottom: 18px; }
+  .steps { counter-reset: step; list-style: none; display: grid; gap: 12px; margin: 16px 0; }
+  .steps li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px 14px 64px; position: relative; }
+  .he .steps li { padding: 14px 64px 14px 18px; }
+  .steps li::before { counter-increment: step; content: counter(step); position: absolute; top: 14px; left: 18px; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-weight: 700; display: grid; place-items: center; }
+  .he .steps li::before { left: auto; right: 18px; }
+  .steps li b { display: block; font-size: 17px; }
+  .steps li span { color: var(--muted); font-size: 15px; }
+  code, pre { font-family: Consolas, "Cascadia Code", ui-monospace, monospace; font-size: 15px; direction: ltr; unicode-bidi: embed; }
+  code { background: var(--cool-soft); padding: 1px 6px; border-radius: 5px; }
+  pre { background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; border-radius: 10px; overflow-x: auto; text-align: left; }
+  pre code { background: none; padding: 0; color: inherit; }
+  .lessons { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 14px 0; }
+  .lesson { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 15px; text-decoration: none; color: var(--ink); }
+  .lesson:hover { border-color: var(--cool); }
+  .lesson .t { color: var(--muted); font-size: 13px; }
+  .btn { display: inline-block; background: var(--accent); color: var(--accent-ink); padding: 10px 20px; border-radius: 999px; text-decoration: none; font-weight: 700; margin: 6px 6px 6px 0; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .note { background: var(--accent-soft); border-radius: 12px; padding: 14px 18px; margin: 16px 0; font-size: 16px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid var(--line); text-align: start; vertical-align: top; font-size: 15px; }
+  th { background: var(--cool-soft); }
+  footer { padding: 28px 0 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="#"><span class="brand-dot"></span><span>Fusion 360 BKM</span></a>
+  <div class="lang-switch" role="group" aria-label="Language / שפה">
+    <button type="button" data-set-lang="he" aria-pressed="true">עברית</button>
+    <button type="button" data-set-lang="en" aria-pressed="false">English</button>
+  </div>
+</div></header>
+
+<main>
+<div class="hero"><div class="wrap">
+  <h1><span lang="he">מתכננים בתלת-מימד ב-Fusion 360, עם AI לצידכם</span><span lang="en">Design in 3D with Fusion 360, with an AI by your side</span></h1>
+  <p class="sub"><span lang="he">ארבעה שלבים: מתקינים את Fusion, לומדים לתכנן ביד בקורס קצר, ואז נותנים לצ'אט לתכנן איתכם חלקים (ובהמשך גם מעגלים), לבדוק אותם במספרים ובתמונה, ולייצא להדפסה. כל דוגמה בקטלוג נבנתה מהצ'אט ואומרת בדיוק מה נבדק.</span><span lang="en">Four stages: install Fusion, learn to design by hand in a short course, then let the chat design parts with you (circuits later), check them by numbers and by picture, and export for printing. Every example in the catalogue was built from the chat and says exactly what was verified.</span></p>
+  <div class="stages">
+    <a class="stage" href="#setup"><span class="n">1</span><h3><span lang="he">מתקינים</span><span lang="en">Set up</span></h3><p><span lang="he">Fusion, חשבון Autodesk, VS Code והצ'אט. פעם אחת לכל מחשב.</span><span lang="en">Fusion, an Autodesk account, VS Code and the chat. Once per computer.</span></p></a>
+    <a class="stage" href="#learn"><span class="n">2</span><h3><span lang="he">לומדים ביד</span><span lang="en">Learn by hand</span></h3><p><span lang="he">קורס הווידאו של Babook: מטבע, פינצטה, מפתח, פייה, ספל.</span><span lang="en">The Babook video course: a coin, tweezers, a key, a nozzle, a mug.</span></p></a>
+    <a class="stage" href="#ai"><span class="n">3</span><h3><span lang="he">הקסם עם AI</span><span lang="en">The AI magic</span></h3><p><span lang="he">כותבים "תגיד לי מה לעשות" והצ'אט מתכנן, בודק ומייצא.</span><span lang="en">Type "Tell me what to do" and the chat designs, checks and exports.</span></p></a>
+    <a class="stage" href="#examples"><span class="n">4</span><h3><span lang="he">דוגמאות</span><span lang="en">Examples</span></h3><p><span lang="he">אותם חפצים מהקורס, בנויים מהצ'אט, עם סקריפט, תמונות וקובץ.</span><span lang="en">The course's objects built from the chat, with script, pictures and archive.</span></p></a>
+  </div>
+</div></div>
+
+<section id="setup"><div class="wrap">
+  <h2><span lang="he">שלב 1: מתקינים</span><span lang="en">Stage 1: set up</span></h2>
+  <p class="sub"><span lang="he">את זה עושה בן אדם, פעם אחת. כל קליק מפורט ב-<a href="docs/get_started.md">docs/get_started.md</a>.</span><span lang="en">A human does this, once. Every click is in <a href="docs/get_started.md">docs/get_started.md</a>.</span></p>
+  <ol class="steps">
+    <li><b><span lang="he">Autodesk Fusion</span><span lang="en">Autodesk Fusion</span></b><span><span lang="he">מורידים מאתר Autodesk ונכנסים עם חשבון (לשימוש אישי יש רישיון חינמי, בודקים את התנאים באתר). Fusion רץ על Windows ו-macOS בלבד.</span><span lang="en">Download from Autodesk's site and sign in with an account (a personal-use licence is free at the time of writing; check the terms on the site). Fusion runs on Windows and macOS only.</span></span></li>
+    <li><b><span lang="he">VS Code, Git וצ'אט AI</span><span lang="en">VS Code, Git and an AI chat</span></b><span><span lang="he"><a href="https://code.visualstudio.com">VS Code</a>, <a href="https://git-scm.com/downloads">Git</a>, ובתוך VS Code: Claude Code או GitHub Copilot במצב Agent.</span><span lang="en"><a href="https://code.visualstudio.com">VS Code</a>, <a href="https://git-scm.com/downloads">Git</a>, and inside VS Code: Claude Code or GitHub Copilot in Agent mode.</span></span></li>
+    <li><b><span lang="he">משכפלים את המאגר</span><span lang="en">Clone this repo</span></b><span><span lang="he">ב-VS Code: Ctrl+Shift+P, "Git: Clone", מדביקים <code>https://github.com/avisalmon/Fusion360BKM.git</code>, בוחרים תיקייה, Open.</span><span lang="en">In VS Code: Ctrl+Shift+P, "Git: Clone", paste <code>https://github.com/avisalmon/Fusion360BKM.git</code>, pick a folder, Open.</span></span></li>
+    <li><b><span lang="he">הגשר</span><span lang="en">The bridge</span></b><span><span lang="he">בצ'אט כותבים "תגיד לי מה לעשות": הצ'אט מקשר את התוסף CopilotBridge לתוך Fusion, מבקש הפעלה מחדש אחת של Fusion, ובודק שהכול עונה (<code>fusion.py doctor</code>).</span><span lang="en">In the chat, type "Tell me what to do": the chat links the CopilotBridge add-in into Fusion, asks for one restart of Fusion, and checks that everything answers (<code>fusion.py doctor</code>).</span></span></li>
+  </ol>
+  <div class="note"><span lang="he"><b>חשוב לדעת:</b> Fusion חייב להיות פתוח (אפשר ממוזער) כל זמן שעובדים: הצ'אט מדבר עם תוסף שרץ בתוך Fusion עצמו, במחשב שלכם בלבד. חלון דו-שיח פתוח ב-Fusion עוצר הכול עד שסוגרים אותו.</span><span lang="en"><b>Good to know:</b> Fusion must be open (minimised is fine) while you work: the chat talks to an add-in running inside Fusion itself, on your computer only. A dialog left open in Fusion stops everything until it is closed.</span></div>
+</div></section>
+
+<section id="learn"><div class="wrap">
+  <h2><span lang="he">שלב 2: לומדים לתכנן ביד, כמו פעם</span><span lang="en">Stage 2: learn to design by hand, old school</span></h2>
+  <p class="sub"><span lang="he">לפני הקסם כדאי להבין מה קורה בפנים: מה זה סקיצה, אקסטרוד, ריבולב, פרמטר. הקורס של אבי סלמון ב-Babook (בעברית, 7 שיעורי וידאו) בונה חפצים אמיתיים ומכין אותם להדפסה.</span><span lang="en">Before the magic, it pays to know what happens inside: what a sketch, an extrude, a revolve and a parameter are. Avi Salmon's course on Babook (Hebrew, 7 video lessons) builds real objects and prepares them for printing.</span></p>
+  <a class="btn" href="https://babook.co.il/courses/fusion360/"><span lang="he">לקורס ב-Babook</span><span lang="en">The course on Babook</span></a>
+  <div class="lessons">
+    <a class="lesson" href="https://babook.co.il/courses/fusion360/lesson/1/"><span lang="he">1. מבוא לקורס</span><span lang="en">1. Introduction</span> <span class="t">1:25</span></a>
+    <a class="lesson" href="https://babook.co.il/courses/fusion360/lesson/2/"><span lang="he">2. התקנה ויצירת מטבע</span><span lang="en">2. Installation and a coin</span> <span class="t">11:50</span></a>
+    <a class="lesson" href="https://babook.co.il/courses/fusion360/lesson/3/"><span lang="he">3. תכנון פינצטה</span><span lang="en">3. Tweezers</span> <span class="t">16:37</span></a>
+    <a class="lesson" href="https://babook.co.il/courses/fusion360/lesson/4/"><span lang="he">4. תכנון מפתח תלת-מימדי</span><span lang="en">4. A 3D key</span> <span class="t">18:28</span></a>
+    <a class="lesson" href="https://babook.co.il/courses/fusion360/lesson/5/"><span lang="he">5. תכנון פיית שואב אבק</span><span lang="en">5. A vacuum-cleaner nozzle</span> <span class="t">9:19</span></a>
+    <a class="lesson" href="https://babook.co.il/courses/fusion360/lesson/6/"><span lang="he">6. בניית ספל בתלת-מימד</span><span lang="en">6. A mug</span> <span class="t">7:54</span></a>
+    <a class="lesson" href="https://babook.co.il/courses/fusion360/lesson/7/"><span lang="he">7. שיעור סיום</span><span lang="en">7. Closing lesson</span> <span class="t">16:25</span></a>
+  </div>
+  <p><span lang="he">השלב הזה לא חובה: מי שרוצה יכול לקפוץ ישר לקסם, והצ'אט יסביר כל מושג ברגע שהוא נחוץ. אבל מי שעשה את הקורס מבין מה ה-AI עושה, ויודע לבדוק אותו.</span><span lang="en">This stage is optional: skip straight to the magic if you like, and the chat explains each concept when it matters. But someone who did the course understands what the AI does, and can check it.</span></p>
+</div></section>
+
+<section id="ai"><div class="wrap">
+  <h2><span lang="he">שלב 3: הקסם, מתכננים עם AI לצידכם</span><span lang="en">Stage 3: the magic, design with an AI by your side</span></h2>
+  <p class="sub"><span lang="he">פותחים את התיקייה ב-VS Code, כותבים בצ'אט <b>"תגיד לי מה לעשות"</b> (או "Tell me what to do"), והצ'אט:</span><span lang="en">Open the folder in VS Code, type <b>"Tell me what to do"</b> in the chat, and it:</span></p>
+  <ol class="steps">
+    <li><b><span lang="he">בודק ומחבר</span><span lang="en">Checks and connects</span></b><span><span lang="he">האם Fusion מותקן, מקושר, פתוח ועונה; מתקין מה שחסר; מושך את הגרסה החדשה של המדריך בתחילת כל שיחה.</span><span lang="en">Whether Fusion is installed, linked, running and answering; installs what is missing; pulls the newest version of this guide at the start of every session.</span></span></li>
+    <li><b><span lang="he">בונה את התבנית ומראה</span><span lang="en">Builds the template and shows it</span></b><span><span lang="he">קופסה פרמטרית עם מכסה; משנה פרמטר אחד ואתם רואים את כל החלק עוקב אחריו.</span><span lang="en">A parametric box with a lid; changes one parameter and you watch the whole part follow.</span></span></li>
+    <li><b><span lang="he">מתכנן את החלק שלכם</span><span lang="en">Designs your part</span></b><span><span lang="he">במילים, מסקיצה בכתב יד שצילמתם, או מחפץ אמיתי שמדדתם: קודם רשימת מידות במ"מ שמסכימים עליה, ואז סקריפט שנבנה ב-Fusion ונבדק במספרים ובצילום מסך.</span><span lang="en">From words, from a hand-drawn sketch you photographed, or from a real object you measured: first a list of dimensions in mm you agree on, then a script built in Fusion and checked by numbers and by a screenshot.</span></span></li>
+    <li><b><span lang="he">מייצא ומלמד</span><span lang="en">Exports and teaches</span></b><span><span lang="he">STL להדפסה, STEP ו-F3D; מסביר כל מושג ברגע שהוא נחוץ, סוקר את העיצוב לפני ההדפסה, ועוזר להעלות ל-GitHub משלכם.</span><span lang="en">STL for printing, STEP and F3D; explains each concept when it matters, reviews the design before printing, and helps you put it on your own GitHub.</span></span></li>
+  </ol>
+  <pre><code>Tell me what to do
+design a stand for my phone, 72 x 150 x 8 mm, leaning back
+make the wall 3 mm and export it for printing</code></pre>
+  <table>
+    <tr><th><span lang="he">אתם</span><span lang="en">You</span></th><th><span lang="he">הצ'אט</span><span lang="en">The chat</span></th></tr>
+    <tr><td><span lang="he">מתקינים את Fusion ונכנסים לחשבון; סוגרים חלון דו-שיח כשמבקשים; מסתכלים על המסך ועל ההדפסה; מודדים</span><span lang="en">Install Fusion and sign in; close a dialog when asked; look at the screen and the print; measure</span></td><td><span lang="he">כל השאר: הסקריפטים, ההרצה ב-Fusion, הבדיקה במספרים ובתמונה, הייצוא, Git</span><span lang="en">Everything else: the scripts, running them in Fusion, checking numbers and pictures, exports, git</span></td></tr>
+  </table>
+  <p><span lang="he">איך זה עובד מבפנים (זה לא שרת MCP; תוסף קטן בתוך Fusion ושורת פקודה אחת): <a href="docs/architecture.md">docs/architecture.md</a>. כל הדרך: <a href="docs/journey_checklist.md">docs/journey_checklist.md</a>.</span><span lang="en">How it works inside (not an MCP server; a small add-in inside Fusion and one command line): <a href="docs/architecture.md">docs/architecture.md</a>. The whole road: <a href="docs/journey_checklist.md">docs/journey_checklist.md</a>.</span></p>
+</div></section>
+
+<section id="examples"><div class="wrap">
+  <h2><span lang="he">שלב 4: דוגמאות שנבנו מהצ'אט</span><span lang="en">Stage 4: examples built from the chat</span></h2>
+  <p class="sub"><span lang="he">אותם חפצים מהקורס, והלאה: לכל דוגמה הסקריפט, צילומי מסך מ-Fusion, קובץ ה-.f3d לפתיחה, ודף שאומר בדיוק מה נבדק ומתי, ומה הדוגמה לימדה את המדריך הזה.</span><span lang="en">The course's objects and more: for each, the script, screenshots from Fusion, the .f3d archive to open, and a page that says exactly what was verified and when, and what the example taught this guide.</span></p>
+  <a class="btn" href="examples/index.html"><span lang="he">לקטלוג הדוגמאות</span><span lang="en">The examples catalogue</span></a>
+  <a class="btn ghost" href="templates/parametric_box/README.md"><span lang="he">התבנית: קופסה פרמטרית</span><span lang="en">The template: a parametric box</span></a>
+  <p><span lang="he">הקטלוג מתחיל ריק ומתמלא דוגמה אחת בכל פעם: מטבע, פינצטה, מפתח, פיית שואב אבק, ספל; אחר כך קופסה ללוח אלקטרוני אמיתי, ובהמשך מעגלים ב-Electronics workspace של Fusion (עדיין לא נבדק, ואנחנו אומרים זאת).</span><span lang="en">The catalogue starts empty and fills one example at a time: a coin, tweezers, a key, a vacuum nozzle, a mug; then an enclosure for a real circuit board, and later circuits in Fusion's Electronics workspace (not verified yet, and we say so).</span></p>
+</div></section>
+
+<footer><div class="wrap">
+  <span lang="he">Fusion 360 BKM · אבי סלמון · רישיון MIT · נבדק על Windows 11 עם Autodesk Fusion 2706 · <a href="https://github.com/avisalmon/Fusion360BKM">github.com/avisalmon/Fusion360BKM</a></span>
+  <span lang="en">Fusion 360 BKM · Avi Salmon · MIT licence · verified on Windows 11 with Autodesk Fusion 2706 · <a href="https://github.com/avisalmon/Fusion360BKM">github.com/avisalmon/Fusion360BKM</a></span>
+</div></footer>
+</main>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var buttons = document.querySelectorAll("[data-set-lang]");
+    function setLang(lang, remember) {
+      root.classList.remove("he", "en");
+      root.classList.add(lang);
+      root.setAttribute("lang", lang);
+      root.setAttribute("dir", lang === "he" ? "rtl" : "ltr");
+      buttons.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-set-lang") === lang ? "true" : "false"); });
+      if (remember) { try { localStorage.setItem("fusion-lang", lang); } catch (e) {} }
+    }
+    var wanted = null;
+    try { wanted = localStorage.getItem("fusion-lang"); } catch (e) {}
+    setLang(wanted || "he", false);
+    buttons.forEach(function (b) {
+      b.addEventListener("click", function () { setLang(b.getAttribute("data-set-lang"), true); });
+    });
+  })();
+</script>
+</body>
+</html>
