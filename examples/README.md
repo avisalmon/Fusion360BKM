@@ -3,7 +3,8 @@
 Every example is an object designed **from the chat** through the bridge, verified, and written up so you can
 rebuild it, open it, and see exactly what was checked. The first ones mirror Avi Salmon's by-hand Fusion 360 course
 on Babook (stage 2, Hebrew video lessons: https://babook.co.il/courses/fusion360/): watch the lesson, then see the
-same object as a script. Pages with pictures: [examples/index.html](index.html) (also on GitHub Pages).
+same object as a script; from 06 on, the owner's own briefs (a paper note first). Pages with pictures:
+[examples/index.html](index.html) (also on GitHub Pages).
 
 Each example has the same shape (checked by `tests/test_examples.py`):
 
@@ -29,7 +30,8 @@ spec, and the screenshot was looked at; the page says when, in which Fusion vers
 | 03 | `03_key` | Babook lesson 4 | a profile with cuts, a pattern of teeth, a hole in the bow, fillets | to do |
 | 04 | `04_vacuum_nozzle` | Babook lesson 5 | round to rectangle: `loft` (helper to write), shell, a fit on a real hose diameter | to do |
 | 05 | `05_mug` | Babook lesson 6 | revolve, a handle by `sweep` along a path (helper to write), shell, fillets | to do |
-| | *then the owner's ideas: an enclosure for a real board, a phone stand, a part from a hand-drawn sketch* | | | |
+| 06 | [`06_sketched_box`](06_sketched_box/README.md) a tray from the owner's paper note: 100 x 80 x 27 mm, 2 mm walls, four 6 mm floor holes | none (the owner's brief; the first `sketch-to-design` run) | reading a hand drawing in order, gaps as one question each, `shell`, holes cut from the underside, numeric vs parametric helpers, the archive re-opened | **built 2026-10-27**, checked by numbers and by eye against the drawing; not printed |
+| | *then the owner's ideas: an enclosure for a real board, a phone stand, more paper notes* | | | |
 
 The starting point for your own design is not an example but the template:
 [templates/parametric_box](../templates/parametric_box/README.md) (built, checked by numbers and by eye;

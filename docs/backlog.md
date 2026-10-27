@@ -24,8 +24,8 @@
 | `03_key` (lesson 4): bow, shaft, bitting | cuts from a side plane, pattern | TODO |
 | `04_vacuum_nozzle` (lesson 5): round to rectangular | a `loft` helper | TODO |
 | `05_mug` (lesson 6): body, handle | `revolve`, a `sweep` helper | TODO |
-| `06_sketched_box`: the owner's paper sketch, 100 x 80 x 27 mm, 2 mm walls, 4 holes 6 mm (brief received 2026-10-27, kept in `my_designs/sketched_box/`) | `shell`, `hole_at`, `pattern_rect`; the first real run of `sketch-to-design` | WIP (spec to agree) |
-| Then: a board enclosure, a phone stand | | IDEA |
+| `06_sketched_box`: the owner's paper sketch, 100 x 80 x 27 mm, 2 mm walls, 4 holes 6 mm ([examples/06_sketched_box](../examples/06_sketched_box/README.md)) | `shell`, circles cut from the underside; the first real run of `sketch-to-design` | DONE (2026-10-27: built first run, numbers and eye matched the drawing, archive re-opened; not printed) |
+| Then: a board enclosure, a phone stand, more paper notes | | IDEA |
 
 ## Epic 2 - Helpers the examples will need
 
@@ -34,6 +34,7 @@
 | `loft(profiles)` | TODO |
 | `sweep(profile, path)` | TODO |
 | `text(sk, string, height_mm, ...)` + emboss/engrave | DONE (2026-10-27, probed for `01_coin`) |
+| A parametric `pcircle(sk, d, cx, cy)` (dimensioned + constrained like `prect`), so holes follow the parameters after the build; `06_sketched_box` computes them with `eval_mm` instead | TODO |
 | Threads (`threadFeatures`) | IDEA |
 | Angled and offset construction planes | IDEA |
 | Joints between components | IDEA |
@@ -55,7 +56,7 @@
 | A thin MCP wrapper over the HTTP bridge (same calls, no new Fusion code) | IDEA |
 | macOS: `install` as a symlink, `launch`, `dialog` | IDEA |
 | A first print of an example, measured, recorded in its README | IDEA |
-| Hand-drawn sketch examples (photo in `media/brief.jpg`, read back, built) | WIP (first brief received 2026-10-27, Epic 1) |
+| Hand-drawn sketch examples (photo in `media/brief.jpg`, read back, built) | DONE once (2026-10-27, `06_sketched_box`); more briefs welcome |
 
 ## Your designs
 

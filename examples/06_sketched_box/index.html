@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Sketched box: from a paper note to an object | Fusion 360 BKM</title>
+<meta name="description" content="A hand-drawn box photographed on paper, read back in the chat, agreed as a spec, built in Autodesk Fusion through the CopilotBridge add-in and verified by numbers and by eye. The first sketch-to-design example of the Fusion 360 BKM.">
+<link rel="stylesheet" href="../example.css">
+<style>
+.hero { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+.hero img { display: block; width: 100%; height: auto; border-radius: 6px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 12px 0; }
+.two figure { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+.two img { display: block; width: 100%; height: auto; border-radius: 6px; }
+figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+ol.steps li { margin: 6px 0; }
+</style>
+</head>
+<body>
+<main>
+<nav class="crumbs"><a href="../../index.html">Fusion 360 BKM</a> / <a href="../index.html">Examples</a> / 06 · Sketched box</nav>
+<h1>06 · Sketched box: from a paper note to an object</h1>
+<p class="lead">The owner drew a box on paper, photographed it with a phone and dropped the photo into the chat with one
+line: <i>"The next example is read from paper sketch and design."</i> In the same chat session the tray existed in
+Fusion, checked by numbers and by eye, with its archive exported. Nothing was typed into Fusion by a human.</p>
+
+<div class="badges">
+<span class="badge ok">Built in Fusion 2706.1.14 on 2026-10-27, through the bridge, first run</span>
+<span class="badge ok">Checked by numbers: bounding box, volume, face count</span>
+<span class="badge ok">Checked by eye against the drawing: same view, same hidden-line pattern</span>
+<span class="badge ok">Archive re-opened once</span>
+<span class="badge">Not printed yet</span>
+</div>
+
+<div class="hero"><img src="media/paper_to_object.png" alt="Left: the hand-drawn box on paper with 100 mm, 80 mm, 27 mm, 2mm thick and 4 holes 6 mm written on it. Right: the same tray rendered in Fusion from the same isometric angle."></div>
+
+<div class="downloads">
+<a class="btn" href="sketched_box.f3d">Download sketched_box.f3d</a>
+<a class="btn alt" href="design.py">design.py</a>
+<a class="btn alt" href="README.md">README (the spec and the evidence)</a>
+</div>
+<p>Rebuild it yourself with Fusion running and the bridge installed:
+<code>python scripts\fusion.py run examples\06_sketched_box\design.py</code>. STL and STEP:
+<code>python scripts\fusion.py export sketched_box</code>.</p>
+
+<h2>1. The paper note: what was read</h2>
+<p>The photo was taken with the paper turned 90 degrees, so the first act was to rotate it upright
+(<code>media/brief.jpg</code>). Then, following the <code>sketch-to-design</code> skill, read it <b>in order</b>: the view and
+which way is up; every number and the edge it belongs to; the shapes; and what is not there.</p>
+<div class="tablewrap"><table>
+<tr><th>Written on it</th><th>Belongs to</th></tr>
+<tr><td><code>100 mm</code></td><td>the long lower edge</td></tr>
+<tr><td><code>80 mm</code></td><td>the short edge receding to the right</td></tr>
+<tr><td><code>27 mm</code></td><td>the vertical edge: height</td></tr>
+<tr><td><code>2mm thick</code></td><td>an arrow at the top rim: wall (and floor) thickness</td></tr>
+<tr><td><code>4 holes 6 mm</code></td><td>an arrow at a dashed circle; three dashed circles and one solid one are drawn</td></tr>
+</table></div>
+<p><b>Not on it:</b> whether the top is open (the inner lines suggested it), where the four holes are (the dashed circles sit
+low on the walls, where a floor hole shows through a wall in an isometric view: hidden lines) and how far from the edges,
+and whether the corners are rounded. Each gap became one question; none was filled silently.</p>
+
+<h2>2. The spec: agreed in the chat before any code</h2>
+<ol class="steps">
+<li><b>Open-top tray, four holes in the floor near the corners</b> (recommended) · or a closed box with holes in the top · or holes in the side walls → the owner chose the recommendation.</li>
+<li><b>Hole centres 10 mm from the outer edges</b> (recommended; the sketch gives no number, so it is marked GUESS) · or 8 mm · or centred on the inner floor corners → 10 mm.</li>
+<li><b>Spec v1 OK:</b> outer 100 × 80 × 27 mm, open top, 2 mm walls and floor, 4 × Ø6 through-holes in the floor at 10 mm from the edges, sharp corners → "build it".</li>
+</ol>
+<div class="tablewrap"><table>
+<tr><th>Parameter</th><th>Value</th><th>From</th></tr>
+<tr><td><code>length</code></td><td>100 mm</td><td>the sketch</td></tr>
+<tr><td><code>width</code></td><td>80 mm</td><td>the sketch</td></tr>
+<tr><td><code>height</code></td><td>27 mm</td><td>the sketch</td></tr>
+<tr><td><code>wall</code></td><td>2 mm</td><td>the sketch ("2mm thick")</td></tr>
+<tr><td><code>hole_d</code></td><td>6 mm</td><td>the sketch ("4 holes 6 mm")</td></tr>
+<tr><td><code>hole_inset</code></td><td>10 mm</td><td>GUESS, confirmed in chat</td></tr>
+</table></div>
+<p>Up: the floor lies on XY at z = 0; the open top faces +Z.</p>
+
+<h2>3. The script, step by step</h2>
+<pre><code>d, r = new_design("SketchedBox")
+
+add_param("length", "100 mm", "mm", "outer length (the 100 on the sketch)")
+add_param("width", "80 mm", "mm", "outer width (the 80)")
+add_param("height", "27 mm", "mm", "outer height (the 27)")
+add_param("wall", "2 mm", "mm", "wall and floor thickness ('2mm thick')")
+add_param("hole_d", "6 mm", "mm", "hole diameter ('4 holes 6 mm')")
+add_param("hole_inset", "10 mm", "mm", "hole centre to outer edge (GUESS: not on the sketch)")
+
+sk = sketch_on("xy", name="outline")            # 1. the footprint, centred on the origin
+prect(sk, "length", "width")                     #    a fully constrained, parametric rectangle
+tray = extrude(sk, "height", "new").bodies.item(0)   # 2. up by `height`
+tray.name = "Tray"
+shell(tray, top_face(tray), "wall")             # 3. open the top, leave `wall` everywhere
+
+hx = eval_mm("length/2 - hole_inset")            # 4. hole centres computed from the parameters
+hy = eval_mm("width/2 - hole_inset")
+sk2 = sketch_on("xy", name="floor holes")        #    sketched on the underside (z = 0) ...
+for sx in (-1, 1):
+    for sy in (-1, 1):
+        circle(sk2, sx * hx, sy * hy, eval_mm("hole_d"))
+extrude(sk2, "wall", "cut", toward=(0, 0, 1))    # 5. ... and cut upward through the floor
+
+fit()
+result = {"doc": active_doc_name(), "bodies": body_info(), "params": params()}</code></pre>
+<p>Five features, in the order a person would do them by hand. The rectangle, the extrude and the shell stay linked to the
+parameters: change <code>height</code> in <i>Modify › Change Parameters</i> and the tray grows. The hole positions are numbers
+computed from the parameters when the script runs, because <code>circle()</code> is a numeric helper (see below). The script
+ends with <code>result</code>, so a run prints the evidence itself.</p>
+
+<h2>What you will see</h2>
+<div class="two">
+<figure><img src="media/iso.png" alt="Isometric view of the tray in Fusion: one floor hole visible at the far corner, three shown as hidden edges through the near walls."><figcaption><b>Isometric</b>, the drawing's view. One hole visible at the far corner; the other three are behind the near walls and Fusion draws them as hidden edges: the drawing's one solid and three dashed circles.</figcaption></figure>
+<figure><img src="media/top.png" alt="Top view of the tray: a 2 mm rim and four holes 10 mm in from the corners."><figcaption><b>Top.</b> The 2 mm rim and the four Ø6 holes, 10 mm in from the outer edges.</figcaption></figure>
+<figure><img src="media/bottom.png" alt="Bottom view of the tray: four through-holes in the floor."><figcaption><b>Bottom.</b> The holes go through the floor; nothing else on the underside.</figcaption></figure>
+<figure><img src="media/brief.jpg" alt="The owner's hand-drawn sketch, rotated upright."><figcaption><b>The brief</b> as it arrived (rotated upright). Kept with the example so the pair sketch-plus-result can teach.</figcaption></figure>
+</div>
+
+<h2>What was verified</h2>
+<p>Fusion 2706.1.14, Windows 11, 2026-10-27. Every row has its number or its picture.</p>
+<div class="tablewrap"><table>
+<tr><th>Check</th><th>Expected from the spec</th><th><code>result</code> / seen</th></tr>
+<tr><td>bounding box</td><td>x −50..50, y −40..40, z 0..27 mm</td><td><code>[-50, -40, 0]</code> .. <code>[50, 40, 27]</code></td></tr>
+<tr><td>volume</td><td>216 − 182.4 (cavity 96 × 76 × 25) − 0.226 (four holes) = 33.374 cm³</td><td><code>33.3738</code> cm³</td></tr>
+<tr><td>faces</td><td>11 for an open shelled box + 4 hole cylinders = 15</td><td><code>15</code>: a hole that stopped short would add a floor face each</td></tr>
+<tr><td>parameters</td><td>six, word names</td><td><code>length, width, height, wall, hole_d, hole_inset</code></td></tr>
+<tr><td>by eye, isometric</td><td>the drawing's view and orientation; one hole visible, three hidden</td><td><code>media/iso.png</code>: 100 along the lower edge as drawn; one hole visible, three as hidden edges</td></tr>
+<tr><td>by eye, top and bottom</td><td>four holes 10 mm in from the corners, 2 mm rim</td><td><code>media/top.png</code>, <code>media/bottom.png</code></td></tr>
+<tr><td>archive</td><td><code>sketched_box.f3d</code> re-opens with the same body and parameters</td><td>re-imported with <code>importManager</code>: <code>33.3738</code> cm³, 15 faces, 6 parameters, 5 timeline features; then closed</td></tr>
+<tr><td>printed</td><td>—</td><td>not yet: nobody has printed this one</td></tr>
+</table></div>
+
+<h2>What it taught this blueprint</h2>
+<ul>
+<li><b>Reading a photo of a sketch works when you read it in order</b>: view and up-direction, every number with its edge,
+shapes, then the gaps; each gap becomes one question with a recommended answer. The owner's three answers took under a minute.
+Recorded in the <code>sketch-to-design</code> skill, whose status no longer says "not practised yet".</li>
+<li><b>Dashed circles on a hand drawing are hidden lines.</b> The three dashed holes sat low on the walls, exactly where a floor
+hole shows through a wall in an isometric view, and Fusion's own isometric reproduced the pattern. Trust the drafting convention
+before guessing "holes in the walls".</li>
+<li><b>Numeric versus parametric helpers.</b> <code>circle()</code>, <code>hole_at()</code> and <code>pattern_rect()</code> take
+numbers; <code>prect()</code>, <code>extrude()</code> and <code>shell()</code> take expressions. A fully parametric design needs a
+parametric circle (backlog, Epic 2); until then <code>eval_mm("length/2 - hole_inset")</code> makes the numbers follow the
+parameters at build time.</li>
+<li><b>Cut holes from the underside.</b> A sketch on the XY plane at z = 0 plus <code>extrude(..., "wall", "cut", toward=(0, 0, 1))</code>
+avoids sketching on a face, whose sketch axes may not be the model's; the face count proves the cut went through.</li>
+<li><b>Gotcha 16:</b> in a script run through the bridge, the helpers' private names are not there (<code>_app</code> raised
+<code>NameError</code>); use <code>app</code>, <code>design()</code>, <code>root()</code> as the skills show.</li>
+<li><b>Fusion's own camera makes the eye check honest</b>: <code>ViewOrientations.IsoTopRightViewOrientation</code>, Top and Bottom
+(the <code>fusion-files</code> recipe) gave the drawing's view and two more without a human touching the mouse.</li>
+</ul>
+
+<p class="note">The Babook course (<a href="https://babook.co.il/courses/fusion360/">babook.co.il/courses/fusion360</a>, Hebrew) teaches sketch,
+extrude and shell by hand in lessons 2 and 5. This example is not one of its objects; it uses the same three operations from a
+script, starting from a drawing instead of a lesson plan. Examples 01 to 05 remain reserved for the course's objects.</p>
+
+<footer>Fusion 360 BKM · designed from a chat through the CopilotBridge add-in · Autodesk Fusion 2706 on Windows 11.</footer>
+</main>
+</body>
+</html>

@@ -40,8 +40,13 @@ FORBIDDEN_NAMES = [
         "an output folder (exports/ is rewritten by every export; bridge/ is the live port file)",
     ),
     (
-        re.compile(r"\.(stl|step|stp|f3d|f3z|3mf|obj|iges|igs|sat|smt)$", re.I),
+        re.compile(r"\.(stl|step|stp|f3z|3mf|obj|iges|igs|sat|smt)$", re.I),
         "a CAD export (the design script regenerates it; share it as a GitHub Release)",
+    ),
+    (
+        # the one CAD file git carries: an example's own archive (examples/NN_name/<name>.f3d)
+        re.compile(r"^(?!examples/[^/]+/[^/]+\.f3d$).*\.f3d$", re.I),
+        "a CAD export (only an example's own .f3d is committed; share others as a GitHub Release)",
     ),
 ]
 SELF_EXEMPT = {"scripts/secret_patterns.py", "scripts/check_staged_secrets.py"}

@@ -84,7 +84,7 @@ design(); root(); active_doc_name(); close_doc(save=False, doc=None); close_all_
 new_design(name=None, parametric=True); clear_design(); new_component(name, parent=None)
 sketch_on(plane='xy', comp=None, name=None, offset_mm=0.0)        plane: 'xy' | 'xz' | 'yz' | a face | a construction plane
 rect(sk, x0, y0, x1, y1); prect(sk, width, height, cx=0.0, cy=0.0)  prect: dimensioned + constrained; width/height may be expressions
-eval_mm(x); circle(sk, cx, cy, d); polygon(sk, cx, cy, sides, circumradius_mm, rotation_deg=0.0)
+eval_mm(x); circle(sk, cx, cy, d); polygon(sk, cx, cy, sides, circumradius_mm, rotation_deg=0.0)   circle/polygon/hole_at/pattern_rect are numeric: eval_mm('length/2 - inset') turns an expression into the number
 text(sk, string, height_mm, cx=0.0, cy=0.0, width_mm=None, font=None, bold=False)   returns a SketchText; extrude() takes it directly (text has no profiles)
 mpt(sk, x, y, z); mrect(sk, p0, p1); mcircle(sk, center, d)         model-coordinate sketching (no axis guessing)
 sketch_normal(sk)

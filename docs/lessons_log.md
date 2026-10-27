@@ -6,6 +6,28 @@ assumption against a running Fusion and finding it was not quite true.
 
 ## 2026-10-27
 
+- **A paper note became an object, and the drawing's dashes were the clue.** The first hand-drawn sketch through
+  `sketch-to-design` ([examples/06_sketched_box](../examples/06_sketched_box/README.md)): rotate the phone photo
+  upright, read it in order (view, every number with its edge, shapes, gaps), ask each gap as one question with a
+  recommended answer, then build. The three dashed circles were hidden lines of floor holes seen through the walls,
+  and Fusion's own isometric showed the same one-visible-three-hidden pattern afterwards. Built in one run; volume,
+  bounding box and face count matched the spec. [sketch-to-design](../.claude/skills/sketch-to-design/SKILL.md)
+- **Numeric helpers next to parametric ones.** `prect`, `extrude`, `shell` take expressions and stay linked;
+  `circle`, `hole_at`, `pattern_rect` take numbers. `eval_mm("length/2 - hole_inset")` makes the numbers follow the
+  parameters at build time; a parametric `pcircle` is now in the backlog. Cutting holes from the underside
+  (`sketch_on("xy")`, `extrude(..., "wall", "cut", toward=(0, 0, 1))`) avoids face-sketch axis surprises, and the face
+  count (15, not 19) proved the cut went through. [fusion_reference.md](fusion_reference.md)
+- **Scripts run through the bridge see the helpers' public names only.** `_app` raised `NameError`; `app`,
+  `design()`, `root()` are the names to use, as every skill recipe writes them (gotcha 16).
+  [gotchas.md](procedures/gotchas.md)
+- **Prove the archive by re-opening it.** `export_f3d` returned `True`, but the proof was `importManager.
+  importToNewDocument(createFusionArchiveImportOptions(path))` and reading back the same volume, 6 parameters and 5
+  timeline features, then `close_doc()`. The example page says "re-opened once" because it was.
+  [fusion-files](../.claude/skills/fusion-files/SKILL.md)
+- **The commit hook contradicted the example contract.** `check_staged_secrets.py` blocked every `.f3d`, while
+  `tests/test_examples.py` requires one per example and `.gitignore` un-ignores exactly `examples/**/*.f3d`. The first
+  real example found it; the hook now allows `examples/NN_name/<name>.f3d` and nothing else, with a test that says so.
+  [check_staged_secrets.py](../scripts/check_staged_secrets.py)
 - **Text is not a profile.** `sketchTexts` adds no profile to a sketch, and a sketch on a face already holds the
   face's outline as one, so `extrude(sketch)` would have raised the whole disc. The rule, now in the `text()` helper's
   docstring: extrude the `SketchText` itself. Probed on a Ø30 coin before the helper was written; `font=` and `bold=`

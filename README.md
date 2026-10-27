@@ -3,7 +3,7 @@
 ### Learn Fusion 360 by hand, then design parts (and later circuits) by talking to an AI that drives Fusion for you.
 
 <!-- last-updated:start -->
-**Last updated 27 October 2026** · 13 new lessons · [See what's new](docs/lessons_log.md)
+**Last updated 27 October 2026** · 18 new lessons · [See what's new](docs/lessons_log.md)
 <!-- last-updated:end -->
 
 **Start page (Hebrew / English): https://avisalmon.github.io/Fusion360BKM/**
@@ -38,7 +38,8 @@ Open the repo in VS Code with **Claude Code** or **GitHub Copilot** (Agent mode)
 3. **The AI magic** (this repo): in the chat, type `Tell me what to do` / `תגיד לי מה לעשות`. The whole road is
    [docs/journey_checklist.md](docs/journey_checklist.md).
 4. **Examples**: [examples/](examples/README.md) mirrors the course's objects as scripts, each with its `.f3d`, pictures,
-   what was verified, and what it taught this guide. Being built now, one at a time.
+   what was verified, and what it taught this guide. First one built:
+   [a box from a paper note](examples/06_sketched_box/README.md) (hand-drawn, photographed, read back, built, verified).
 
 ## What's in the box
 
@@ -54,7 +55,8 @@ CopilotBridge/             The Fusion add-in: HTTP server + helpers in millimetr
 scripts/fusion.py          One tool: doctor | install | launch | ping | new | run | exec | info | shot | export | dialog
 scripts/fusion_dialog.ps1  Reads and clicks Fusion's modal dialogs when they block the bridge
 templates/parametric_box/  A known-good start: a shelled box with a lid, eight parameters, verified
-examples/                  The course's objects as scripts (coin, tweezers, key, nozzle, mug), with evidence
+examples/                  Objects built from the chat, with evidence: 06_sketched_box (from a paper note);
+                           the course's coin, tweezers, key, nozzle and mug are the next slots
 my_designs/                YOUR work (git-ignored, so updates never touch it)
 exports/                   STL / STEP / F3D / PNG output (git-ignored)
 docs/                      Setup, the journey, architecture, the Fusion reference, procedures, gotchas, what's new
@@ -87,10 +89,11 @@ Fusion blocks everything until somebody clicks it; `fusion.py dialog` can. Detai
 Tested on Windows 11 with Fusion 2706.1.14: `doctor`, `install` (as a junction), `launch` (a cold start, bridge up
 in 35 s), `ping`, the template built through the bridge with its measurements read back and its screenshot
 described, exports (STL, STEP, F3D), opening `.f3d` / STEP / STL, editing an opened design's timeline, and clearing
-the update and *Active Sessions* dialogs. The repo checks itself (126 tests, ruff, skills in sync) and CI was green
-on the first push; the start page is served at the Pages URL above. Not yet: the examples (five planned),
-electronics, a printed part, a fresh clone on another computer, GitHub Copilot end to end, macOS. See
-[docs/blueprint_roadmap.md](docs/blueprint_roadmap.md) and [docs/backlog.md](docs/backlog.md).
+the update and *Active Sessions* dialogs. The first example is real: a hand-drawn paper note became a verified tray
+in one run ([examples/06_sketched_box](examples/06_sketched_box/README.md)). The repo checks itself (ruff, tests,
+skills in sync) and CI has been green on every push; the start page is served at the Pages URL above. Not yet: the
+course's five examples, electronics, a printed part, a fresh clone on another computer, GitHub Copilot end to end,
+macOS. See [docs/blueprint_roadmap.md](docs/blueprint_roadmap.md) and [docs/backlog.md](docs/backlog.md).
 
 ## License
 

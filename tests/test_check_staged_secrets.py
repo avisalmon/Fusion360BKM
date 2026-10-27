@@ -45,6 +45,19 @@ def test_the_example_env_file_is_allowed():
     assert guard.check_files({".env.example": b"FUSION_PORT=8787\n"}) == []
 
 
+def test_an_examples_own_archive_is_the_one_cad_file_allowed():
+    """The example contract (tests/test_examples.py) requires examples/NN_name/<name>.f3d, and
+    .gitignore un-ignores exactly that; the hook must agree, and still block every other .f3d."""
+    assert guard.check_files({"examples/06_sketched_box/sketched_box.f3d": b"\0PK"}) == []
+    for name in (
+        "exports/sketched_box.f3d",
+        "my_designs/x/x.f3d",
+        "examples/stray.f3d",
+        "examples/06_sketched_box/media/old.f3d",
+    ):
+        assert guard.check_files({name: b""}), name
+
+
 def test_binary_files_are_not_scanned_as_text():
     assert guard.check_files({"photo.png": b"\x89PNG\0\0" + FAKE_KEY.encode()}) == []
 

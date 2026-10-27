@@ -31,6 +31,11 @@ how.
   run on Ubuntu / Python 3.12 passed all four steps (gitleaks "no leaks found", `ruff check` + `format --check`,
   `pytest` 126 passed / 4 skipped, `sync_skills.py --check` in sync). GitHub Pages enabled from `main` / root;
   `https://avisalmon.github.io/Fusion360BKM/` answered HTTP 200 with the Hebrew title, and `examples/` too.
+* **A hand-drawn sketch, read back and built** (27 October 2026, [examples/06_sketched_box](../examples/06_sketched_box/README.md)):
+  the owner's phone photo of a paper drawing (100 × 80 × 27 mm, "2mm thick", "4 holes 6 mm") was rotated upright,
+  read back in order, its gaps asked as three one-at-a-time questions, and built in one run; bounding box, volume
+  (33.3738 cm³) and face count matched the spec, Fusion's isometric showed the drawing's one visible and three
+  hidden holes, and the `.f3d` re-opened with the same body and parameters.
 * **Every fact in [fusion_reference.md](fusion_reference.md)** carries `[verified]`, `[community]` or
   `[unverified]`, and the helper signatures were read from the code.
 
@@ -46,8 +51,6 @@ first person to do each should record the evidence here and in the relevant READ
 - [ ] **The start page in a browser**: the language switch and whether the choice is remembered (only the served
       HTML and its Hebrew default were checked, with `Invoke-WebRequest`)
 - [ ] **A printed part**: an export of this blueprint sliced, printed and measured against its spec
-- [ ] **A hand-drawn sketch** read back and turned into a design (the `sketch-to-design` skill, written from the
-      design-flow logic; no photo has been through it yet)
 - [ ] **The Babook course links** (`/lesson/1/` … `/lesson/7/`): the course page was read; the lesson pages were not
       opened one by one
 - [ ] **`pre-commit install`** and the local `no-secrets` hook on a newcomer's computer
@@ -57,7 +60,8 @@ first person to do each should record the evidence here and in the relevant READ
 
 ## Not covered yet
 
-* **Examples**: the catalogue has five slots mirroring the Babook course and none is built
+* **Examples**: the catalogue has five slots mirroring the Babook course and none is built; the first built example
+  is the owner's paper note (`06_sketched_box`)
   ([backlog.md](backlog.md) Epic 1). Each needs at least one new helper (text/emboss, loft, sweep).
 * **Helpers**: loft, sweep, text and emboss, threads, angled construction planes, joints, sections
   ([backlog.md](backlog.md) Epic 2). Until then a script that needs them calls `adsk` directly through `exec`, and

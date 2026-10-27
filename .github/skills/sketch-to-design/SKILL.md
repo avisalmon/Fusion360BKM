@@ -20,9 +20,12 @@ features that both of you agree on. The spec is what `result` and the screenshot
 ([design-with-fusion](../design-with-fusion/SKILL.md), Phase 2 and Phase 5); the method is written up in
 [docs/procedures/design_flow.md](../../../docs/procedures/design_flow.md).
 
-**Status (be honest with the owner):** the words-to-spec-to-script path has been used for the template; reading a
-**hand-drawn sketch or photo** has not been practised in this blueprint yet. It is the next item in the practice
-series ([docs/backlog.md](../../../docs/backlog.md)). Do it, then record what worked and what did not here.
+**Status (be honest with the owner):** the words-to-spec-to-script path has been used for the template, and the
+**hand-drawn sketch** path has been through once for real: [examples/06_sketched_box](../../../examples/06_sketched_box/README.md)
+(27 October 2026; a phone photo of a paper drawing, built in one run, numbers and picture matched). What worked there,
+now in section 1: rotate the photo upright first; read in order; treat dashed circles as hidden lines; one question
+per gap, each with a recommended answer. Not practised yet: a photo of a real object with a ruler, and a multi-view
+(top + side) drawing. Do those, then record what worked and what did not here.
 
 ## 1. Read the input
 
@@ -37,6 +40,20 @@ adjustable later. Repeat the object back in one sentence before anything else.
 3. the shapes (rectangle, circle, slot, rounded corner) and how they relate (centred? flush? offset by...);
 4. what is **not** on it: a missing thickness, an unspecified radius, a hole with no size.
 Never silently fill a gap: every value you did not read is a **guess** marked as such in the spec.
+
+What the first real sketch taught (`06_sketched_box`, 2026-10-27):
+* **Rotate the photo upright before reading it.** Phone photos arrive turned; a quick `System.Drawing`
+  `RotateFlip` (or any image tool) to a copy in `exports/`, then view the copy. Reading numbers sideways invites
+  mistakes, and the upright copy becomes `media/brief.jpg`.
+* **Dashed circles and dashed lines are hidden lines**, the drafting convention: a floor hole seen through a wall
+  in an isometric view. Three dashed + one solid circle meant four floor holes with one in view, not holes in the
+  walls. Fusion's own isometric reproduced the pattern afterwards, which is the eye check.
+* **Each gap is one `ask_user` question with a recommended first answer** (open or closed top; hole inset; then
+  "spec v1 OK?" with the whole spec in the question). Three questions, under a minute, no back-and-forth.
+* **Say which edge each number belongs to** in the read-back table ("100 mm: the long lower edge"); it is where
+  a misread would show, and the owner can correct it in one word.
+* Keep the brief with the design: `my_designs/<name>/media/brief.jpg` while it is being built, then next to the
+  example, so the sketch-plus-result pair can teach ([examples/06_sketched_box](../../../examples/06_sketched_box/README.md)).
 
 **A photo of a real object.** Ask for a ruler or a known object in the frame; otherwise only proportions are
 readable. Ask for the key measurements with calipers (one at a time: "the outer width, please"). Perspective
