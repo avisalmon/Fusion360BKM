@@ -6,6 +6,11 @@ assumption against a running Fusion and finding it was not quite true.
 
 ## 2026-10-27
 
+- **CI was green on the first push because it runs nothing new.** The four commands in `ci.yml` are the same four
+  run here before committing (`ruff check`, `ruff format --check`, `pytest -q`, `sync_skills.py --check`), on the
+  same Python. The one difference, gitleaks over the whole history, is approximated locally by the staged-secrets
+  check.
+  [ci.yml](../.github/workflows/ci.yml) · [publish-to-github](../.claude/skills/publish-to-github/SKILL.md)
 - **`ruff format` reaches into Markdown.** Ruff 0.17 formats the Python code blocks inside `.md` files too, and it
   turns single quotes into double. That silently changed the template, and `fusion.py new` matched
   `new_design('ParametricBox')` with single quotes only: the rename would have stopped working without an error. The

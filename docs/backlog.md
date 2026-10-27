@@ -12,8 +12,8 @@
 | The template builds through the bridge and the screenshot is read | DONE (2026-10-26) |
 | Fusion restarted after the folder move; the add-in loads from `Fusion360BKM` | DONE (2026-10-27, bridge up in 35 s) |
 | The repo checks itself (`pytest -q`, `ruff`, `sync_skills.py --check`) | DONE (2026-10-27, 125 passed) |
-| Published to GitHub as `avisalmon/Fusion360BKM`, CI green | TODO |
-| GitHub Pages serves `index.html` (the start page) | TODO |
+| Published to GitHub as `avisalmon/Fusion360BKM`, CI green | DONE (2026-10-27, first run green) |
+| GitHub Pages serves `index.html` (the start page) | DONE (2026-10-27, HTTP 200) |
 
 ## Epic 1 - Examples that mirror the Babook course
 

@@ -3,10 +3,10 @@
 ### Learn Fusion 360 by hand, then design parts (and later circuits) by talking to an AI that drives Fusion for you.
 
 <!-- last-updated:start -->
-**Last updated 27 October 2026** · 9 new lessons · [See what's new](docs/lessons_log.md)
+**Last updated 27 October 2026** · 10 new lessons · [See what's new](docs/lessons_log.md)
 <!-- last-updated:end -->
 
-**Start page (Hebrew / English): https://avisalmon.github.io/Fusion360BKM/** _(after the first push)_
+**Start page (Hebrew / English): https://avisalmon.github.io/Fusion360BKM/**
 
 ---
 
@@ -84,12 +84,13 @@ Fusion blocks everything until somebody clicks it; `fusion.py dialog` can. Detai
 
 ## Honest status
 
-Tested on Windows 11 with Fusion 2706.1.14: `doctor`, `install` (as a junction), `launch`, `ping`, the template
-built through the bridge with its measurements read back and its screenshot described, exports (STL, STEP, F3D),
-opening `.f3d` / STEP / STL, editing an opened design's timeline, and clearing the update and *Active Sessions*
-dialogs. Not yet: the examples (five planned), electronics, a printed part, a fresh clone on another computer,
-GitHub Copilot end to end, macOS. See [docs/blueprint_roadmap.md](docs/blueprint_roadmap.md) and
-[docs/backlog.md](docs/backlog.md).
+Tested on Windows 11 with Fusion 2706.1.14: `doctor`, `install` (as a junction), `launch` (a cold start, bridge up
+in 35 s), `ping`, the template built through the bridge with its measurements read back and its screenshot
+described, exports (STL, STEP, F3D), opening `.f3d` / STEP / STL, editing an opened design's timeline, and clearing
+the update and *Active Sessions* dialogs. The repo checks itself (126 tests, ruff, skills in sync) and CI was green
+on the first push; the start page is served at the Pages URL above. Not yet: the examples (five planned),
+electronics, a printed part, a fresh clone on another computer, GitHub Copilot end to end, macOS. See
+[docs/blueprint_roadmap.md](docs/blueprint_roadmap.md) and [docs/backlog.md](docs/backlog.md).
 
 ## License
 

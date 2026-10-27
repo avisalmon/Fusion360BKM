@@ -27,6 +27,10 @@ how.
   `sync_skills.py --check` in sync. The tests earned their keep on the first run: `.gitattributes` lacked
   `*.obj binary`, a gotcha row had a literal pipe that broke the table, and `ruff format` had turned the template's
   quotes double so that `fusion.py new` would have silently stopped renaming.
+* **Published and green** (27 October 2026): `gh repo create avisalmon/Fusion360BKM --public --push`; the first CI
+  run on Ubuntu / Python 3.12 passed all four steps (gitleaks "no leaks found", `ruff check` + `format --check`,
+  `pytest` 126 passed / 4 skipped, `sync_skills.py --check` in sync). GitHub Pages enabled from `main` / root;
+  `https://avisalmon.github.io/Fusion360BKM/` answered HTTP 200 with the Hebrew title, and `examples/` too.
 * **Every fact in [fusion_reference.md](fusion_reference.md)** carries `[verified]`, `[community]` or
   `[unverified]`, and the helper signatures were read from the code.
 
@@ -35,13 +39,12 @@ how.
 Written from the code's own logic, Autodesk's documents, or the sister blueprints, but not yet run for real. The
 first person to do each should record the evidence here and in the relevant README, and fix what was wrong:
 
-- [ ] **CI on GitHub** green on the first push (the same four checks, on Ubuntu with Python 3.12)
 - [ ] **A fresh clone on another Windows computer**: `doctor` → `install` → restart Fusion → `ping`, as
       [install_bridge.md](procedures/install_bridge.md) describes
 - [ ] **The journey in a fresh clone**: "Tell me what to do" triggers the `design-with-fusion` skill in Claude Code
       and in GitHub Copilot (through `.github/skills/`)
-- [ ] **GitHub Pages** serving `index.html` at `https://avisalmon.github.io/Fusion360BKM/`, Hebrew by default,
-      the language switch remembered
+- [ ] **The start page in a browser**: the language switch and whether the choice is remembered (only the served
+      HTML and its Hebrew default were checked, with `Invoke-WebRequest`)
 - [ ] **A printed part**: an export of this blueprint sliced, printed and measured against its spec
 - [ ] **A hand-drawn sketch** read back and turned into a design (the `sketch-to-design` skill, written from the
       design-flow logic; no photo has been through it yet)
