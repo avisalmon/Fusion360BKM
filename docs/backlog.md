@@ -24,7 +24,8 @@
 | `03_key` (lesson 4): bow, shaft, bitting | cuts from a side plane, pattern | TODO |
 | `04_vacuum_nozzle` (lesson 5): round to rectangular | a `loft` helper | TODO |
 | `05_mug` (lesson 6): body, handle | `revolve`, a `sweep` helper | TODO |
-| Then: a board enclosure, a phone stand, a hand-sketched part | | IDEA |
+| `06_sketched_box`: the owner's paper sketch, 100 x 80 x 27 mm, 2 mm walls, 4 holes 6 mm (brief received 2026-10-27, kept in `my_designs/sketched_box/`) | `shell`, `hole_at`, `pattern_rect`; the first real run of `sketch-to-design` | WIP (spec to agree) |
+| Then: a board enclosure, a phone stand | | IDEA |
 
 ## Epic 2 - Helpers the examples will need
 
@@ -54,7 +55,7 @@
 | A thin MCP wrapper over the HTTP bridge (same calls, no new Fusion code) | IDEA |
 | macOS: `install` as a symlink, `launch`, `dialog` | IDEA |
 | A first print of an example, measured, recorded in its README | IDEA |
-| Hand-drawn sketch examples (photo in `media/brief.jpg`, read back, built) | IDEA |
+| Hand-drawn sketch examples (photo in `media/brief.jpg`, read back, built) | WIP (first brief received 2026-10-27, Epic 1) |
 
 ## Your designs
 
