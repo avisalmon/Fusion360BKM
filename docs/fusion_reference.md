@@ -85,6 +85,7 @@ new_design(name=None, parametric=True); clear_design(); new_component(name, pare
 sketch_on(plane='xy', comp=None, name=None, offset_mm=0.0)        plane: 'xy' | 'xz' | 'yz' | a face | a construction plane
 rect(sk, x0, y0, x1, y1); prect(sk, width, height, cx=0.0, cy=0.0)  prect: dimensioned + constrained; width/height may be expressions
 eval_mm(x); circle(sk, cx, cy, d); polygon(sk, cx, cy, sides, circumradius_mm, rotation_deg=0.0)
+text(sk, string, height_mm, cx=0.0, cy=0.0, width_mm=None, font=None, bold=False)   returns a SketchText; extrude() takes it directly (text has no profiles)
 mpt(sk, x, y, z); mrect(sk, p0, p1); mcircle(sk, center, d)         model-coordinate sketching (no axis guessing)
 sketch_normal(sk)
 extrude(sk_or_profiles, distance_mm, op='new', comp=None, symmetric=False, taper_deg=0.0, toward=None)   op: 'new' | 'join' | 'cut' | 'intersect'
@@ -103,6 +104,9 @@ fit(); screenshot(path, width=1280, height=800, do_fit=True); set_appearance_col
 ValueInput, Point3D, Vector3D (adsk.core classes re-exported)
 ```
 
-Not wrapped yet (write the helper when an example needs it, probe first, test it): **loft, sweep, text/emboss,
-threads, construction planes at an angle, components with joints, sections**. The backlog lists which example brings
-each one.
+Not wrapped yet (write the helper when an example needs it, probe first, test it): **loft, sweep, threads,
+construction planes at an angle, components with joints, sections**. The backlog lists which example brings each
+one. `text` was the first to arrive this way (27 October 2026, probed for `01_coin`: `sketchTexts.createInput2` +
+`setAsMultiLine`, Arial by default, `font=` and `bold=` verified with Consolas; text adds no profile to the sketch,
+and a sketch on a face already holds the face's outline as a profile, so extrude the `SketchText`, never the
+sketch; the extrude joined 63 faces of "BKM" onto a Ø30 disc).

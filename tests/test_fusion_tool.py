@@ -100,6 +100,26 @@ def test_new_refuses_to_overwrite_and_refuses_bad_names(tmp_path, monkeypatch, c
     assert fusion.new("") == 2
 
 
+def test_run_strips_the_bom_that_windows_editors_write(tmp_path, monkeypatch):
+    """Notepad and PowerShell's Set-Content -Encoding UTF8 prefix a BOM; Python inside Fusion
+    would reject it as an invalid character on line 1, so `run` must not forward it."""
+    script = tmp_path / "design.py"
+    script.write_bytes(b"\xef\xbb\xbfresult = 1\n")
+    seen = {}
+    monkeypatch.setattr(fusion, "run_code", lambda code, **kw: seen.setdefault("code", code))
+    fusion.run_file(str(script))
+    assert seen["code"] == "result = 1\n"
+
+
+def test_printing_never_crashes_on_a_cp1252_console():
+    """The tool reconfigures stdout to UTF-8 with replacement before `main`, so a Hebrew document
+    name or a stray BOM echoed in a traceback is printed, not turned into a UnicodeEncodeError."""
+    source = (ROOT / "scripts" / "fusion.py").read_text(encoding="utf-8")
+    tail = source[source.index('if __name__ == "__main__":') :]
+    assert 'reconfigure(encoding="utf-8", errors="replace")' in tail
+    assert "ensure_ascii=False" in source, "results are printed as they are, not escaped"
+
+
 def test_addin_status_missing_when_fusion_has_no_link(tmp_path, monkeypatch):
     monkeypatch.setattr(fusion, "addins_dir", lambda: str(tmp_path))
     state, detail = fusion.addin_status()

@@ -130,7 +130,9 @@ def run_code(code, name="<copilot>", timeout=120):
 
 def run_file(path, timeout=120):
     path = os.path.abspath(path)
-    with open(path, encoding="utf-8") as f:
+    # utf-8-sig: Notepad and PowerShell's Set-Content write a BOM, which Python
+    # inside Fusion would reject as "invalid non-printable character U+FEFF".
+    with open(path, encoding="utf-8-sig") as f:
         return run_code(f.read(), name=path, timeout=timeout)
 
 
@@ -519,4 +521,9 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    # Fusion answers in UTF-8 (Hebrew document names, the odd BOM echoed in a traceback);
+    # a cp1252 console must never make the tool itself crash while printing.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     sys.exit(main(sys.argv[1:]))

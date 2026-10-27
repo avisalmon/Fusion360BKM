@@ -32,6 +32,7 @@ __all__ = [
     "eval_mm",
     "circle",
     "polygon",
+    "text",
     "mpt",
     "mrect",
     "mcircle",
@@ -313,6 +314,28 @@ def polygon(sk, cx, cy, sides, circumradius_mm, rotation_deg=0.0):
     for i in range(sides):
         lines.append(sk.sketchCurves.sketchLines.addByTwoPoints(pts[i], pts[(i + 1) % sides]))
     return lines
+
+
+def text(sk, string, height_mm, cx=0.0, cy=0.0, width_mm=None, font=None, bold=False):
+    """Text centred at (cx, cy) in sketch mm, letters height_mm tall. Returns the SketchText.
+    Text makes no sketch profiles: pass the SketchText itself to extrude(), e.g.
+    extrude(t, 0.6, op='join', toward=(0, 0, 1)) to raise it, op='cut' to engrave.
+    width_mm is the text box (default generous, so nothing wraps onto a second line)."""
+    width_mm = width_mm or max(len(string), 1) * height_mm * 1.2
+    half_h = height_mm * 0.8
+    inp = sk.sketchTexts.createInput2(string, height_mm * MM)
+    inp.setAsMultiLine(
+        P(cx - width_mm / 2.0, cy - half_h),
+        P(cx + width_mm / 2.0, cy + half_h),
+        adsk.core.HorizontalAlignments.CenterHorizontalAlignment,
+        adsk.core.VerticalAlignments.MiddleVerticalAlignment,
+        0,
+    )
+    if font:
+        inp.fontName = font
+    if bold:
+        inp.textStyle = adsk.fusion.TextStyles.TextStyleBold
+    return sk.sketchTexts.add(inp)
 
 
 # Model-space variants: give points in *model* mm coordinates (x, y, z) and let Fusion

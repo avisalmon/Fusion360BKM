@@ -19,7 +19,7 @@
 
 | Item | Needs | Status |
 |---|---|---|
-| `01_coin` (lesson 2): disc, rim, raised text | a text/emboss helper (`sketchTexts`) | TODO |
+| `01_coin` (lesson 2): disc, rim, raised text | `text` helper (done) | TODO |
 | `02_tweezers` (lesson 3): two arms joined, a living hinge | thin extrude, fillet, mirror | TODO |
 | `03_key` (lesson 4): bow, shaft, bitting | cuts from a side plane, pattern | TODO |
 | `04_vacuum_nozzle` (lesson 5): round to rectangular | a `loft` helper | TODO |
@@ -32,7 +32,7 @@
 |---|---|
 | `loft(profiles)` | TODO |
 | `sweep(profile, path)` | TODO |
-| `text(sk, string, height_mm, ...)` + emboss/engrave | TODO |
+| `text(sk, string, height_mm, ...)` + emboss/engrave | DONE (2026-10-27, probed for `01_coin`) |
 | Threads (`threadFeatures`) | IDEA |
 | Angled and offset construction planes | IDEA |
 | Joints between components | IDEA |

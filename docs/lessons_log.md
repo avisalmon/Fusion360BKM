@@ -6,6 +6,18 @@ assumption against a running Fusion and finding it was not quite true.
 
 ## 2026-10-27
 
+- **Text is not a profile.** `sketchTexts` adds no profile to a sketch, and a sketch on a face already holds the
+  face's outline as one, so `extrude(sketch)` would have raised the whole disc. The rule, now in the `text()` helper's
+  docstring: extrude the `SketchText` itself. Probed on a Ø30 coin before the helper was written; `font=` and `bold=`
+  checked by eye (Consolas's slashed zero). [fusion_reference.md](fusion_reference.md) ·
+  [bridge_helpers.py](../CopilotBridge/bridge_helpers.py)
+- **Read the helper's signature before calling it.** `circle(sk, cx, cy, d)` takes separate coordinates; a call
+  written from memory as `circle(sk, (0, 0), 30)` failed inside Fusion. The reference lists every signature for
+  exactly this reason. [fusion_reference.md](fusion_reference.md)
+- **A BOM and a cp1252 console can each stop the tool.** PowerShell's `Set-Content -Encoding UTF8` and Notepad
+  prefix a BOM that Python inside Fusion rejects; and printing a traceback containing it crashed `fusion.py` on a
+  cp1252 console (a Hebrew document name would do the same). `run` now reads scripts as `utf-8-sig`, and output is
+  UTF-8 with replacement, never an exception. [test_fusion_tool.py](../tests/test_fusion_tool.py)
 - **CI was green on the first push because it runs nothing new.** The four commands in `ci.yml` are the same four
   run here before committing (`ruff check`, `ruff format --check`, `pytest -q`, `sync_skills.py --check`), on the
   same Python. The one difference, gitleaks over the whole history, is approximated locally by the staged-secrets
