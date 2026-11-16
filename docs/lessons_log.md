@@ -10,6 +10,10 @@ assumption against a running Fusion and finding it was not quite true.
   with parts looked up in Fusion's own cached libraries (`scripts/fusion_parts.py`) instead of guessed. Two Fusion
   traps found on the way: a value on a fixed-value part opens a blocking question, and parts with the `_`
   technology crash the ADD command. [gotchas 21-23](procedures/gotchas.md)
+- **The first board was laid out and routed from the chat**: 30 x 20 mm, two M3 holes, four tracks, zero
+  unrouted connections, confirmed by reading back and in Fusion's own inspector. On the way: the board editor
+  starts in mil, deleting through the API breaks Fusion, and its router reshapes tracks to fit its rules.
+  [gotchas 24-26](procedures/gotchas.md)
 - **A schematic is drawn for people, not only for the netlist.** Parts joined by matching labels alone looked like
   "just components spread around" to the owner; small circuits get visible wires (`sch_wire`), labels only on
   dense sheets. [fusion-electronics](../.claude/skills/fusion-electronics/SKILL.md)

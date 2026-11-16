@@ -119,7 +119,9 @@ sch(); brd()
 sch_place(add_name, ref, x, y, value=None, angle=0)            add_name from scripts/fusion_parts.py
 sch_pin(ref, pin); sch_wire(net, a, b, via=()); sch_netlist()           a, b: ('J1', '1')
 sch_connect(net, ref, pin, stub_mm=5.08, label=True)            a labelled stub, for dense sheets
-brd_elements(); brd_move(ref, x, y, angle=None)                 written, not yet run
+brd_elements(); brd_move(ref, x, y, angle=None)
+brd_outline(width, height); brd_hole(x, y, drill=3.2); brd_pad(ref, pad)
+brd_route(signal, points, width=0.5, layer=1); brd_report()
 ```
 
 Not wrapped yet (write the helper when an example needs it, probe first, test it): **loft, sweep, threads,

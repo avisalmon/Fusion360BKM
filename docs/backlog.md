@@ -50,7 +50,7 @@ evidence written in [fusion_reference.md](fusion_reference.md) and the `fusion-e
 |---|---|---|
 | E3.1 Probe Fusion Electronics from the bridge: product types, API objects, text commands, EAGLE-style scripts | every finding is a tagged row in the reference, with the Fusion version | DONE (2026-11-16, 2706.1.17) |
 | E3.2 Choose the route (API, EAGLE script/ULP run inside Fusion, or generated EAGLE file imported) | the roadmap names the route and the reason | DONE (2026-11-16: write with `Electron.run` EAGLE commands, read back with `adsk.electron`) |
-| E3.3 A first circuit from the chat: battery header, switch, resistor, LED; schematic, then board | ERC and DRC clean; schematic and board screenshots match the request | WIP (schematic 2026-11-16: `examples/10_led_switch_board`) |
+| E3.3 A first circuit from the chat: battery header, switch, resistor, LED; schematic, then board | ERC and DRC clean; schematic and board screenshots match the request | WIP (schematic and routed board 2026-11-16: `examples/10_led_switch_board`; ERC and DRC not yet) |
 | E3.4 Library parts understood: where Fusion's parts come from, how a part is symbol + footprint + 3D package + manufacturer number | a short lesson in the skill and the reference | TODO |
 | E3.5 Our own library: known-good parts (each with footprint checked against the datasheet, 3D model, MPN and supplier number), versioned in the repo | the first circuit is rebuilt from our library only | TODO |
 | E3.6 Reliable production: fab design rules (JLCPCB first), Gerbers + drill + BOM + pick-and-place from a saved CAM job, checked by an independent reader | files open cleanly outside Fusion; a checklist the doctor can run | TODO |

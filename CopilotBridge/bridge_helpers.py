@@ -79,6 +79,11 @@ __all__ = [
     "sch_netlist",
     "brd_elements",
     "brd_move",
+    "brd_outline",
+    "brd_hole",
+    "brd_pad",
+    "brd_route",
+    "brd_report",
 ]
 
 MM = 0.1  # 1 mm in Fusion's cm world
@@ -811,6 +816,10 @@ def ecad_open(which):
     _app.userInterface.commandDefinitions.itemById(cmd).execute()
     if not _wait_for(lambda: _product_type() == ptype):
         raise RuntimeError(f"ecad_open({which!r}): still {_product_type()} after 20 s")
+    if which in ("sch", "brd"):
+        # coordinates in commands are in the editor's grid unit; a new board is in mil, so
+        # "MOVE (100 0)" meant 2.54 mm and dragged the wrong corner (gotcha 24)
+        ecad("GRID MM ON")
     return _app.activeProduct
 
 
@@ -923,10 +932,96 @@ def brd_elements():
 
 
 def brd_move(ref, x, y, angle=None):
-    """Move a board part to x, y mm (and rotate it to `angle`), then check it got there."""
-    ecad(f"MOVE {ref} ({x} {y})")
+    """Rotate a board part to `angle`, then move it to x, y mm, and check it got there.
+    (Rotating after the move shifted SW1 by 1 mm: rotate first.)"""
     if angle is not None:
         ecad(f"ROTATE =R{angle} {ref}")
+    ecad(f"MOVE {ref} ({x} {y})")
     ex, ey, _ = brd_elements()[ref]
     if abs(ex - x) > 0.01 or abs(ey - y) > 0.01:
         raise RuntimeError(f"MOVE {ref}: it is at ({ex:.2f}, {ey:.2f}), not ({x}, {y})")
+
+
+def _outline():
+    return [
+        (w.x1 / ECAD_U, w.y1 / ECAD_U, w.x2 / ECAD_U, w.y2 / ECAD_U)
+        for w in _iter(brd().wires)
+        if w.layer == 20
+    ]
+
+
+def brd_outline(width, height):
+    """Make the board a width x height mm rectangle with its corner at 0, 0, by dragging the
+    corners of the rectangle Fusion starts with. Deleting outline wires through the API raised
+    "unexpected condition" dialogs until Fusion had to be killed (gotcha 25): nothing is deleted."""
+    segs = _outline()
+    xs = [v for s in segs for v in (s[0], s[2])]
+    ys = [v for s in segs for v in (s[1], s[3])]
+    x0, y0, x1, y1 = min(xs), min(ys), max(xs), max(ys)
+    if len(segs) != 4 or (x0, y0) != (0, 0):
+        raise RuntimeError(f"brd_outline expects the starting rectangle at 0,0; found {segs}")
+    ecad(f"MOVE ({x1} {y0}) ({width} 0)")
+    ecad(f"MOVE ({x1} {y1}) ({width} {height})")
+    ecad(f"MOVE ({x0} {y1}) (0 {height})")
+    want = {(0, 0), (width, 0), (width, height), (0, height)}
+    got = {(round(s[0], 3), round(s[1], 3)) for s in _outline()}
+    if got != want:
+        raise RuntimeError(f"outline corners are {sorted(got)}, not {sorted(want)}")
+    return _outline()
+
+
+def brd_hole(x, y, drill=3.2):
+    """A plain (non-plated) mounting hole, e.g. 3.2 mm for M3."""
+    before = brd().holes.count
+    ecad(f"HOLE {drill} ({x} {y})")
+    if brd().holes.count != before + 1:
+        raise RuntimeError(f"HOLE at ({x}, {y}) did not appear")
+
+
+def brd_pad(ref, pad):
+    """Absolute (x, y) mm of a board part's pad: the footprint's own coordinates turned by the
+    part's angle (and mirror) and moved to its position."""
+    for e in _iter(brd().elements):
+        if e.name != ref:
+            continue
+        for c in _iter(e.package.contacts):
+            if c.name == pad:
+                lx, ly = c.x / ECAD_U, c.y / ECAD_U
+                if e.mirror:
+                    lx = -lx
+                a = math.radians(e.angle)
+                x = e.x / ECAD_U + lx * math.cos(a) - ly * math.sin(a)
+                y = e.y / ECAD_U + lx * math.sin(a) + ly * math.cos(a)
+                return round(x, 4), round(y, 4)
+        names = [c.name for c in _iter(e.package.contacts)]
+        raise RuntimeError(f"{ref} has no pad {pad!r}; its pads: {names}")
+    raise RuntimeError(f"no part {ref} on the board")
+
+
+def brd_route(signal, points, width=0.5, layer=1):
+    """A copper track for `signal` through `points` [(x, y), ...] mm on layer 1 (top) or 16
+    (bottom). Start and end on the signal's pads; corners must not touch another signal's pad."""
+    ecad(f"LAYER {layer}")
+    # one WIRE per straight piece: a multi-point WIRE was re-bent by Fusion into 45-degree
+    # corners of its own choosing (SET WIRE_BEND 2 did not stop it; gotcha 26)
+    for (x0, y0), (x1, y1) in zip(points, points[1:]):
+        ecad(f"WIRE '{signal}' {width} ({x0} {y0}) ({x1} {y1})")
+
+
+def brd_report():
+    """What the board holds: outline, holes, parts, and per signal the copper tracks and the
+    connections still unrouted (airwires, layer 19)."""
+    b = brd()
+    sig = {}
+    for s in _iter(b.signals):
+        ws = _iter(s.wires)
+        sig[s.name] = {
+            "tracks": sum(1 for w in ws if w.layer in (1, 16)),
+            "unrouted": sum(1 for w in ws if w.layer == 19),
+        }
+    return {
+        "outline": _outline(),
+        "holes": [(h.x / ECAD_U, h.y / ECAD_U, h.drill / ECAD_U) for h in _iter(b.holes)],
+        "parts": brd_elements(),
+        "signals": sig,
+    }
