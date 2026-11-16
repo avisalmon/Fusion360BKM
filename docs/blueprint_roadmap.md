@@ -67,7 +67,8 @@ first person to do each should record the evidence here and in the relevant READ
   ([backlog.md](backlog.md) Epic 2). Until then a script that needs them calls `adsk` directly through `exec`, and
   the first working call becomes a helper.
 * **Electronics** (the user's Stage 3 goal: schematics, boards, fitting a board into an enclosure): the
-  `fusion-electronics` skill is research-first; nothing in Fusion Electronics has been driven from the bridge yet.
+  route chosen 2026-11-16: EAGLE commands through `Electron.run` write, `adsk.electron` reads back. Verified: a new
+  electronics design, a placed part, a net between two pins. Not yet: the board, libraries, CAM output, the 3D PCB.
 * **Assemblies**: components exist (`new_component`), joints and motion do not.
 * **macOS**: `install` would make a symlink and `launch` would need the macOS path; `fusion_dialog.ps1` is Windows
   only.

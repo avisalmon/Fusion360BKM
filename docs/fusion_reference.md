@@ -57,15 +57,24 @@ add it here with its tag, then use it.
 | Fusion sees the add-in **twice** through a junction (two entries in the Add-Ins dialog); the singleton guard and `allow_reuse_address = False` keep one server | [verified] gotcha 5 |
 | `fusion_dialog.ps1 -All` lists the texts of open Fusion dialogs; `-Click <button>` clicks one; `-Select '<pattern>'` picks a list item first | [verified] on Windows |
 
-## Electronics workspace
+## Electronics workspace (probed from the bridge 2026-11-16, Fusion 2706.1.17, Python 3.14.7)
+
+The working loop: **write with EAGLE commands** sent through `app.executeTextCommand("Electron.run <command>")`,
+then **read back with `adsk.electron`** to confirm the change happened (the text command returns an empty string
+whether or not it worked). Research behind it: the `fusion-electronics` skill.
 
 | Fact | Tag |
 |---|---|
-| Fusion has an Electronics workspace (schematic, 2D PCB, 3D PCB document) | [community] not opened here yet |
-| The Python API for electronics documents is thinner than for designs | [community] forum consensus; re-check on 2706 |
-| EAGLE `.sch` / `.brd` / `.scr` import | [unverified] |
-
-Everything about electronics is research first: the `fusion-electronics` skill lists the probes to run.
+| `adsk.electron` exists: `Schematic`, `Board`, `Library`, `EcadDesign`, parts, instances, nets, pins, elements, signals, device sets, packages, 3D packages, attributes, export manager | [verified] 2706.1.17 |
+| It is read-only: the only writers are `deleteEntities`, `Sheets.create`, `begin/end/cancelDesignChange` and the EAGLE `.sch/.brd/.lbr` export. No add, place, wire or route | [verified] 2706.1.17 |
+| `adsk.core.DocumentTypes` has only `FusionDesignDocumentType`; a new electronics document comes from the UI command `commandDefinitions.itemById('NewElectronDesignDocumentCommand').execute()` (no dialog; `ping` then shows `EcadDesignProductType`). `SwitchSchDocCmd`, `SwitchPcbDocCmd`, `Switch3dPcbDocCmd` open the linked schematic, 2D PCB, 3D PCB | [verified] design + schematic switch; PCB and 3D switch not yet |
+| `TextCommands.List /hidden` lists the `Electron.*` text commands, among them `Electron.run <EAGLE command>`, `Electron.runScript <file.scr>`, `Electron.mfgexport <outputDir> <camJobFile>` (Gerber/drill/assembly from a CAM job), `Electron.mfgodb`, `Electron.importSchAndBrd`, `Electron.Create3DPackage <footprint.xml>`, `Electron.showBom`, `Electron.version` | [verified] listed; only `run` tried so far |
+| `Electron.run GRID MM 1 ON` changes the grid (read back: `grid.unit` 1 = mm, `distance` 1.0). A new schematic starts on a 0.1 inch grid | [verified] |
+| `Electron.run ADD <device>@<library> <name> R0 (x y)` places a part at x, y in the grid's unit with that name; without a name it is numbered (C2). A library that is not among Fusion's managed libraries places **nothing, silently** (`R-US_0805@rcl` and `LED5MM@led` failed; `0.1UF-0402-16V-10%@SparkFun-Capacitors` worked) | [verified] |
+| Device name = the Place panel's component + variant joined (`0.1UF` + `-0402-16V-10%`) | [verified] one part |
+| Coordinates in the API are EAGLE internal units: **320000 per mm**. A placed symbol's `pins.item(i).x / y` are absolute sheet positions, so they are the points to aim `NET` at | [verified] |
+| `Electron.run NET VCC (x1 y1) (x2 y2)` drawn pin to pin makes a net named VCC; `sch.nets[...].pinRefs` lists exactly the two pins | [verified] |
+| `fusion.py shot` fails in the electronics editors (no 3D viewport: `'NoneType' object has no attribute 'fit'`); capture the Fusion window with Windows instead | [verified] gotcha 18 |
 
 ## 3D printing rules of thumb
 

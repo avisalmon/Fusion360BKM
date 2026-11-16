@@ -44,7 +44,8 @@ Tags: `[doc]` Autodesk or vendor documentation, `[forum]` community or third-par
 | The 3D PCB's board and components are ordinary bodies in a Design, so the Design API can measure the outline and holes for an enclosure | [uncertain] |
 | EAGLE itself ended 2026-06-07; Fusion's Python moved to 3.14 in January 2026 | [doc] |
 
-**The routes this suggests** (to be confirmed by the probes below): *read* with `adsk.electron`; *write* with
+**Probed 2026-11-16 on 2706.1.17** (facts in the reference): writing through `Electron.run` works for `GRID`, `ADD` and
+`NET`, each confirmed by reading back with `adsk.electron`; the API is read-only as documented. **The routes this suggests**: *read* with `adsk.electron`; *write* with
 EAGLE command scripts sent through `executeTextCommand`, or with generated EAGLE 9.6 XML imported as a pair;
 *factory files* from the CAM Processor with a JLCPCB rule set we checked ourselves; *the case* with the normal
 Design API around the 3D PCB.

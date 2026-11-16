@@ -4,6 +4,14 @@ The short version of every lesson in this blueprint, newest first, so you can se
 Each line points to where the full rule lives. Most of them came from something going wrong, or from checking an
 assumption against a running Fusion and finding it was not quite true.
 
+## 2026-11-16
+
+- **Fusion's electronics can be driven from the chat.** The official Python API only reads; EAGLE commands sent
+  with `Electron.run` write. A new electronics design, a part from a managed library, and a named net between two
+  pins were made from the bridge and each confirmed by reading it back. [fusion_reference.md](fusion_reference.md#electronics-workspace-probed-from-the-bridge-2026-11-16-fusion-2706117-python-3147)
+- **A command that says nothing is not a command that worked.** Placing a part from a library Fusion does not have
+  failed silently; every write is followed by a read. [gotchas 17-20](procedures/gotchas.md)
+
 ## 2026-10-27
 
 - **A paper note became an object, and the drawing's dashes were the clue.** The first hand-drawn sketch through
