@@ -75,6 +75,7 @@ __all__ = [
     "sch_place",
     "sch_pin",
     "sch_connect",
+    "sch_wire",
     "sch_netlist",
     "brd_elements",
     "brd_move",
@@ -845,10 +846,12 @@ def _part(name):
 
 
 def sch_place(add_name, ref, x, y, value=None, angle=0):
-    """Place `add_name` (exactly as `fusion_parts.py search` prints it) as `ref` at x, y mm."""
+    """Place `add_name` (exactly as `fusion_parts.py search` prints it) as `ref` at x, y mm.
+    `angle` is 0/90/180/270, or an EAGLE orientation such as 'MR0' (mirrored)."""
     if _part(ref):
         raise RuntimeError(f"{ref} is already in the schematic")
-    ecad(f"ADD {add_name} {ref} R{angle} ({x} {y})")
+    orient = angle if str(angle).startswith(("R", "MR", "SR", "SMR")) else f"R{angle}"
+    ecad(f"ADD {add_name} {ref} {orient} ({x} {y})")
     if not _part(ref):
         raise RuntimeError(
             f"ADD {add_name} placed nothing: the name is not in Fusion's libraries "
@@ -890,6 +893,20 @@ def sch_connect(net, ref, pin, stub_mm=5.08, label=True):
         ecad(f"LABEL ({ex} {ey}) ({ex} {ey})")
     if (ref, pin) not in sch_netlist().get(net, []):
         raise RuntimeError(f"NET {net} did not reach {ref}.{pin}")
+
+
+def sch_wire(net, a, b, via=()):
+    """A visible wire named `net` from pin `a` to pin `b`, e.g. ("J1", "1"), through the corner
+    points `via` [(x, y), ...] in mm. Choose corners that pass no other pin: a wire end on a pin
+    joins it (the final netlist check in a circuit script catches a wrong join)."""
+    (ax, ay), _ = sch_pin(*a)
+    (bx, by), _ = sch_pin(*b)
+    pts = [(ax, ay), *via, (bx, by)]
+    ecad(f"NET {net} " + " ".join(f"({x} {y})" for x, y in pts))
+    joined = sch_netlist().get(net, [])
+    missing = [p for p in (tuple(a), tuple(b)) if p not in joined]
+    if missing:
+        raise RuntimeError(f"NET {net} did not reach {missing}; it joins {joined}")
 
 
 def sch_netlist():

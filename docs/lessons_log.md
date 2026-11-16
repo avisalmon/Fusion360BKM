@@ -10,6 +10,9 @@ assumption against a running Fusion and finding it was not quite true.
   with parts looked up in Fusion's own cached libraries (`scripts/fusion_parts.py`) instead of guessed. Two Fusion
   traps found on the way: a value on a fixed-value part opens a blocking question, and parts with the `_`
   technology crash the ADD command. [gotchas 21-23](procedures/gotchas.md)
+- **A schematic is drawn for people, not only for the netlist.** Parts joined by matching labels alone looked like
+  "just components spread around" to the owner; small circuits get visible wires (`sch_wire`), labels only on
+  dense sheets. [fusion-electronics](../.claude/skills/fusion-electronics/SKILL.md)
 - **Fusion's electronics can be driven from the chat.** The official Python API only reads; EAGLE commands sent
   with `Electron.run` write. A new electronics design, a part from a managed library, and a named net between two
   pins were made from the bridge and each confirmed by reading it back. [fusion_reference.md](fusion_reference.md#electronics-workspace-probed-from-the-bridge-2026-11-16-fusion-2706117-python-3147)

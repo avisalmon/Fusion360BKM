@@ -33,7 +33,7 @@ python scripts\fusion.py run examples\10_led_switch_board\circuit.py 120
 | Step | Done |
 |---|---|
 | Parts found in Fusion's libraries, each with a 3D model | 2026-11-16, Fusion 2706.1.17 |
-| Schematic from the chat: 4 parts, 4 nets, read back equal to the spec, looked at | 2026-11-16 |
+| Schematic from the chat: 4 parts, 4 nets drawn as one visible loop, read back equal to the spec, looked at ([media/schematic.png](media/schematic.png)) | 2026-11-16 |
 | Electrical rules check (ERC) clean | not yet |
 | Board: 30 x 20 mm outline, parts placed, two M3 holes, routed | not yet |
 | Design rules check (DRC) against a fab's rules | not yet |
@@ -47,4 +47,4 @@ python scripts\fusion.py run examples\10_led_switch_board\circuit.py 120
 * `VALUE` on a part with a fixed value opens a modal question that blocks the bridge (gotcha 21); the helper
   checks `deviceset.userValue` first.
 * A part whose technology is `_` crashes Fusion's ADD (gotcha 22); `fusion_parts.py` flags them.
-* Net stubs with labels, never long wires: a wire can't touch a pin it was not meant for.
+* A schematic is for people: the first version joined the parts only by matching net labels, and the owner saw "just components spread around". Small circuits are drawn as visible wires, with corners chosen from the pins' read-back positions so no wire passes another pin; the netlist check catches a wrong join.

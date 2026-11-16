@@ -79,6 +79,14 @@ Design API around the 3D PCB.
 
 ## Rules while in this territory
 
+* **Draw the schematic for the person reading it.** A small circuit is one visible loop of wires (`sch_wire` with
+  corners picked from the pins' read-back positions, never across another pin), signal flowing left to right,
+  power on top, ground at the bottom. Net labels alone (`sch_connect`) are for dense sheets: the owner's first
+  look at a labels-only schematic was "I see just components spread around" (2026-11-16). Screenshot it and look
+  before calling it done.
+* **Look parts up, never guess them**: `scripts/fusion_parts.py search ...` gives the exact `ADD` name, footprint,
+  pads, 3D model, MPN and status; skip parts flagged "crashes ADD" (gotcha 22) and parts not ACTIVE.
+
 * **Say "not verified yet" before every electronics claim** until the reference says otherwise (CLAUDE.md rules 3
   and 8). Do not promise the owner a schematic from chat until step 1 is done.
 * Facts come with sources: Autodesk's API reference (https://help.autodesk.com/view/fusion360/ENU/?guid=GUID-A92A4B10-3781-4925-94C6-47DA85A4F65A),

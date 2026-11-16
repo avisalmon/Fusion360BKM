@@ -117,7 +117,8 @@ ECAD_U = 320000 (EAGLE units per mm)
 ecad_new(grid_mm=1.27); ecad_open(which); ecad(command)        which: 'sch' | 'brd' | '3d'
 sch(); brd()
 sch_place(add_name, ref, x, y, value=None, angle=0)            add_name from scripts/fusion_parts.py
-sch_pin(ref, pin); sch_connect(net, ref, pin, stub_mm=5.08, label=True); sch_netlist()
+sch_pin(ref, pin); sch_wire(net, a, b, via=()); sch_netlist()           a, b: ('J1', '1')
+sch_connect(net, ref, pin, stub_mm=5.08, label=True)            a labelled stub, for dense sheets
 brd_elements(); brd_move(ref, x, y, angle=None)                 written, not yet run
 ```
 
