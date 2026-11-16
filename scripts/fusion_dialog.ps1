@@ -58,8 +58,8 @@ $ct = [System.Windows.Automation.ControlType]
 foreach ($w in $targets) {
     $root = $A::FromHandle($w.Handle)
     Write-Host ("`n=== {0} [{1}] ===" -f $w.Handle, $root.Current.ClassName)
-    $all = $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
-    foreach ($e in $all) {
+    $elements = $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
+    foreach ($e in $elements) {
         $c = $e.Current
         if (-not $c.Name -and $c.ControlType -ne $ct::Button) { continue }
         $sel = ''
@@ -68,14 +68,14 @@ foreach ($w in $targets) {
     }
     if ($Select) {
         $hit = $null
-        foreach ($e in $all) { if ($e.Current.Name -like $Select -and ($e.Current.ControlType -eq $ct::RadioButton -or $e.Current.ControlType -eq $ct::DataItem -or $e.Current.ControlType -eq $ct::ListItem)) { $hit = $e; break } }
+        foreach ($e in $elements) { if ($e.Current.Name -like $Select -and ($e.Current.ControlType -eq $ct::RadioButton -or $e.Current.ControlType -eq $ct::DataItem -or $e.Current.ControlType -eq $ct::ListItem)) { $hit = $e; break } }
         if ($hit) { $hit.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select(); Write-Host "-> selected '$($hit.Current.Name)'" }
         else { Write-Host "-> nothing selectable matches '$Select'" }
         Start-Sleep -Milliseconds 300
     }
     if ($Click) {
         $hit = $null
-        foreach ($e in $all) { if ($e.Current.ControlType -eq $ct::Button -and $e.Current.Name -like $Click) { $hit = $e; break } }
+        foreach ($e in $elements) { if ($e.Current.ControlType -eq $ct::Button -and $e.Current.Name -like $Click) { $hit = $e; break } }
         if ($hit) { $hit.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke(); Write-Host "-> clicked '$($hit.Current.Name)'" }
         else { Write-Host "-> no button matches '$Click'" }
     }

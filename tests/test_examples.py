@@ -19,6 +19,19 @@ def example_dirs():
     return sorted(p for p in EXAMPLES.iterdir() if p.is_dir())
 
 
+def is_board(folder):
+    """A board example (electronics) is built by `circuit.py`; a 3D example by `design.py`."""
+    return (folder / "circuit.py").exists()
+
+
+def part_dirs():
+    return [p for p in example_dirs() if not is_board(p)]
+
+
+def board_dirs():
+    return [p for p in example_dirs() if is_board(p)]
+
+
 def test_every_folder_in_examples_is_a_numbered_example():
     for folder in example_dirs():
         assert FOLDER.match(folder.name), f"{folder.name}: expected NN_name"
@@ -35,7 +48,7 @@ def test_the_folder_rule_rejects_what_it_should():
     assert FOLDER.match("01_coin")
 
 
-@pytest.mark.parametrize("folder", example_dirs(), ids=lambda p: p.name)
+@pytest.mark.parametrize("folder", part_dirs(), ids=lambda p: p.name)
 def test_the_example_has_everything_the_contract_asks_for(folder):
     slug = FOLDER.match(folder.name)[2]
     for required in ("design.py", "README.md", "index.html", "media", f"{slug}.f3d"):
@@ -43,7 +56,7 @@ def test_the_example_has_everything_the_contract_asks_for(folder):
     assert list((folder / "media").glob("*.png")), f"{folder.name}/media has no .png: no eye check"
 
 
-@pytest.mark.parametrize("folder", example_dirs(), ids=lambda p: p.name)
+@pytest.mark.parametrize("folder", part_dirs(), ids=lambda p: p.name)
 def test_the_example_script_follows_the_rules(folder):
     script = (folder / "design.py").read_text(encoding="utf-8")
     ast.parse(script)
@@ -53,7 +66,7 @@ def test_the_example_script_follows_the_rules(folder):
         assert re.fullmatch(r"[a-z][a-z0-9_]*", name), f"parameter {name!r}: word names only"
 
 
-@pytest.mark.parametrize("folder", example_dirs(), ids=lambda p: p.name)
+@pytest.mark.parametrize("folder", part_dirs(), ids=lambda p: p.name)
 def test_the_example_page_and_readme_carry_evidence(folder):
     slug = FOLDER.match(folder.name)[2]
     page = (folder / "index.html").read_text(encoding="utf-8")
@@ -68,7 +81,7 @@ def test_the_example_page_and_readme_carry_evidence(folder):
         assert (folder / src).exists(), src
 
 
-@pytest.mark.parametrize("folder", example_dirs(), ids=lambda p: p.name)
+@pytest.mark.parametrize("folder", part_dirs(), ids=lambda p: p.name)
 def test_the_example_is_in_the_catalogue(folder):
     assert f'href="{folder.name}/index.html"' in CATALOGUE, f"no card for {folder.name}"
     assert folder.name in CATALOGUE_MD, f"no row for {folder.name} in examples/README.md"
@@ -90,3 +103,37 @@ def test_built_cards_are_links_and_todo_cards_are_not():
             assert tag == "div", body[:80]
         else:
             assert tag == "a", body[:80]
+
+
+# --------------------------------------------------------------------------- board examples
+# A board grows in steps (schematic, board, factory files, case); its README's status table says
+# which are done. Once the README says "Status: built", it owes the same evidence as a 3D example.
+
+
+@pytest.mark.parametrize("folder", board_dirs(), ids=lambda p: p.name)
+def test_the_board_script_follows_the_rules(folder):
+    script = (folder / "circuit.py").read_text(encoding="utf-8")
+    ast.parse(script)
+    assert "ecad_new(" in script, (
+        "a board starts from a new electronics design, so it can be re-run"
+    )
+    assert re.search(r"^result\s*=", script, re.M), "a board script ends with evidence"
+    assert "sch_netlist()" in script, "the evidence is the netlist read back from Fusion"
+
+
+@pytest.mark.parametrize("folder", board_dirs(), ids=lambda p: p.name)
+def test_the_board_readme_says_what_is_done(folder):
+    readme = (folder / "README.md").read_text(encoding="utf-8")
+    assert "| Step | Done |" in readme
+    assert folder.name in CATALOGUE_MD, f"no row for {folder.name} in examples/README.md"
+
+
+@pytest.mark.parametrize("folder", board_dirs(), ids=lambda p: p.name)
+def test_a_built_board_carries_its_evidence(folder):
+    readme = (folder / "README.md").read_text(encoding="utf-8")
+    if "Status: built" not in readme:
+        pytest.skip("in progress")
+    for required in ("index.html", "media"):
+        assert (folder / required).exists(), f"{folder.name}/{required}"
+    assert list((folder / "media").glob("*.png")), f"{folder.name}/media has no .png: no eye check"
+    assert f'href="{folder.name}/index.html"' in CATALOGUE, f"no card for {folder.name}"

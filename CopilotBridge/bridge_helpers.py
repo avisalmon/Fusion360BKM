@@ -10,6 +10,7 @@ import math
 import os
 
 import adsk.core
+import adsk.electron
 import adsk.fusion
 
 __all__ = [
@@ -64,6 +65,19 @@ __all__ = [
     "ValueInput",
     "Point3D",
     "Vector3D",
+    # electronics (EAGLE commands write, adsk.electron reads back; see fusion_reference.md)
+    "ECAD_U",
+    "ecad_new",
+    "ecad_open",
+    "ecad",
+    "sch",
+    "brd",
+    "sch_place",
+    "sch_pin",
+    "sch_connect",
+    "sch_netlist",
+    "brd_elements",
+    "brd_move",
 ]
 
 MM = 0.1  # 1 mm in Fusion's cm world
@@ -753,3 +767,149 @@ def set_appearance_color(body, r, g, b, name=None):
                 pass
     body.appearance = new
     return new
+
+
+# --------------------------------------------------------------------------- electronics
+# Fusion's electronics API is read-only (2706.1.17): every change is an EAGLE command sent with
+# `Electron.run`, which returns "" whether it worked or not (gotcha 17). So each helper that writes
+# reads the design back and raises when nothing changed. Coordinates in mm on the editor's grid.
+
+ECAD_U = 320000  # EAGLE internal units per mm, as adsk.electron reports coordinates
+
+
+def _wait_for(predicate, timeout_s=20.0):
+    import time
+
+    end = time.time() + timeout_s
+    while time.time() < end:
+        adsk.doEvents()
+        if predicate():
+            return True
+        time.sleep(0.1)
+    return False
+
+
+def _product_type():
+    p = _app.activeProduct
+    return p.productType if p else None
+
+
+def ecad(command):
+    """Send one EAGLE command to the active schematic or board editor (no result comes back)."""
+    _app.executeTextCommand("Electron.run " + command)
+    adsk.doEvents()
+
+
+def ecad_open(which):
+    """Switch the active electronics design to 'sch', 'brd' or '3d' and wait until it is active."""
+    cmd, ptype = {
+        "sch": ("SwitchSchDocCmd", "SchematicProductType"),
+        "brd": ("SwitchPcbDocCmd", "BoardProductType"),
+        "3d": ("Switch3dPcbDocCmd", "DesignProductType"),
+    }[which]
+    _app.userInterface.commandDefinitions.itemById(cmd).execute()
+    if not _wait_for(lambda: _product_type() == ptype):
+        raise RuntimeError(f"ecad_open({which!r}): still {_product_type()} after 20 s")
+    return _app.activeProduct
+
+
+def ecad_new(grid_mm=1.27):
+    """A new electronics design (schematic + board), with its schematic open on a mm grid."""
+    _app.userInterface.commandDefinitions.itemById("NewElectronDesignDocumentCommand").execute()
+    if not _wait_for(lambda: _product_type() == "EcadDesignProductType"):
+        raise RuntimeError(f"ecad_new: no electronics design appeared ({_product_type()})")
+    ecad_open("sch")
+    ecad(f"GRID MM {grid_mm} ON")
+    return sch()
+
+
+def sch():
+    s = adsk.electron.Schematic.cast(_app.activeProduct)
+    if not s:
+        raise RuntimeError(f"No schematic is active ({_product_type()}): ecad_open('sch') first.")
+    return s
+
+
+def brd():
+    b = adsk.electron.Board.cast(_app.activeProduct)
+    if not b:
+        raise RuntimeError(f"No board is active ({_product_type()}): ecad_open('brd') first.")
+    return b
+
+
+def _part(name):
+    for p in _iter(sch().parts):
+        if p.name == name:
+            return p
+    return None
+
+
+def sch_place(add_name, ref, x, y, value=None, angle=0):
+    """Place `add_name` (exactly as `fusion_parts.py search` prints it) as `ref` at x, y mm."""
+    if _part(ref):
+        raise RuntimeError(f"{ref} is already in the schematic")
+    ecad(f"ADD {add_name} {ref} R{angle} ({x} {y})")
+    if not _part(ref):
+        raise RuntimeError(
+            f"ADD {add_name} placed nothing: the name is not in Fusion's libraries "
+            "(look it up with scripts/fusion_parts.py; gotcha 20)"
+        )
+    if value is not None:
+        if not _part(ref).deviceset.userValue:
+            # VALUE on such a part opens a modal "no user definable value" question that blocks
+            # the bridge (gotcha 21); the part's value is fixed by its library instead
+            raise RuntimeError(f"{ref} ({add_name}) has a fixed value; leave value=None")
+        ecad(f"VALUE {ref} '{value}'")
+    return _part(ref)
+
+
+def sch_pin(ref, pin):
+    """(x, y) in mm of a placed part's pin, plus the instance origin, for drawing nets."""
+    p = _part(ref)
+    if not p:
+        raise RuntimeError(f"no part {ref}")
+    for inst in _iter(p.instances):
+        for pn in _iter(inst.gate.symbol.pins):
+            if pn.name == pin:
+                return (pn.x / ECAD_U, pn.y / ECAD_U), (inst.x / ECAD_U, inst.y / ECAD_U)
+    names = [pn.name for inst in _iter(p.instances) for pn in _iter(inst.gate.symbol.pins)]
+    raise RuntimeError(f"{ref} has no pin {pin!r}; its pins: {names}")
+
+
+def sch_connect(net, ref, pin, stub_mm=5.08, label=True):
+    """A short wire from the pin, pointing away from the part, named `net`. Pins whose stubs share
+    a name are one net; no wire ever crosses another part (and so never joins a pin by accident)."""
+    (px, py), (ox, oy) = sch_pin(ref, pin)
+    dx, dy = px - ox, py - oy
+    if abs(dx) >= abs(dy):
+        ex, ey = px + (stub_mm if dx >= 0 else -stub_mm), py
+    else:
+        ex, ey = px, py + (stub_mm if dy >= 0 else -stub_mm)
+    ecad(f"NET {net} ({px} {py}) ({ex} {ey})")
+    if label:
+        ecad(f"LABEL ({ex} {ey}) ({ex} {ey})")
+    if (ref, pin) not in sch_netlist().get(net, []):
+        raise RuntimeError(f"NET {net} did not reach {ref}.{pin}")
+
+
+def sch_netlist():
+    """{net name: [(part, pin), ...]} read from the schematic."""
+    out = {}
+    for n in _iter(sch().nets):
+        out[n.name] = sorted((r.part.name, r.pin.name) for r in _iter(n.pinRefs))
+    return out
+
+
+def brd_elements():
+    """{name: (x_mm, y_mm, angle)} for every part on the board."""
+    return {e.name: (e.x / ECAD_U, e.y / ECAD_U, e.angle) for e in _iter(brd().elements)}
+
+
+def brd_move(ref, x, y, angle=None):
+    """Move a board part to x, y mm (and rotate it to `angle`), then check it got there."""
+    ecad(f"MOVE {ref} ({x} {y})")
+    if angle is not None:
+        ecad(f"ROTATE =R{angle} {ref}")
+    ex, ey, _ = brd_elements()[ref]
+    if abs(ex - x) > 0.01 or abs(ey - y) > 0.01:
+        raise RuntimeError(f"MOVE {ref}: it is at ({ex:.2f}, {ey:.2f}), not ({x}, {y})")

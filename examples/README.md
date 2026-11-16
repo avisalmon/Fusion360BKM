@@ -31,6 +31,10 @@ spec, and the screenshot was looked at; the page says when, in which Fusion vers
 | 04 | `04_vacuum_nozzle` | Babook lesson 5 | round to rectangle: `loft` (helper to write), shell, a fit on a real hose diameter | to do |
 | 05 | `05_mug` | Babook lesson 6 | revolve, a handle by `sweep` along a path (helper to write), shell, fillets | to do |
 | 06 | [`06_sketched_box`](06_sketched_box/README.md) a tray from the owner's paper note: 100 x 80 x 27 mm, 2 mm walls, four 6 mm floor holes | none (the owner's brief; the first `sketch-to-design` run) | reading a hand drawing in order, gaps as one question each, `shell`, holes cut from the underside, numeric vs parametric helpers, the archive re-opened | **built 2026-10-27**, checked by numbers and by eye against the drawing; not printed |
+| 10 | [`10_led_switch_board`](10_led_switch_board/README.md) battery connector, slide switch, resistor, LED; then a case | none (opens the electronics stage) | parts from Fusion's libraries, a schematic from EAGLE commands checked by reading it back; next: board, factory files, case | **schematic 2026-11-16**; board, factory files, case to do |
+| 11 | `11_555_blinker` a 555 LED flasher | none | an IC footprint, more nets, a result that proves the schematic (it blinks) | to do |
+| 12 | `12_usbc_sensor` USB-C, 3.3 V regulator, I2C sensor | none | SMD parts from our own library with LCSC numbers, JLCPCB assembly files | to do |
+| 13 | `13_esp32c3_board` ESP32-C3 module board | none | density, a ground pour, fab limits really tested | to do |
 | | *then the owner's ideas: an enclosure for a real board, a phone stand, more paper notes* | | | |
 
 The starting point for your own design is not an example but the template:

@@ -111,6 +111,14 @@ bodies(comp=None); body_info(comp=None)
 export_step(path); export_stl(path, body=None, refinement='high'); export_f3d(path)
 fit(); screenshot(path, width=1280, height=800, do_fit=True); set_appearance_color(body, r, g, b, name=None)
 ValueInput, Point3D, Vector3D (adsk.core classes re-exported)
+
+electronics (EAGLE commands write, the read-only API checks; mm on the editor's grid):
+ECAD_U = 320000 (EAGLE units per mm)
+ecad_new(grid_mm=1.27); ecad_open(which); ecad(command)        which: 'sch' | 'brd' | '3d'
+sch(); brd()
+sch_place(add_name, ref, x, y, value=None, angle=0)            add_name from scripts/fusion_parts.py
+sch_pin(ref, pin); sch_connect(net, ref, pin, stub_mm=5.08, label=True); sch_netlist()
+brd_elements(); brd_move(ref, x, y, angle=None)                 written, not yet run
 ```
 
 Not wrapped yet (write the helper when an example needs it, probe first, test it): **loft, sweep, threads,
