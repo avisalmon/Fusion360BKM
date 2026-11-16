@@ -41,13 +41,22 @@
 | Section view / section analysis for screenshots | IDEA |
 | Convert mesh (STL) to solid | IDEA |
 
-## Epic 3 - Electronics (Stage 3, later)
+## Epic 3 - Electronics: a circuit from the chat, our own parts library, reliable production, a case around it
 
-| Item | Status |
-|---|---|
-| Probe Fusion Electronics from the API: what is exposed in 2706 (schematic, library, board outline) | TODO |
-| A board outline from a 3D enclosure, or an enclosure from a board's `.step` | IDEA |
-| Push a 3D PCB into the mechanical design and check the fit | IDEA |
+The owner's goal (2026-11-16), in this order. Each row is done only when it is seen working in Fusion, with the
+evidence written in [fusion_reference.md](fusion_reference.md) and the `fusion-electronics` skill.
+
+| Item | Done when | Status |
+|---|---|---|
+| E3.1 Probe Fusion Electronics from the bridge: product types, API objects, text commands, EAGLE-style scripts | every finding is a tagged row in the reference, with the Fusion version | TODO |
+| E3.2 Choose the route (API, EAGLE script/ULP run inside Fusion, or generated EAGLE file imported) | the roadmap names the route and the reason | TODO |
+| E3.3 A first circuit from the chat: battery header, switch, resistor, LED; schematic, then board | ERC and DRC clean; schematic and board screenshots match the request | TODO |
+| E3.4 Library parts understood: where Fusion's parts come from, how a part is symbol + footprint + 3D package + manufacturer number | a short lesson in the skill and the reference | TODO |
+| E3.5 Our own library: known-good parts (each with footprint checked against the datasheet, 3D model, MPN and supplier number), versioned in the repo | the first circuit is rebuilt from our library only | TODO |
+| E3.6 Reliable production: fab design rules (JLCPCB first), Gerbers + drill + BOM + pick-and-place from a saved CAM job, checked by an independent reader | files open cleanly outside Fusion; a checklist the doctor can run | TODO |
+| E3.7 The board in 3D and a case around it: board outline, holes and connector positions feed `templates/parametric_box` | the board sits on the standoffs in the design; screenshot and clearances checked | TODO |
+| E3.8 Example `07_led_board_in_case`: all of the above, end to end, with evidence | example README with what was verified | TODO |
+| Order a real board and print the case; measure the fit | human-only steps; record the result | IDEA |
 
 ## Epic 4 - Infrastructure
 
