@@ -68,7 +68,10 @@ first person to do each should record the evidence here and in the relevant READ
   the first working call becomes a helper.
 * **Electronics** (the user's Stage 3 goal: schematics, boards, fitting a board into an enclosure): the
   route chosen 2026-11-16: EAGLE commands through `Electron.run` write, `adsk.electron` reads back. Verified: a new
-  electronics design, a placed part, a net between two pins. Not yet: the board, libraries, CAM output, the 3D PCB.
+  electronics design, a schematic and a routed board (`examples/10_led_switch_board`), Fusion's ERC and board check,
+  our own netlist and rule check against JLCPCB's limits, Gerber and drill files from a CAM job read back by a
+  simulated factory (2026-11-17, [board_checks_and_factory.md](procedures/board_checks_and_factory.md)). Not yet: an
+  order placed (JLCPCB's review and a real electrical test), our own library, the 3D PCB and its case.
 * **Assemblies**: components exist (`new_component`), joints and motion do not.
 * **macOS**: `install` would make a symlink and `launch` would need the macOS path; `fusion_dialog.ps1` is Windows
   only.

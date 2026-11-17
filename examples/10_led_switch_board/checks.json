@@ -1,0 +1,19 @@
+{
+  "about": "What scripts/pcb_check.py and factory_check.py hold this board to, besides the fab profile. 'nets' is the design intent from the README, written by hand: the schematic must match it exactly. 'approved' findings stay in the report with their reason and stop counting as problems; each one is a decision, not an oversight.",
+  "fab": "jlcpcb_2layer",
+  "nets": {
+    "VBAT": ["J1.1", "SW1.P"],
+    "VSW": ["SW1.O", "R1.1"],
+    "LED_A": ["R1.2", "D1.A"],
+    "GND": ["D1.C", "J1.2"]
+  },
+  "unconnected_ok": ["SW1.S"],
+  "approved": [
+    {"code": "SILK-WIDTH", "match": "R1", "why": "Tinkercad's R1 footprint draws 0.12 mm lines; they print faint, only a label. Our own library (backlog E3.5) fixes it"},
+    {"code": "SILK-WIDTH", "match": "0.120 mm", "why": "the same R1 footprint lines, measured on the Gerber"},
+    {"code": "SILK-PAD", "match": "R1", "why": "R1's lead marks touch its pads; the fab trims silk at pads, nothing else is affected"},
+    {"code": "SILK-ON-PAD", "match": "11.0)", "why": "R1's pads (10.92 / 21.08, 11.0): the same lead marks, trimmed by the fab"},
+    {"code": "NPTH-PLATED", "match": "board hole", "why": "M3 screw holes: plated is fine for a screw"},
+    {"code": "LCSC", "match": "D1, J1, R1, SW1", "why": "a through-hole kit, soldered by hand: no assembly is ordered"}
+  ]
+}

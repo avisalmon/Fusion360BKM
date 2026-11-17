@@ -22,6 +22,8 @@ for x, y in HOLES:
     brd_hole(x, y)
 for ref, x, y, a in PLACE:
     brd_move(ref, x, y, a)
+# SparkFun's parts print their names 0.61 mm high; the fab prints 1.0 mm and up legibly
+brd_name_size(1.0)
 
 j1, j2 = brd_pad("J1", "1"), brd_pad("J1", "2")
 sw_c, sw_o = brd_pad("SW1", "2"), brd_pad("SW1", "1")  # common, and the "on" throw

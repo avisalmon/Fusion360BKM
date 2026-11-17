@@ -38,6 +38,9 @@ exports/
 *.smt
 *.gcode
 
+# The upload zip is rebuilt by scripts/factory_check.py from the committed Gerbers.
+examples/**/factory/*.zip
+
 # Your own designs stay on your computer unless you decide otherwise (copy to examples/ to share).
 my_designs/*
 !my_designs/README.md

@@ -11,11 +11,13 @@ Positions in mm on a 1.27 mm grid; the corners were chosen from the pins' read-b
 so that no wire passes another pin. Schematic first; board, case and factory files follow.
 """
 
+# Every part gets a value: the ERC calls a missing one an error, and the BOM line needs it
+# (D1's library fixes its value; ecad_open answers Fusion's "change it anyway?" with yes).
 PARTS = [  # ref, part as Fusion names it, value, x, y, orientation
     ("J1", "B2B-XH-A@Connector", None, 20.32, 30.48, "MR0"),  # mirrored: pins face the loop
-    ("SW1", "SWITCH-SPDT-PTH-11.6X4.0MM@SparkFun-Switches", None, 40.64, 40.64, 0),
+    ("SW1", "SWITCH-SPDT-PTH-11.6X4.0MM@SparkFun-Switches", "SPDT", 40.64, 40.64, 0),
     ("R1", "RESISTOR_AXIAL-10.16MM-PITCH@Tinkercad", "100R", 66.04, 40.64, 0),
-    ("D1", "LED5MM@SparkFun-LED", None, 86.36, 30.48, 0),
+    ("D1", "LED5MM@SparkFun-LED", "RED 5MM", 86.36, 30.48, 0),
 ]
 
 WIRES = [  # net, from pin, to pin, corners (mm)

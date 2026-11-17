@@ -84,6 +84,13 @@ __all__ = [
     "brd_pad",
     "brd_route",
     "brd_report",
+    "brd_name_size",
+    "sch_erc",
+    "brd_errors",
+    "ecad_export",
+    "ecad_save",
+    "cam_export",
+    "repo_path",
 ]
 
 MM = 0.1  # 1 mm in Fusion's cm world
@@ -820,6 +827,10 @@ def ecad_open(which):
         # coordinates in commands are in the editor's grid unit; a new board is in mil, so
         # "MOVE (100 0)" meant 2.54 mm and dragged the wrong corner (gotcha 24)
         ecad("GRID MM ON")
+        # answer EAGLE's yes/no questions with yes instead of a modal dialog that blocks the bridge
+        # ("Part 'J1' has no user definable value. Change it anyway?", gotcha 21); every write is
+        # read back anyway
+        ecad("SET CONFIRM YES")
     return _app.activeProduct
 
 
@@ -867,11 +878,10 @@ def sch_place(add_name, ref, x, y, value=None, angle=0):
             "(look it up with scripts/fusion_parts.py; gotcha 20)"
         )
     if value is not None:
-        if not _part(ref).deviceset.userValue:
-            # VALUE on such a part opens a modal "no user definable value" question that blocks
-            # the bridge (gotcha 21); the part's value is fixed by its library instead
-            raise RuntimeError(f"{ref} ({add_name}) has a fixed value; leave value=None")
+        # a part whose library fixes its value asks "change it anyway?"; ecad_open set CONFIRM YES
         ecad(f"VALUE {ref} '{value}'")
+        if _part(ref).value != value:
+            raise RuntimeError(f"VALUE {ref} did not take: the value is {_part(ref).value!r}")
     return _part(ref)
 
 
@@ -1025,3 +1035,169 @@ def brd_report():
         "parts": brd_elements(),
         "signals": sig,
     }
+
+
+def _settle(seconds):
+    """Let Fusion finish work started by a UI command (it runs on this same thread)."""
+    import time
+
+    end = time.time() + seconds
+    while time.time() < end:
+        adsk.doEvents()
+        time.sleep(0.1)
+
+
+_ERR_TYPE = {0: "warning", 1: "error", 2: "consistency", 3: "airwire", 4: "airwire"}
+_ERR_STATE = {0: "active", 1: "processed", 2: "approved"}
+
+
+def _errors(product):
+    return [
+        {
+            "type": _ERR_TYPE.get(e.errorType, str(e.errorType)),
+            "state": _ERR_STATE.get(e.state, str(e.state)),
+            "description": e.description,
+            "parts": [p for p in (e.s1, e.s2, e.s3, e.s4, e.s5, e.s6) if p],
+            "layer": e.layer,
+            "x": round(e.x / ECAD_U, 3),
+            "y": round(e.y / ECAD_U, 3),
+        }
+        for e in _iter(product.errors)
+    ]
+
+
+def sch_erc():
+    """Run Fusion's electrical rule check on the schematic and return its findings (the list in
+    Fusion's Errors panel), e.g. {'type': 'error', 'description': 'Part SW1 has no value', ...}."""
+    ecad_open("sch")
+    _app.userInterface.commandDefinitions.itemById("Electron::ERC").execute()
+    _settle(4)
+    if not sch().checked:
+        raise RuntimeError("the ERC did not run (the schematic is not marked checked)")
+    return _errors(sch())
+
+
+def brd_errors():
+    """Fusion's own board check ('Check Design Rules', Electron::Errors) and its findings. Fusion
+    checks as you edit: its router refuses a track or hole that breaks a rule (a stray wire stopped
+    0.15 mm short of GND; a hole on a track was not placed), and the list here holds what is left,
+    such as unrouted airwires. Board.checked stays False on 2706.1.17 even after the check."""
+    ecad_open("brd")
+    _app.userInterface.commandDefinitions.itemById("Electron::Errors").execute()
+    _settle(4)
+    return _errors(brd())
+
+
+def ecad_export(folder, stem):
+    """Write the design as EAGLE 9 XML: <folder>/<stem>.sch and <stem>.brd, the files that
+    scripts/pcb_check.py and factory_check.py read (no Fusion needed after this)."""
+    os.makedirs(folder, exist_ok=True)
+    out = {}
+    for which in ("sch", "brd"):
+        p = ecad_open(which)
+        path = os.path.join(folder, f"{stem}.{which}")
+        em = p.exportManager
+        if which == "sch":
+            opts = em.createEagleSchExportOptions(path)
+        else:
+            opts = em.createEagleBrdExportOptions(path)
+        if not em.execute(opts) or not os.path.exists(path):
+            raise RuntimeError(f"export of {path} failed")
+        out[which] = path
+    return out
+
+
+def ecad_save(
+    name, folder="Fusion360BKM", project="Default Project", description="built by script"
+):
+    """Save the electronics design to the Fusion cloud (CAM output needs a saved design: an
+    unsaved one gives "CAM output directory does not exist or is empty", gotcha 28). A design
+    saved before gets a new version; a new one goes to <project>/<folder>/<name>. Fusion allows
+    two designs with one name (each save of a new design makes three files: .fprj, .fsch, .fbrd),
+    so a rebuilt design whose name is taken gets the date and time added instead of a twin."""
+    doc = _app.activeDocument
+    if doc.dataFile is not None:
+        doc.save(description)
+    else:
+        projects = [p for p in _iter(_app.data.activeHub.dataProjects) if p.name == project]
+        if not projects:
+            raise RuntimeError(f"no Fusion project called {project!r}")
+        root = projects[0].rootFolder
+        found = [f for f in _iter(root.dataFolders) if f.name == folder]
+        target = found[0] if found else root.dataFolders.add(folder)
+        if any(f.name == name for f in _iter(target.dataFiles)):
+            import datetime
+
+            name = f"{name} {datetime.datetime.now():%Y-%m-%d %H%M}"
+        doc.saveAs(name, target, description, "")
+    if not _wait_for(lambda: doc.dataFile is not None and doc.isSaved, timeout_s=60):
+        raise RuntimeError("the design did not finish saving in 60 s")
+    return doc.name
+
+
+def cam_export(dest, job=None):
+    """Gerber and drill files from a CAM job (default: production/cam/two_layer.cam) into `dest`,
+    through the hidden Electron.mfgexport text command. Fusion writes to <the parent of the folder
+    it is given>/<job>/<job>.gbr/CAMOutputs/..., so this runs it in a scratch folder and copies the
+    files to `dest`, flat. Needs a saved design (ecad_save); paths must not contain spaces."""
+    import glob
+    import shutil
+    import tempfile
+
+    here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    job = job or os.path.join(here, "production", "cam", "two_layer.cam")
+    scratch = tempfile.mkdtemp(prefix="fusion_cam_")
+    if " " in job or " " in scratch:
+        raise RuntimeError(f"Electron.mfgexport breaks on spaces in paths: {job} / {scratch}")
+    ecad_open("brd")
+    try:
+        said = _app.executeTextCommand(f"Electron.mfgexport {os.path.join(scratch, 'out')} {job}")
+        pattern = os.path.join(scratch, "**", "*")
+        files = [f for f in glob.glob(pattern, recursive=True) if os.path.isfile(f)]
+        if not files:
+            raise RuntimeError(f"Electron.mfgexport said {said!r} but wrote no files")
+        os.makedirs(dest, exist_ok=True)
+        for f in files:
+            shutil.copy2(f, os.path.join(dest, os.path.basename(f)))
+        return sorted(os.path.basename(f) for f in files)
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
+
+
+def brd_name_size(size=1.0):
+    """Make every part name printed on the silkscreen (layers 25/26) at least `size` mm tall.
+    Fusion's API has no text positions, so the board is exported to find each name's anchor, and
+    CHANGE SIZE is sent at that point; a second export confirms it (SparkFun's parts name
+    themselves 0.61 mm high; the fab prints 1.0 mm and up legibly)."""
+    import tempfile
+    import xml.etree.ElementTree as ET
+
+    def names():
+        path = os.path.join(tempfile.mkdtemp(prefix="fusion_brd_"), "b.brd")
+        b = brd()
+        b.exportManager.execute(b.exportManager.createEagleBrdExportOptions(path))
+        out = {}
+        for e in ET.parse(path).getroot().iter("element"):
+            for a in e.findall("attribute"):
+                if a.get("name") == "NAME" and a.get("layer") in ("25", "26"):
+                    out[e.get("name")] = (
+                        float(a.get("x")),
+                        float(a.get("y")),
+                        float(a.get("size")),
+                    )
+        return out
+
+    ecad_open("brd")
+    small = {ref: v for ref, v in names().items() if v[2] < size - 1e-6}
+    for x, y, _ in small.values():
+        ecad(f"CHANGE SIZE {size} ({x} {y})")
+    after = names()
+    still = [ref for ref in small if after[ref][2] < size - 1e-6]
+    if still:
+        raise RuntimeError(f"name text of {still} did not change size")
+    return sorted(small)
+
+
+def repo_path(*parts):
+    """A path inside this repository (scripts run through the bridge have no __file__)."""
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), *parts)

@@ -106,7 +106,7 @@ Keep the checklist honest: tick a box in the same commit that does the work, so 
 | Open `.f3d`, import STEP/STL, export STL/STEP/F3D, screenshots, saving, the cloud | `fusion-files` |
 | Words, a hand-drawn sketch, a photo or a real object -> a dimensioned spec -> a script | `sketch-to-design` |
 | Teach, explain, review a design, printability and tolerances | `fusion-mentor` |
-| Schematics, PCBs, the Electronics workspace (research first; unverified) | `fusion-electronics` |
+| Schematics, PCBs, design rules, factory files (verified to checked Gerbers; 3D board and case not yet) | `fusion-electronics` |
 | The owner's own GitHub repository, push, sharing a part | `publish-to-github` |
 | (Maintainer) building the next example in `examples/NN_name/`: page, media, archive, badge, catalogue card | `build-example` |
 
@@ -171,8 +171,8 @@ pushed without the owner's go-ahead. Designs the owner wants to share move from 
 Offer the next steps from the roadmap's "not covered yet" list, one at a time: a design from a **hand-drawn
 sketch or photo** (`sketch-to-design`: the owner photographs a napkin sketch with dimensions, you read it back as a
 spec first); a second part that must **fit** the first (assemblies: components and joints, which the helpers do
-not wrap yet); text and emboss; threads; the **Electronics** workspace (`fusion-electronics`: research first, probe
-the API, record facts before using them). Each of these is new ground for this blueprint: research it, put the
+not wrap yet); text and emboss; threads; a **circuit board** (`fusion-electronics`: schematic, board, checks and factory files are verified on
+example 10; its 3D board and case are the open frontier). Each of these is new ground for this blueprint: research it, put the
 facts in the reference with their sources before using them, and land what you learn as a procedure, an example
 and a skill update (CLAUDE.md rule 10). An object worth keeping becomes the next example (`build-example`): that is
 how this blueprint grows, one verified example at a time, each teaching the skills something new.

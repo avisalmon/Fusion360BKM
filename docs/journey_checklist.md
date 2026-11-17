@@ -57,7 +57,7 @@ is in [get_started.md](get_started.md); stage 2 (the Babook course) is optional 
 - [ ] Text and emboss (the coin example)
 - [ ] Loft and sweep (the nozzle and mug examples)
 - [ ] Threads
-- [ ] The Electronics workspace (`fusion-electronics`: research first)
+- [ ] A circuit board: schematic, board, checks, factory files (`fusion-electronics`; example 10 shows the road)
 - [ ] An object worth keeping promoted to `examples/` (`build-example`)
 
 ## Graduation

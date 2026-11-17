@@ -67,14 +67,22 @@ whether or not it worked). Research behind it: the `fusion-electronics` skill.
 |---|---|
 | `adsk.electron` exists: `Schematic`, `Board`, `Library`, `EcadDesign`, parts, instances, nets, pins, elements, signals, device sets, packages, 3D packages, attributes, export manager | [verified] 2706.1.17 |
 | It is read-only: the only writers are `deleteEntities`, `Sheets.create`, `begin/end/cancelDesignChange` and the EAGLE `.sch/.brd/.lbr` export. No add, place, wire or route | [verified] 2706.1.17 |
-| `adsk.core.DocumentTypes` has only `FusionDesignDocumentType`; a new electronics document comes from the UI command `commandDefinitions.itemById('NewElectronDesignDocumentCommand').execute()` (no dialog; `ping` then shows `EcadDesignProductType`). `SwitchSchDocCmd`, `SwitchPcbDocCmd`, `Switch3dPcbDocCmd` open the linked schematic, 2D PCB, 3D PCB | [verified] design + schematic switch; PCB and 3D switch not yet |
-| `TextCommands.List /hidden` lists the `Electron.*` text commands, among them `Electron.run <EAGLE command>`, `Electron.runScript <file.scr>`, `Electron.mfgexport <outputDir> <camJobFile>` (Gerber/drill/assembly from a CAM job), `Electron.mfgodb`, `Electron.importSchAndBrd`, `Electron.Create3DPackage <footprint.xml>`, `Electron.showBom`, `Electron.version` | [verified] listed; only `run` tried so far |
+| `adsk.core.DocumentTypes` has only `FusionDesignDocumentType`; a new electronics document comes from the UI command `commandDefinitions.itemById('NewElectronDesignDocumentCommand').execute()` (no dialog; `ping` then shows `EcadDesignProductType`). `SwitchSchDocCmd`, `SwitchPcbDocCmd`, `Switch3dPcbDocCmd` open the linked schematic, 2D PCB, 3D PCB | [verified] design, schematic and PCB switch; 3D not yet |
+| `TextCommands.List /hidden` lists the `Electron.*` text commands, among them `Electron.run <EAGLE command>`, `Electron.runScript <file.scr>`, `Electron.mfgexport <outputDir> <camJobFile>` (Gerber/drill/assembly from a CAM job), `Electron.mfgodb`, `Electron.importSchAndBrd`, `Electron.Create3DPackage <footprint.xml>`, `Electron.showBom`, `Electron.version` | [verified] listed; `run` and `mfgexport` tried |
 | `Electron.run GRID MM 1 ON` changes the grid (read back: `grid.unit` 1 = mm, `distance` 1.0). A new schematic starts on a 0.1 inch grid | [verified] |
 | `Electron.run ADD <device>@<library> <name> R0 (x y)` places a part at x, y in the grid's unit with that name; without a name it is numbered (C2). A library that is not among Fusion's managed libraries places **nothing, silently** (`R-US_0805@rcl` and `LED5MM@led` failed; `0.1UF-0402-16V-10%@SparkFun-Capacitors` worked) | [verified] |
 | Device name = the Place panel's component + variant joined (`0.1UF` + `-0402-16V-10%`) | [verified] one part |
 | Coordinates in the API are EAGLE internal units: **320000 per mm**. A placed symbol's `pins.item(i).x / y` are absolute sheet positions, so they are the points to aim `NET` at | [verified] |
 | `Electron.run NET VCC (x1 y1) (x2 y2)` drawn pin to pin makes a net named VCC; `sch.nets[...].pinRefs` lists exactly the two pins | [verified] |
 | `fusion.py shot` fails in the electronics editors (no 3D viewport: `'NoneType' object has no attribute 'fit'`); capture the Fusion window with Windows instead | [verified] gotcha 18 |
+| Board: the outline is wires on layer 20 (a new board starts as a 100 x 80 mm rectangle at 0,0); copper is layers 1 (top) and 16 (bottom); unrouted connections are airwires on layer 19; `board.holes` are the non-plated holes. A pad's `contact.x / y` are in the footprint's own coordinates: turn by the element's angle, mirror, add its position (`brd_pad`) | [verified] 2706.1.17 |
+| `Electron.run SET CONFIRM YES` makes EAGLE answer its own yes/no questions (the fixed-value `VALUE` question no longer blocks); `CHANGE SIZE 1.0 (x y)` resizes the text anchored at x, y | [verified] 2026-11-17 |
+| ERC: `commandDefinitions.itemById('Electron::ERC').execute()` checks the schematic; `Schematic.errors` then lists the findings (`errorType` 0 warning, 1 error, 2 consistency, 3 airwire; `state` 0 active, 1 processed, 2 approved) and `Schematic.checked` is True. "Part SW1 has no value" is type 1 | [verified] 2026-11-17 |
+| Board check: `Electron::Errors` ("Check Design Rules") fills `Board.errors` (an airwire showed as type 4); `Board.checked` stays False (gotcha 32). Fusion also checks while editing and refuses rule-breaking wires and holes (gotcha 29). `Electron::DRC` / `DRC` only opens the rule-set dialog (gotcha 27). Default rules: 6 mil clearances and width, 1.02 mm copper to edge, 0.35 mm minimum drill, pad ring 25 % of the drill within 10-20 mil | [verified] 2026-11-17 |
+| `product.exportManager.execute(exportManager.createEagleSchExportOptions(path))` (and `createEagleBrdExportOptions`) write EAGLE 9.7 XML with libraries, nets, signals, pads, design rules: the input of `pcb_check.py` | [verified] 2026-11-17 |
+| `Electron.mfgexport <dir> <camJob>` makes Gerber RS-274X and Excellon from a CAM job, on a saved design only, written under `<parent of dir>/<job>/<job>.gbr/` (gotcha 28); the job's assembly outputs (BOM, pick-and-place) produced nothing. Fusion ships CAM jobs in `...\Electron\LibEagle\examples\cam\examples\` | [verified] 2026-11-17 |
+| Saving: `doc.saveAs(name, dataFolder, description, '')` works for an electronics design (folder from `app.data.activeHub.dataProjects`); it makes `.fprj`, `.fsch`, `.fbrd` files, and duplicate names are allowed (gotcha 30). `app.data.activeProject` raised `InternalValidationError : group` | [verified] 2026-11-17 |
+| Fusion's managed libraries are cached as EAGLE `.lbr` XML under `%LOCALAPPDATA%\Autodesk\Autodesk Fusion 360\Electron\<id>\lbr\` (61 of them here): `scripts/fusion_parts.py` searches them | [verified] 2026-11-16 |
 
 ## 3D printing rules of thumb
 
@@ -121,7 +129,12 @@ sch_pin(ref, pin); sch_wire(net, a, b, via=()); sch_netlist()           a, b: ('
 sch_connect(net, ref, pin, stub_mm=5.08, label=True)            a labelled stub, for dense sheets
 brd_elements(); brd_move(ref, x, y, angle=None)
 brd_outline(width, height); brd_hole(x, y, drill=3.2); brd_pad(ref, pad)
-brd_route(signal, points, width=0.5, layer=1); brd_report()
+brd_route(signal, points, width=0.5, layer=1); brd_report(); brd_name_size(size=1.0)
+sch_erc(); brd_errors()                                         Fusion's own checks: lists of findings
+ecad_save(name, folder='Fusion360BKM', project='Default Project', description=...)
+ecad_export(folder, stem) -> {'sch': path, 'brd': path}       EAGLE XML for scripts/pcb_check.py
+cam_export(dest, job=None) -> [files]                         Gerber + drill (production/cam/two_layer.cam)
+repo_path(*parts)                                               a path in this repo (bridge scripts have no __file__)
 ```
 
 Not wrapped yet (write the helper when an example needs it, probe first, test it): **loft, sweep, threads,

@@ -11,6 +11,7 @@ Start with the [README](../README.md) (the four stages) or the start page ([inde
 | [procedures/install_bridge.md](procedures/install_bridge.md) | Link the add-in, start Fusion, `doctor`, `ping`, the update dialog |
 | [procedures/design_flow.md](procedures/design_flow.md) | Words or a sketch -> spec -> script -> run -> verify by numbers and by eye -> export |
 | [procedures/files_and_export.md](procedures/files_and_export.md) | Open `.f3d`, import STEP/STL, export STL/STEP/F3D, screenshots, saving |
+| [procedures/board_checks_and_factory.md](procedures/board_checks_and_factory.md) | Electronics: the four layers of checks (Fusion's ERC and board check, `pcb_check.py`, the simulated factory), every check code, the fab profile, the CAM job, what is not checked yet |
 | [procedures/gotchas.md](procedures/gotchas.md) | Numbered table of what went wrong and the fix (never renumbered) |
 | [lessons_log.md](lessons_log.md) | What's new in this guide, by date (the README's "Last updated" is stamped from it) |
 | [blueprint_roadmap.md](blueprint_roadmap.md) | What was verified here, what was not yet, what is not covered; known limits |

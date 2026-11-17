@@ -4,6 +4,24 @@ The short version of every lesson in this blueprint, newest first, so you can se
 Each line points to where the full rule lives. Most of them came from something going wrong, or from checking an
 assumption against a running Fusion and finding it was not quite true.
 
+## 2026-11-17
+
+- **The first board passed every check we have, and its factory files were made and read back like a factory
+  would.** Fusion's ERC and board check are clean; our own `scripts/pcb_check.py` checks the netlist against the
+  intent in `checks.json`, the schematic against the board, routing, and JLCPCB's limits (read from their site,
+  dated); `scripts/factory_check.py` reads the Gerbers and drill file, simulates the bare-board electrical test
+  (copper alone gives the schematic's 4 nets: no opens, no shorts), and writes the BOM, pick-and-place and a zip to
+  upload. Tests break copies of the board on purpose so each check proves it catches its fault.
+  [board_checks_and_factory.md](procedures/board_checks_and_factory.md)
+- **Fusion's own checks are not enough on their own.** Its default rules are not the fab's (the router's 1.27 mm
+  from the edge was its 1.02 mm Board Outline Clearance), it silently refuses edits that break them, `DRC` only
+  opens a rule dialog, and `Board.checked` never turns true. An independent check on the exported files is the
+  proof. [gotchas 26-29, 32](procedures/gotchas.md)
+- **Factory files need a saved design.** `Electron.mfgexport` failed until the design was saved to the Fusion cloud,
+  then wrote to an unexpected folder; saving also allows twins with the same name. [gotchas 28, 30](procedures/gotchas.md)
+- **Read the factory files, not only the design.** The Gerber showed what the design did not: Fusion hatches
+  thick silkscreen arcs with hairlines, and puts the M3 holes into the plated drill file. [gotchas 31, 33](procedures/gotchas.md)
+
 ## 2026-11-16
 
 - **The first board's schematic was drawn from the chat** ([examples/10_led_switch_board](../examples/10_led_switch_board/README.md)),

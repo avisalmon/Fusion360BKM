@@ -1,104 +1,93 @@
 ---
 name: fusion-electronics
 description: >
-  The research-first playbook for the next stage of this blueprint, Fusion's Electronics workspace
-  (schematics, PCB layout, footprints, 3D PCB into an enclosure). Nothing in it is verified yet: it says
-  exactly what is known, what to probe in the running Fusion first, how to record findings in the
-  reference before using them, and the fallback plan (generate EAGLE-compatible files and import them).
-  Use it to plan and research; never to claim an electronics capability that has not been tried.
-  TRIGGER: "schematic", "circuit", "pcb", "board layout", "footprint", "electronics workspace",
-  "eagle", "gerber", "component library", "put the board in the box", "pcb outline", "3d pcb", "design
-  the circuit", "wire up", "netlist", "bom".
+  Design a circuit board in Fusion's Electronics workspace from the chat, and prove it ready for a factory:
+  parts looked up in Fusion's libraries, a readable schematic, a placed and routed board, Fusion's ERC and board
+  check, our own netlist and rule check against the fab's limits (JLCPCB), Gerber and drill files from a CAM job,
+  and a simulated factory that reads them back (electrical test, BOM, pick-and-place, upload zip). Verified on
+  Fusion 2706.1.17 with examples/10_led_switch_board; the 3D board and its case are the next step, not yet done.
+  TRIGGER: "schematic", "circuit", "pcb", "board layout", "footprint", "electronics workspace", "eagle", "erc",
+  "drc", "design rules", "netlist", "route", "gerber", "drill file", "factory files", "manufacture", "jlcpcb",
+  "order the board", "bom", "pick and place", "component library", "3d pcb", "put the board in the box".
 ---
 
-# Fusion electronics (research first; not yet verified)
+# Fusion electronics: from a circuit in words to files a factory can make
 
-The owner's goal for this blueprint is 3D parts **and** electronics, then the two fitted together (a PCB designed in
-Fusion, its 3D model dropped into an enclosure designed from the same chat). Fusion has an Electronics workspace
-(the former EAGLE) for that. **This repo has not yet driven it from the bridge, and the API side is not
-established.** Everything in this skill is a plan, tagged, to be turned into facts in
-[docs/fusion_reference.md](../../../docs/fusion_reference.md) as it is tried. Part of the journey
-([design-with-fusion](../design-with-fusion/SKILL.md), Phase 5).
+The owner's goal: a circuit created from the chat, parts understood and eventually from **our own library**,
+everything set for **reliable production**, then a **3D case** around the board. The road below is verified
+from the chat on Fusion 2706.1.17 (example `examples/10_led_switch_board`, 2026-11-16/17), except where it says
+"not yet". Facts with sources: [fusion_reference.md](../../../docs/fusion_reference.md) (Electronics section);
+traps: [gotchas.md](../../../docs/procedures/gotchas.md) 17-33; the checks in full:
+[board_checks_and_factory.md](../../../docs/procedures/board_checks_and_factory.md).
 
-## What is known, with tags
+## How it works (one paragraph to tell the owner)
 
-Researched 2026-11-16 from Autodesk's documentation and release notes; **none of it has been tried from this bridge yet**.
-Tags: `[doc]` Autodesk or vendor documentation, `[forum]` community or third-party, `[uncertain]` inferred,
-`[verified]` seen working here (with the Fusion version).
+Fusion's electronics Python API (`adsk.electron`) only **reads**. We **write** by sending EAGLE commands
+(`ADD`, `NET`, `MOVE`, `WIRE`, `HOLE`...) through `app.executeTextCommand("Electron.run ...")`, which answers
+nothing whether it worked or not, so **every write is read back** (the helpers do it). The design is then exported
+as EAGLE XML, and our own scripts check it and the factory files outside Fusion, so the proof does not depend on
+Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
 
-| Statement | Tag |
-|---|---|
-| Fusion has an official electronics Python API, `adsk.electron`, since build 2703.1.11 (May 2026): cast `app.activeProduct` to `Schematic`, `Board`, `Library` or `EcadDesign`; the model mirrors EAGLE's ULP (sheets/instances, elements/signals, deviceSets/devices). https://help.autodesk.com/cloudhelp/ENU/Fusion-360-API/files/ElectronicsIntro.htm | [doc] |
-| That API is a **read-only preview**: no creating or editing layout content. Its only output is `exportManager` -> EAGLE 9.6.2 `.sch` / `.brd` / `.lbr` XML. No CAM/Gerber, no import. https://help.autodesk.com/cloudhelp/ENU/Fusion-360-API/files/ElectronicsExport.htm | [doc] |
-| Every electronics editor has an EAGLE-style command line: `RUN file.ulp` runs a ULP, `SCRIPT file.scr` runs a command script. https://help.autodesk.com/cloudhelp/ENU/Fusion-ECAD/files/ECD-EXECUTE-ULP-REF.htm | [doc] |
-| Those commands can be sent from Python with `app.executeTextCommand` (`Electron.run ...`): fire-and-forget, no result back; interactive commands (bare `ADD`, `MOVE`, `EDIT`) hang; paths with spaces break; a new board is on an inch grid until `GRID MM`; move parts by name (`MOVE 'R1' (x y)`). Not documented by Autodesk. https://wiki.adom.inc/adom/fusion-bridge/files/README.md | [forum] |
-| September 2026 added a `NETROUTE` command "for schematic autorouting, scripting, automation and AI-driven workflows"; its syntax is not documented | [doc] release notes, syntax [uncertain] |
-| EAGLE `.sch` + `.brd` uploaded **together** become one linked electronics design; one at a time loses the link. Safe format target: EAGLE 9.6.x XML | [doc] / format [uncertain] |
-| Libraries live in the cloud (the Fusion hub), are switched on in the Library Manager and placed from the Place panel; a component = symbol + footprint + 3D package + attributes. Local EAGLE `.lbr` files import and convert to managed libraries. https://help.autodesk.com/cloudhelp/ENU/Fusion-ECAD/files/ECAD-CUSTOM-LIB-CPT.htm | [doc] |
-| Parts from vendors: SnapMagic (plugin or `.lbr`) and Ultra Librarian (`.lbr`); **no native LCSC/EasyEDA import** | [doc] / [forum] |
-| "Update design from library" (or the `UPDATE` command) pulls library changes into a design; an unmanaged library with the same name as a managed one blocks it | [doc] / [forum] |
-| Factory files: CAM Processor -> Gerber RS274X (X2 optional), Excellon drill, Assembly BOM and pick-and-place CSV; design rules load from a `.dru` in the DRC dialog. JLCPCB's guide (2026-09) says to rename the CPL headers and add an `LCSC` part-number attribute per part. https://jlcpcb.com/help/article/how-to-generate-bom-and-cpl-from-fusion360 | [doc] |
-| JLCPCB `.dru` / CAM jobs for EAGLE are community files, some with values that differ from JLCPCB's site: check against JLCPCB's current capabilities before use | [forum] |
-| No documented way to run a CAM job from a script; ULPs (`bom.ulp`, `mount.ulp`) can write BOM and placement files | [uncertain] / [doc] |
-| 2D board and 3D PCB are linked documents; changes are **pulled** (an "out of date" mark you accept). Board outline can be derived from a sketch ("associative PCB"); Autodesk advises outline first, then enclosure. https://help.autodesk.com/cloudhelp/ENU/Fusion-ECAD/files/ECD-SYNC-2D-AND-3D-TSK.htm | [doc] |
-| The 3D PCB's board and components are ordinary bodies in a Design, so the Design API can measure the outline and holes for an enclosure | [uncertain] |
-| EAGLE itself ended 2026-06-07; Fusion's Python moved to 3.14 in January 2026 | [doc] |
+## The road, step by step (each step is a script in the board's example folder)
 
-**Probed 2026-11-16 on 2706.1.17** (facts in the reference): writing through `Electron.run` works for `GRID`, `ADD` and
-`NET`, each confirmed by reading back with `adsk.electron`; the API is read-only as documented. **The routes this suggests**: *read* with `adsk.electron`; *write* with
-EAGLE command scripts sent through `executeTextCommand`, or with generated EAGLE 9.6 XML imported as a pair;
-*factory files* from the CAM Processor with a JLCPCB rule set we checked ourselves; *the case* with the normal
-Design API around the 3D PCB.
-
-## The research steps (in order; record each result in the reference before the next)
-
-1. **Probe the running Fusion** for electronics in the API, from the chat, no guessing:
-   ```powershell
-   python scripts\fusion.py exec "import adsk; result = sorted(n for n in dir(adsk) if not n.startswith('_'))"
-   python scripts\fusion.py exec "result = sorted(n for n in dir(adsk.fusion) if 'lectr' in n or 'PCB' in n or 'Pcb' in n or 'Schem' in n)"
-   python scripts\fusion.py exec "result = [p.productType for p in items(app.activeDocument.products)]"
-   ```
-   Then, with the owner creating a new Electronics Design / Schematic / PCB document by hand in Fusion
-   (*File > New Electronics Design*; confirm the menu text when you see it), run `ping` and the products probe
-   again: what product types appear, what `app.activeProduct` is, what `dir()` offers. Write every finding into
-   the reference with `[verified]` and the Fusion version.
-2. **Decide the route** from what step 1 shows:
-   * API objects exist for schematics/boards -> wrap the smallest useful thing (create a document, place a part,
-     read the board outline) in `bridge_helpers.py`, verify, record.
-   * The API is only "open a document" -> the **file route**: generate EAGLE-compatible `.sch`/`.brd` XML or an
-     `.scr` script from Python, import it into Fusion, read the result back. Needs the EAGLE file format facts
-     with sources in the reference first.
-   * Neither works -> say so plainly in the roadmap; the owner can still design the PCB by hand in Fusion and
-     this chat does the enclosure around its exported 3D body (STEP import, `fusion-files`).
-3. **The integration target** (the point of all this): board outline + mounting holes + tall-component
-   keep-outs -> an enclosure script (`templates/parametric_box` is the start) whose standoff pitch, pilot holes
-   and connector cutouts are parameters fed from the board. First with numbers typed in from a datasheet or a
-   measured board; later read from the board document if the API allows.
-4. **Each new capability** becomes: a fact row in the reference, a helper or recipe in a skill, an example in
-   `examples/`, a roadmap line moved from "not yet" to "verified here" with the evidence.
+1. **The circuit in words, then the parts.** Agree what it does and the nets in plain words (`J1.1 -> SW1 -> R1 ->
+   D1 -> J1.2`). Look every part up, never guess a name:
+   `python scripts\fusion_parts.py search led 5mm --tht` then `show "LED5MM@SparkFun-LED"` (ADD name, footprint,
+   pads, 3D model, MPN, status). Skip parts flagged "crashes ADD" (gotcha 22) and parts not ACTIVE. Prefer parts
+   with a 3D model (the case needs it) and an MPN (the BOM needs it).
+2. **Schematic** (`circuit.py`): `ecad_new()`, `sch_place(add_name, ref, x, y, value, angle)` with a value for
+   every part, `sch_wire(net, ('J1','1'), ('SW1','P'), via=[corners])`, then `sch_netlist()` must equal the intent.
+   Draw it **for the person reading it**: one visible loop, signal left to right, corners picked from
+   `sch_pin()` read-backs, never across another pin (labels alone looked like "just components spread around").
+3. **Board** (`board.py`): `ecad_open('brd')`, `brd_outline(w, h)` (drags the default outline's corners; never
+   delete through the API, gotcha 25), `brd_hole(x, y, 3.2)` for M3, `brd_move(ref, x, y, angle)`,
+   `brd_name_size(1.0)`, pads from `brd_pad(ref, pad)` (read back, never assumed), `brd_route(signal, points)`,
+   then `brd_report()`: every signal with tracks and **0 unrouted**. Leave room for the rules: Fusion keeps copper
+   1.02 mm from the edge and bends tracks to do so (gotcha 26).
+4. **Fusion's checks, save, export, factory files** (`factory.py`): `sch_erc()` and `brd_errors()` must return
+   nothing unapproved; `ecad_save(name)` (CAM needs a saved design, gotcha 28); `ecad_export(<example>\fusion,
+   'board')`; `cam_export(<example>\factory)` with `production/cam/two_layer.cam`.
+5. **Our board check**: `python scripts\pcb_check.py <example>\fusion\board.brd`. Netlist against the intent in
+   the board's `checks.json`, schematic against board, part bodies, routing, every limit of the fab profile
+   (`production/fab/jlcpcb_2layer.json`, JLCPCB, read 2026-11-17), Fusion's rule set against the fab's.
+6. **The simulated factory**: `python scripts\factory_check.py <example>\factory`. Reads the Gerbers and drill
+   file as the fab does: outline, holes, the bare-board electrical test (copper alone must give the schematic's
+   nets: an OPEN or SHORT here means never order), mask, silkscreen; writes `BOM.csv`, `CPL.csv`, previews, and
+   `board_gerbers.zip` to upload.
+7. **Ready** = both checks print **0 errors, 0 warnings**, and every APPROVED line has a reason the owner agreed to.
+   Show the owner the previews (render the SVGs with headless Edge) next to the Fusion screenshot.
+8. **Order** (human): upload the zip to the fab, compare its viewer with the preview. **Not yet done** in this repo:
+   say so; the fab's own review and a real electrical test are unverified until the first order.
+9. **The board in 3D and the case**: not yet (backlog E3.7). `Switch3dPcbDocCmd` opens the 3D PCB; outline, holes
+   and connector positions are to feed `templates/parametric_box`.
 
 ## Rules while in this territory
 
-* **Draw the schematic for the person reading it.** A small circuit is one visible loop of wires (`sch_wire` with
-  corners picked from the pins' read-back positions, never across another pin), signal flowing left to right,
-  power on top, ground at the bottom. Net labels alone (`sch_connect`) are for dense sheets: the owner's first
-  look at a labels-only schematic was "I see just components spread around" (2026-11-16). Screenshot it and look
-  before calling it done.
-* **Look parts up, never guess them**: `scripts/fusion_parts.py search ...` gives the exact `ADD` name, footprint,
-  pads, 3D model, MPN and status; skip parts flagged "crashes ADD" (gotcha 22) and parts not ACTIVE.
+* **Read back every write**; a command that says nothing has not necessarily worked (gotcha 17).
+* **Approvals are decisions, not silence**: a finding the owner accepts goes into `checks.json` `approved` with
+  `code`, `match` and `why`. Never approve an OPEN, SHORT, UNROUTED or NET-EXPECTED.
+* **The intent is written by hand** in `checks.json` `nets` from the agreed circuit, not copied from the schematic:
+  it is what catches a wire to the wrong pin.
+* **Fab numbers come with their source and date**; re-read the fab's page before an order.
+* **A modal dialog blocks the bridge**: never send `DRC` (gotcha 27); `ecad_open` sets `SET CONFIRM YES` so EAGLE's
+  yes/no questions do not appear (gotcha 21); `fusion.py dialog` lists what is open.
+* Screenshots: `fusion.py shot` does not work in these editors (gotcha 18); capture the Fusion window with Windows
+  (PrintWindow) and look at it.
+* Every new trap becomes a numbered gotcha, every new fact a tagged row in the reference, every new check a test
+  that breaks a copy of a real board on purpose.
 
-* **Say "not verified yet" before every electronics claim** until the reference says otherwise (CLAUDE.md rules 3
-  and 8). Do not promise the owner a schematic from chat until step 1 is done.
-* Facts come with sources: Autodesk's API reference (https://help.autodesk.com/view/fusion360/ENU/?guid=GUID-A92A4B10-3781-4925-94C6-47DA85A4F65A),
-  the EAGLE documentation, or a probe in the running Fusion, each tagged.
-* Keep the 3D flow working: the electronics research never edits the Design helpers without their tests.
-* Land results in [docs/blueprint_roadmap.md](../../../docs/blueprint_roadmap.md),
-  [docs/lessons_log.md](../../../docs/lessons_log.md) and this skill after each session, even when the result is
-  "this does not work on 2706.1.14".
+## Not done yet (do not claim these)
+
+Our own library (E3.5: parts with checked footprints, 3D models, MPN and supplier numbers), library parts explained
+as a lesson (E3.4), an order placed (E3.6), the 3D PCB and the case (E3.7), SMD parts and copper pours (no board has
+used them; the checks report pours as not modelled).
 
 ## Hand-off checklist
 
-- [ ] the owner was told plainly what is and is not verified about electronics
-- [ ] every probe result is in the reference with a tag and the Fusion version
-- [ ] the chosen route (API / file / by-hand-plus-enclosure) is written in the roadmap with the reason
-- [ ] no electronics capability was claimed that was not seen working
+- [ ] the circuit and its nets agreed in words, and written as `checks.json` `nets`
+- [ ] every part looked up with `fusion_parts.py`, with a value, ACTIVE, with a 3D model
+- [ ] schematic screenshot looked at; `sch_netlist()` equal to the intent
+- [ ] board: 0 unrouted, screenshot looked at
+- [ ] `sch_erc()` and `brd_errors()` clean; design saved; exported; factory files written
+- [ ] `pcb_check.py` and `factory_check.py`: 0 errors, 0 warnings; approvals explained to the owner
+- [ ] the example README's status table says exactly what was verified and when, and what was not

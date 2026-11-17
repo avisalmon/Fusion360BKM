@@ -1,0 +1,20 @@
+{
+  "name": "JLCPCB standard 2-layer FR-4, 1 oz copper",
+  "source": "https://jlcpcb.com/capabilities/pcb-capabilities",
+  "read": "2026-11-17",
+  "note": "The fab's limits. 'recommended' values give a warning, not an error: designing at the limit costs yield. Re-read the source before trusting this for a new order; values change.",
+  "track_width": {"min": 0.10, "recommended": 0.15},
+  "copper_clearance": {"min": 0.10, "recommended": 0.15},
+  "smd_pad_to_pad": {"min": 0.15},
+  "pth_hole_to_track": {"min": 0.28, "recommended": 0.35},
+  "npth_to_copper": {"min": 0.20},
+  "copper_to_edge": {"min": 0.20, "recommended": 0.30},
+  "drill": {"min": 0.15, "max": 6.30},
+  "npth_drill": {"min": 0.50},
+  "annular_ring": {"min": 0.18, "recommended": 0.25},
+  "pad_hole_to_hole": {"min": 0.45},
+  "silk_line_width": {"min": 0.15},
+  "silk_text_height": {"min": 1.0},
+  "silk_to_pad": {"min": 0.15},
+  "board_size": {"min": [3, 3], "max": [670, 600]}
+}
