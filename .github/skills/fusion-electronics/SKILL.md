@@ -63,6 +63,13 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
 
 ## Rules while in this territory
 
+* **The repo is the source of truth; Fusion is the vehicle** (the owner's rule, 2026-11-17). A board is its
+  scripts, `checks.json`, the EAGLE export in `fusion/` and the factory files in `factory/`, all in git. The
+  Fusion cloud copy exists only because CAM output needs a saved design: `ecad_save` keeps exactly one per
+  board and overwrites it on every build, which also spares Fusion Personal's limited documents. Never edit a
+  board by hand in Fusion and keep only that: change the script, rebuild. (A rebuild reproduced the export and
+  the Gerbers byte for byte, timestamps aside.)
+
 * **Read back every write**; a command that says nothing has not necessarily worked (gotcha 17).
 * **Approvals are decisions, not silence**: a finding the owner accepts goes into `checks.json` `approved` with
   `code`, `match` and `why`. Never approve an OPEN, SHORT, UNROUTED or NET-EXPECTED.

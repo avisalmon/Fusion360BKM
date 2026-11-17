@@ -104,6 +104,15 @@ copy the file, fill in its numbers with the source, and pass `--fab`.
 | SILK-WIDTH, SILK-ON-PAD | thin silkscreen; silkscreen in a mask opening (the fab removes it) | as above |
 | LCSC | no LCSC part number: JLCPCB cannot assemble the part | add the attribute, or solder by hand |
 
+## Where the board lives: the repo, not Fusion
+
+The board's scripts, `checks.json`, the EAGLE export (`fusion/`) and the factory files (`factory/`) are in git:
+that is the board. Fusion's cloud holds one disposable copy per board (Default Project / Fusion360BKM), made
+only because CAM output needs a saved design, and `ecad_save` overwrites it on every build (deleting the old
+`.fprj`, `.fsch` and `.fbrd`, gotchas 30 and 34). Rebuilding board 10 from its scripts gave the same export
+and the same Gerbers byte for byte (only the drill file's creation time differs), which is the proof that the
+repo, not Fusion, holds the design.
+
 ## The factory files: how Fusion makes them
 
 * The CAM job is `production/cam/two_layer.cam`, made from Fusion's own `example_2_layer.cam` (in Fusion's install,

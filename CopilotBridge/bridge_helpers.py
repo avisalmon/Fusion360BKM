@@ -1110,11 +1110,13 @@ def ecad_export(folder, stem):
 def ecad_save(
     name, folder="Fusion360BKM", project="Default Project", description="built by script"
 ):
-    """Save the electronics design to the Fusion cloud (CAM output needs a saved design: an
-    unsaved one gives "CAM output directory does not exist or is empty", gotcha 28). A design
-    saved before gets a new version; a new one goes to <project>/<folder>/<name>. Fusion allows
-    two designs with one name (each save of a new design makes three files: .fprj, .fsch, .fbrd),
-    so a rebuilt design whose name is taken gets the date and time added instead of a twin."""
+    """Save the electronics design to the Fusion cloud, as a vehicle only. The source of truth is
+    this repo (the board's scripts, its EAGLE export and its factory files); the cloud copy exists
+    because Fusion makes CAM output only from a saved design (gotcha 28). So each board has exactly
+    one cloud copy, overwritten on every build: earlier files under `name` in <project>/<folder>
+    are closed (unsaved) and deleted, then the new design is saved in their place. That also keeps
+    Fusion Personal's limited number of documents free. A design that is already saved gets a new
+    version of the same file."""
     doc = _app.activeDocument
     if doc.dataFile is not None:
         doc.save(description)
@@ -1125,10 +1127,16 @@ def ecad_save(
         root = projects[0].rootFolder
         found = [f for f in _iter(root.dataFolders) if f.name == folder]
         target = found[0] if found else root.dataFolders.add(folder)
-        if any(f.name == name for f in _iter(target.dataFiles)):
-            import datetime
-
-            name = f"{name} {datetime.datetime.now():%Y-%m-%d %H%M}"
+        old = [f for f in _iter(target.dataFiles) if f.name == name]
+        ids = {f.id for f in old}
+        for d in list(_iter(_app.documents)):
+            if d.dataFile is not None and d.dataFile.id in ids:
+                d.close(False)
+        # the design (.fprj) first: its schematic and board files refuse deletion while it holds
+        # them ("InternalValidationError : res"), and are free once it is gone
+        for f in sorted(old, key=lambda f: f.fileExtension != "fprj"):
+            if not f.deleteMe():
+                raise RuntimeError(f"could not delete the old cloud copy {name}.{f.fileExtension}")
         doc.saveAs(name, target, description, "")
     if not _wait_for(lambda: doc.dataFile is not None and doc.isSaved, timeout_s=60):
         raise RuntimeError("the design did not finish saving in 60 s")

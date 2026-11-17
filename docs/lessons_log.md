@@ -6,6 +6,10 @@ assumption against a running Fusion and finding it was not quite true.
 
 ## 2026-11-17
 
+- **The repo holds the board; Fusion is only the vehicle.** Scripts, intent, export and factory files live in
+  git; the Fusion cloud keeps one copy per board, overwritten on every build (Fusion Personal limits how many
+  documents you keep). A rebuild reproduced the Gerbers byte for byte. Deleting the old copy has an order: the
+  design file first. [gotchas 30, 34](procedures/gotchas.md)
 - **The first board passed every check we have, and its factory files were made and read back like a factory
   would.** Fusion's ERC and board check are clean; our own `scripts/pcb_check.py` checks the netlist against the
   intent in `checks.json`, the schematic against the board, routing, and JLCPCB's limits (read from their site,
