@@ -406,6 +406,26 @@ def md_inline(s):
     return re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", s)
 
 
+FUSION_CODES = {"erc": "FUSION-ERC", "board_errors": "FUSION-BOARD"}
+
+
+def approve_fusion_findings(fusion, approved):
+    """A Fusion finding is approved in Fusion (its Approve button) or in checks.json with code
+    FUSION-ERC / FUSION-BOARD and a `match` from its description. Fusion's API cannot approve
+    (Error.state has no setter, 2706.1.17), and a click in Fusion is lost on every rebuild from the
+    scripts, so the repo's approval is the one that lasts."""
+    for key, code in FUSION_CODES.items():
+        for e in fusion.get(key, []):
+            for a in approved:
+                if (
+                    e.get("state") != "approved"
+                    and a.get("code") == code
+                    and a.get("match", "") in e.get("description", "")
+                ):
+                    e["state"] = "approved"
+                    e["why"] = a.get("why", "no reason given")
+
+
 def run_checks(folder):
     brd_path = next(iter(sorted((folder / "fusion").glob("*.brd"))))
     sch_path = brd_path.with_suffix(".sch")
@@ -417,6 +437,8 @@ def run_checks(folder):
         fac = fc.run(folder / "factory", brd_path, sch_path, fab_path, tmp, checks)
     fpath = folder / "fusion" / "fusion_checks.json"
     fusion = json.loads(fpath.read_text(encoding="utf-8")) if fpath.exists() else None
+    if fusion is not None:
+        approve_fusion_findings(fusion, checks.get("approved", []))
     return {
         "brd_path": brd_path,
         "sch_path": sch_path,
@@ -499,6 +521,12 @@ def approvals_used(d):
             if i["level"] == "APPROVED"
             and i["code"] == a.get("code")
             and a.get("match", "") in i["message"]
+        ]
+        hits += [
+            "Fusion"
+            for key, code in FUSION_CODES.items()
+            for e in (d["fusion"] or {}).get(key, [])
+            if a.get("code") == code and a.get("match", "") in e.get("description", "")
         ]
         out.append((a, sorted(set(hits)), len(hits)))
     return out
@@ -825,7 +853,7 @@ def page(folder):
             f'<div class="layer{" bad" if left else ""}"><h3>{name}</h3><div class="big">'
             f"{'clean' if not left else f'{len(left)} open'}</div><p>{esc(what)}. Run {esc(f.get('date', '?'))}, "
             f"Fusion {esc(f.get('fusion', '?'))}{': ' + esc(detail) if detail else ''}"
-            f"{f'; {len(lst) - len(left)} approved in Fusion' if len(lst) - len(left) else ''}</p></div>"
+            f"{f'; {len(lst) - len(left)} approved, with reasons (below)' if len(lst) - len(left) else ''}</p></div>"
         )
     for rep, name, what in (
         (d["pcb"], "3. Our board check", "netlist, schematic = board, routing, the fab's limits"),
@@ -950,7 +978,8 @@ def page(folder):
         rows = (
             "".join(
                 f'<tr><td><span class="lv {"OK" if e.get("state") == "approved" else "ERROR"}">{esc(e.get("state", ""))}</span></td>'
-                f"<td>{esc(e.get('type', ''))}</td><td>{esc(e.get('description', ''))}</td></tr>"
+                f"<td>{esc(e.get('type', ''))}</td><td>{esc(e.get('description', ''))}"
+                f"{' (approved: ' + esc(e['why']) + ')' if e.get('why') else ''}</td></tr>"
                 for key in ("erc", "board_errors")
                 for e in f.get(key, [])
             )

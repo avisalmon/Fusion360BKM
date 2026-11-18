@@ -100,7 +100,10 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
 
 * **Read back every write**; a command that says nothing has not necessarily worked (gotcha 17).
 * **Approvals are decisions, not silence**: a finding the owner accepts goes into `checks.json` `approved` with
-  `code`, `match` and `why`. Never approve an OPEN, SHORT, UNROUTED or NET-EXPECTED.
+  `code`, `match` and `why`. Never approve an OPEN, SHORT, UNROUTED or NET-EXPECTED. Fusion's own findings
+  are approved the same way, with code `FUSION-ERC` or `FUSION-BOARD` and a `match` from the finding's text
+  (board 11: "POWER pin U1 V+ connected to +9V"): the API cannot approve (`Error.state` has no setter), and a
+  click on Fusion's Approve button is lost at the next rebuild from the scripts.
 * **The intent is written by hand** in `checks.json` `nets` from the agreed circuit, not copied from the schematic:
   it is what catches a wire to the wrong pin.
 * **Fab numbers come with their source and date**; re-read the fab's page before an order.

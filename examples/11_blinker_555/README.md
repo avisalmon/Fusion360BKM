@@ -6,9 +6,9 @@ a plus and a minus (the 10 uF capacitor), and a schematic that uses power symbol
 (the 3D course is on Babook, https://babook.co.il/courses/fusion360/).
 
 Status: in progress. The owner reviewed and moved the placement by hand on 2026-11-18, and the board was
-routed again on 45 x 31 mm, saved, and its factory files made: Fusion's board check, ours and the simulated
-factory report 0 errors. Still to do: the owner's approval of the ERC finding and the warnings, then it can
-be ordered.
+routed again on 45 x 31 mm, saved, and its factory files made. Every check passes (0 errors, 0 warnings) with
+the findings the owner approved, each with its reason, in `checks.json`: [ready to order the bare
+board](index.html). Not yet: the order itself, soldering, a blinking LED.
 
 ```text
 +9V -- R1 1k -- DIS -- R2 68k -- THR -- C1 10uF -- GND          U1 = NE555: pin 7 DIS, pins 6 and 2 THR
@@ -56,12 +56,12 @@ fourth beside R2, which saved an empty strip along the top). Pins 4 and 8 (+9V) 
 |---|---|
 | Parts found in Fusion's libraries (NE555 Active with a 3D model, the electrolytic with marked + and -) | 2026-11-18, Fusion 2706.1.17 |
 | Schematic from the chat: 8 parts, 9 power symbols, 7 nets; the netlist read back equal to the intent on the first run; looked at ([media/schematic.png](media/schematic.png)): one crossing (pin 6 over pin 7's wire, no dot), every other join a dot | 2026-11-18 |
-| Electrical rules check (ERC) | ran 2026-11-18: one finding, "POWER pin U1 V+ connected to +9V" (the 555's supply pin is named V+, its net +9V); to be approved in Fusion with that reason: not yet |
+| Electrical rules check (ERC) | ran 2026-11-18: one finding, "POWER pin U1 V+ connected to +9V" (the 555's supply pin is named V+, its net +9V); approved by the owner with that reason, 2026-11-18, in `checks.json` (`FUSION-ERC`) |
 | Board, first try: 50 x 40 mm, routed on both layers | 2026-11-18: 0 unrouted, no copper off the two layers; Fusion's board check 0 errors; looked at ([media/board.png](media/board.png)) |
 | Placement reviewed and moved by the owner in Fusion, agreed; routed again (`route.py`); board shrunk to 45 x 31 mm with the fourth hole beside R2 | 2026-11-18: 0 unrouted, Fusion's board check 0 errors, looked at ([media/board.png](media/board.png)) |
-| Our board check (`pcb_check.py`) on the export | 2026-11-18, again on the 45 x 31 board: 0 errors; the netlist equals the intent in `checks.json`; 8 silkscreen warnings (thin lines in the Tinkercad resistor and NE555 footprints, marks near pads), not yet approved |
+| Our board check (`pcb_check.py`) on the export | 2026-11-18, again on the 45 x 31 board: 0 errors; the netlist equals the intent in `checks.json`; 8 silkscreen warnings (thin lines in the Tinkercad resistor and NE555 footprints, marks near pads), approved by the owner with reasons, 2026-11-18: 0 errors, 0 warnings, 8 approved |
 | GND copper pour | not yet |
-| Saved to the Fusion cloud, Gerbers and drill file, `factory_check.py` | 2026-11-18, after a clean rebuild (circuit, board, route) in a new design, once the owner had freed editable documents: saved, 10 factory files, `factory_check.py` 0 errors, the bare-board e-test equal to the schematic (7 nets, no opens, no shorts); 13 warnings (4 screw holes plated, silkscreen of the library footprints, no LCSC numbers) wait for the owner's approval |
+| Saved to the Fusion cloud, Gerbers and drill file, `factory_check.py` | 2026-11-18, after a clean rebuild (circuit, board, route) in a new design, once the owner had freed editable documents: saved, 10 factory files, `factory_check.py` 0 errors, the bare-board e-test equal to the schematic (7 nets, no opens, no shorts); 13 warnings (4 screw holes plated, silkscreen of the library footprints, no LCSC numbers: a hand-soldered kit) approved by the owner with reasons: 0 errors, 0 warnings, 13 approved |
 | Ordered, soldered, blinking | not yet (human steps) |
 
 ## What it taught this repo (so far)

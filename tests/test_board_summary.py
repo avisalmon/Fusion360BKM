@@ -93,6 +93,34 @@ def test_missing_fusion_results_and_stale_approvals_are_said_plainly(tmp_path):
         shutil.rmtree(dst)
 
 
+def test_a_fusion_finding_is_approved_only_by_a_matching_reason_in_checks_json(tmp_path):
+    """Fusion's API cannot approve (Error.state has no setter) and a click in Fusion is lost on a
+    rebuild, so checks.json approves Fusion's findings too: FUSION-ERC / FUSION-BOARD."""
+    dst = _copy_board(tmp_path)
+    erc = "POWER pin U1 V+ connected to +9V"
+    finding = {"type": "error", "state": "active", "description": erc}
+    try:
+        f = json.loads((dst / "fusion" / "fusion_checks.json").read_text(encoding="utf-8"))
+        f["erc"] = [finding]
+        (dst / "fusion" / "fusion_checks.json").write_text(json.dumps(f), encoding="utf-8")
+        page = bs.page(dst.relative_to(ROOT))
+        assert "Fusion&#x27;s ERC: 1 finding(s) not approved" in page
+
+        c = json.loads((dst / "checks.json").read_text(encoding="utf-8"))
+        c["approved"].append({"code": "FUSION-BOARD", "match": "V+", "why": "wrong check"})
+        (dst / "checks.json").write_text(json.dumps(c), encoding="utf-8")
+        assert "Fusion&#x27;s ERC: 1 finding(s) not approved" in bs.page(dst.relative_to(ROOT))
+
+        why = "V+ is the 555's 9 V pin"
+        c["approved"][-1] = {"code": "FUSION-ERC", "match": "U1 V+", "why": why}
+        (dst / "checks.json").write_text(json.dumps(c), encoding="utf-8")
+        page = bs.page(dst.relative_to(ROOT))
+        assert "Ready to order the bare board" in page
+        assert "approved: V+ is the 555&#x27;s 9 V pin" in page
+    finally:
+        shutil.rmtree(dst)
+
+
 def test_text_is_kept_readable_the_way_eagle_shows_it():
     upside_down = bs.svg_text(0, 0, 1, "R180", "bottom-left", "R1")
     assert "rotate" not in upside_down and 'text-anchor="end"' in upside_down
