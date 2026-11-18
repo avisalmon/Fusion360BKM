@@ -48,7 +48,9 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
    (`brd_elements()`, `brd_report()['outline']` and `['holes']`), write it into `board.py` (`PLACE`, `W`, `H`,
    `HOLES`), and only then route. Shrinking around an agreed placement: move every part by the same offset, then the
    holes (`MOVE (x y) (x2 y2)` on a hole's centre moves it; read it back, one landed 0.32 mm off once), then
-   `brd_outline`. Torn-up tracks from an earlier try: `ecad('RIPUP;')` asks "All segments will be converted to
+   `brd_outline`. Holes need not sit in the corners: on board 11, moving one hole into a gap beside R2 removed an
+   empty 3 mm strip (45 x 34 to 45 x 31). Keep a screw head's radius (2.75 mm for M3) plus about 1 mm clear of
+   any pad. Torn-up tracks from an earlier try: `ecad('RIPUP;')` asks "All segments will be converted to
    unrouted signals" (Yes/No), so answer it with `fusion_dialog.ps1 -Class QMessageBox -Text '*converted to
    unrouted*' -Click Yes`.
 3b. **Routing** (`route.py`, after the placement is agreed): pads from `brd_pad(ref, pad)` (read back, never

@@ -5,9 +5,9 @@ nets of two pins; this board's nets join three, four and five pins, it has a chi
 a plus and a minus (the 10 uF capacitor), and a schematic that uses power symbols. Not from a Babook lesson
 (the 3D course is on Babook, https://babook.co.il/courses/fusion360/).
 
-Status: in progress. The owner moved the parts by hand on 2026-11-18. The board is now 45 x 34 mm
-and its placement is waiting for the owner's approval; after that it gets routed again
-(the first routing, at 50 x 40 mm, is in git history).
+Status: in progress. The owner reviewed and moved the placement by hand on 2026-11-18, and the board was
+routed again on 45 x 31 mm: Fusion's board check and ours report 0 errors. Still to do: save the board,
+the factory files, and approving the findings (gotcha 39).
 
 ```text
 +9V -- R1 1k -- DIS -- R2 68k -- THR -- C1 10uF -- GND          U1 = NE555: pin 7 DIS, pins 6 and 2 THR
@@ -37,15 +37,15 @@ below +9V).
 ```powershell
 python scripts\fusion.py run examples\11_blinker_555\circuit.py 180    # 1. schematic (new design)
 python scripts\fusion.py run examples\11_blinker_555\board.py 180      # 2. outline, holes, placement; the owner reviews
-python scripts\fusion.py run examples\11_blinker_555\route.py 180      # 2b. tracks, once agreed (to write)
+python scripts\fusion.py run examples\11_blinker_555\route.py 180      # 2b. tracks, once the owner agrees
 python scripts\fusion.py run examples\11_blinker_555\factory.py 300    # 3. Fusion's checks, save, export, Gerbers
 python scripts\pcb_check.py examples\11_blinker_555\fusion\board.brd  # 4. our board check, no Fusion needed
 ```
 
 ![The schematic in Fusion](media/schematic.png)
 
-The first routed board, 50 x 40 mm, before the owner's placement review: top copper red, bottom blue. Pins 4
-and 8 (+9V) and pins 2 and 6 (THR) both cross under the 555, diagonally, one link on each layer; no vias.
+The board, 45 x 31 mm, with the owner's placement: top copper red, bottom blue, four M3 holes (the
+fourth beside R2, which saved an empty strip along the top). Pins 4 and 8 (+9V) and pins 2 and 6 (THR) both cross under the 555, diagonally, one link on each layer; no vias.
 
 ![The board in Fusion](media/board.png)
 
@@ -57,8 +57,8 @@ and 8 (+9V) and pins 2 and 6 (THR) both cross under the 555, diagonally, one lin
 | Schematic from the chat: 8 parts, 9 power symbols, 7 nets; the netlist read back equal to the intent on the first run; looked at ([media/schematic.png](media/schematic.png)): one crossing (pin 6 over pin 7's wire, no dot), every other join a dot | 2026-11-18 |
 | Electrical rules check (ERC) | ran 2026-11-18: one finding, "POWER pin U1 V+ connected to +9V" (the 555's supply pin is named V+, its net +9V); to be approved in Fusion with that reason: not yet |
 | Board, first try: 50 x 40 mm, routed on both layers | 2026-11-18: 0 unrouted, no copper off the two layers; Fusion's board check 0 errors; looked at ([media/board.png](media/board.png)) |
-| Placement reviewed by the owner (moved by hand in Fusion), board shrunk to 45 x 34 mm, holes 3.5 mm from the corners, tracks torn up | 2026-11-18; the owner's approval is pending, then the board is routed again |
-| Our board check (`pcb_check.py`) on the export | 2026-11-18: 0 errors; the netlist equals the intent in `checks.json`; 8 silkscreen warnings (thin lines in the Tinkercad resistor and NE555 footprints, marks near pads), not yet approved |
+| Placement reviewed and moved by the owner in Fusion, agreed; routed again (`route.py`); board shrunk to 45 x 31 mm with the fourth hole beside R2 | 2026-11-18: 0 unrouted, Fusion's board check 0 errors, looked at ([media/board.png](media/board.png)) |
+| Our board check (`pcb_check.py`) on the export | 2026-11-18, again on the 45 x 31 board: 0 errors; the netlist equals the intent in `checks.json`; 8 silkscreen warnings (thin lines in the Tinkercad resistor and NE555 footprints, marks near pads), not yet approved |
 | GND copper pour | not yet |
 | Saved to the Fusion cloud, Gerbers and drill file, `factory_check.py` | not yet: the board would not save (gotcha 39) |
 | Ordered, soldered, blinking | not yet (human steps) |
