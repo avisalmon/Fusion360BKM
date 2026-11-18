@@ -25,6 +25,13 @@ assumption against a running Fusion and finding it was not quite true.
   only the routes going astray showed it. `brd_move` now reads the angle back. [gotcha 36](procedures/gotchas.md)
 - **Route pad to pad.** Tracks ending on another track's corner made Fusion raise internal-error boxes; chains
   from pad to pad built cleanly, first time. [gotcha 38](procedures/gotchas.md)
+- **My own mistakes today, and the rule each one left** (the owner: "learn, improve and document mistakes"):
+  committed while 4 tests failed, because the commit was chained after `pytest` in one command (now: run the
+  checks, read the result, commit as a separate step: CLAUDE.md rule 7); closed the design being built along
+  with probe documents of the same name (gotcha 40); a shell here-doc put a backspace into a skill (gotcha 41,
+  and a test now catches control characters); clicked OK on any dialog when a filter did not match (gotcha 42,
+  `fusion_dialog.ps1 -Text`); tried to close Fusion without asking: closing the owner's Fusion is the owner's
+  decision (CLAUDE.md rule 6). [gotchas 40-42](procedures/gotchas.md)
 - **The summary page concludes every board** (the owner approved it): `board_summary.py` is step 8 of
   `fusion-electronics`. [board_checks_and_factory.md](procedures/board_checks_and_factory.md)
 

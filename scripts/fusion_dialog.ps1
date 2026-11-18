@@ -10,6 +10,9 @@
   .\fusion_dialog.ps1 -WaitSec 20 -Class cStringDialog -Expect Value -Click OK
                                            # wait up to 20 s for that one dialog, then click; any other
                                            # dialog is left alone (sch_place uses this for power symbols)
+  .\fusion_dialog.ps1 -WaitSec 10 -Class QMessageBox -Text '*unexpected condition*' -Click OK
+                                           # only Fusion's internal-error box, never a save question
+                                           # (-Expect matches an element's whole name, not the message)
 #>
 param(
     [string]$Click,
@@ -17,7 +20,9 @@ param(
     [switch]$All,         # dump every window, not just the modal one
     [int]$WaitSec = 0,    # keep looking for a matching dialog this long (0: look once)
     [string]$Class,       # only a dialog whose UI Automation class is this (e.g. cStringDialog)
-    [string]$Expect       # only a dialog showing an element with this exact name (e.g. Value)
+    [string]$Expect,      # only a dialog showing an element with this exact name (e.g. Value)
+    [string]$Text         # only a dialog with an element whose name matches this wildcard
+                          # (e.g. '*unexpected condition*': the message of a QMessageBox)
 )
 
 Add-Type -AssemblyName UIAutomationClient
@@ -53,14 +58,15 @@ $A = [System.Windows.Automation.AutomationElement]
 $ct = [System.Windows.Automation.ControlType]
 
 function Test-Wanted($w) {
-    # with -Class / -Expect, a dialog counts only if it is exactly the one asked for
-    if (-not $Class -and -not $Expect) { return $true }
+    # with -Class / -Expect / -Text, a dialog counts only if it is exactly the one asked for
+    if (-not $Class -and -not $Expect -and -not $Text) { return $true }
     try {
         $root = $A::FromHandle($w.Handle)
         if ($Class -and $root.Current.ClassName -ne $Class) { return $false }
-        if ($Expect) {
+        if ($Expect -or $Text) {
             $names = $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition) | ForEach-Object { $_.Current.Name }
-            if ($names -notcontains $Expect) { return $false }
+            if ($Expect -and $names -notcontains $Expect) { return $false }
+            if ($Text -and -not ($names | Where-Object { $_ -like $Text })) { return $false }
         }
         return $true
     } catch { return $false }

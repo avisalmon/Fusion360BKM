@@ -70,3 +70,20 @@ def test_the_add_in_manifest_starts_with_fusion():
     """The whole setup story ("restart Fusion once") depends on runOnStartup."""
     manifest = (ROOT / "CopilotBridge" / "CopilotBridge.manifest").read_text(encoding="utf-8")
     assert re.search(r'"runOnStartup"\s*:\s*true', manifest)
+
+
+def test_text_files_carry_no_control_characters():
+    r"""A scripted edit once turned `scripts\board_summary.py` into
+    `scripts<backspace>oard_summary.py` in a skill (a shell here-doc ate the backslash;
+    gotcha 41). Tabs and newlines only."""
+    bad = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+    found = []
+    for pattern in ("*.md", "*.py", "*.ps1", "*.json", "*.html"):
+        for p in ROOT.rglob(pattern):
+            if {"env", ".git", "node_modules", "exports", "bridge"} & set(p.parts):
+                continue
+            text = p.read_text(encoding="utf-8", errors="replace")
+            for n, line in enumerate(text.splitlines(), 1):
+                if bad.search(line):
+                    found.append(f"{p.relative_to(ROOT)}:{n}")
+    assert not found, found
