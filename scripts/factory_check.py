@@ -664,9 +664,13 @@ def run(folder, brd_path, sch_path, fab_path, out=None, checks=None):
     write_svg(gb, hits, board_box, "top", out / "preview_top.svg")
     write_svg(gb, hits, board_box, "bottom", out / "preview_bottom.svg")
     z = out / f"{Path(brd_path).stem}_gerbers.zip"
+    # a fixed date and order: the same files give the same zip, so it can live in git and be
+    # downloaded from the board's summary page
     with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED) as zf:
-        for f in list(files.values()) + drill_files:
-            zf.write(f, f.name)
+        for f in sorted(list(files.values()) + drill_files, key=lambda p: p.name):
+            info = zipfile.ZipInfo(f.name, date_time=(2020, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            zf.writestr(info, f.read_bytes())
     rep.add("OK", S, "ZIP", f"{z.name}: {len(files) + len(drill_files)} files to upload")
     return rep
 

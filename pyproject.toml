@@ -16,3 +16,5 @@ select = ["E", "F", "W", "I"]
 "templates/**/*.py" = ["F821"]
 "examples/**/*.py" = ["F821"]
 "my_designs/**/*.py" = ["F821"]
+# The summary page is mostly HTML and CSS in strings: they read better unwrapped.
+"scripts/board_summary.py" = ["E501"]

@@ -4,19 +4,35 @@ r"""10_led_switch_board, step 3: Fusion's own checks, then the files for the fac
 
 Run after circuit.py and board.py, on the design they built. It runs Fusion's electrical rule
 check (ERC) and board check, saves the design to the Fusion cloud (CAM output needs a saved
-design), exports it as EAGLE XML to fusion/ and writes Gerber and drill files to factory/.
+design), records both checks in fusion/fusion_checks.json, exports the design as EAGLE XML to
+fusion/ and writes Gerber and drill files to factory/.
 Then, without Fusion:
 
     python scripts\pcb_check.py examples\10_led_switch_board\fusion\board.brd
     python scripts\factory_check.py examples\10_led_switch_board\factory
 """
 
+import datetime
+import json
 import os
+
+import adsk.core
 
 HERE = repo_path("examples", "10_led_switch_board")
 
 erc = sch_erc()
 board_errors = brd_errors()
+# Fusion's own findings are kept with the export, so the summary page can show them without Fusion
+os.makedirs(os.path.join(HERE, "fusion"), exist_ok=True)
+fusion_checks = {
+    "date": datetime.date.today().isoformat(),
+    "fusion": adsk.core.Application.get().version,
+    "erc": erc,
+    "board_errors": board_errors,
+}
+checks_path = os.path.join(HERE, "fusion", "fusion_checks.json")
+with open(checks_path, "w", encoding="utf-8", newline="\n") as fh:
+    fh.write(json.dumps(fusion_checks, indent=2) + "\n")
 saved_as = ecad_save("10_led_switch_board", description="built by examples/10_led_switch_board")
 exported = ecad_export(os.path.join(HERE, "fusion"), "board")
 factory_files = cam_export(os.path.join(HERE, "factory"))

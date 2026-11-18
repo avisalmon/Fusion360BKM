@@ -1,0 +1,96 @@
+"""A board's summary page (examples/NN_board/index.html) is generated from its files by
+scripts/board_summary.py. These tests keep every board's page current, and prove the page reports
+what the files say, including bad news."""
+
+import json
+import re
+import shutil
+import sys
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+import board_summary as bs  # noqa: E402
+
+BOARD10 = ROOT / "examples" / "10_led_switch_board"
+BOARDS = sorted(p for p in (ROOT / "examples").iterdir() if (p / "circuit.py").exists())
+
+
+@pytest.mark.parametrize("folder", BOARDS, ids=lambda p: p.name)
+def test_every_board_page_is_current(folder, monkeypatch):
+    """Stale means the page says something the files no longer do: regenerate it."""
+    assert (folder / "index.html").exists(), f"run python scripts\\board_summary.py {folder}"
+    assert bs.main([str(folder), "--check"]) == 0, f"run python scripts\\board_summary.py {folder}"
+
+
+def test_the_page_carries_every_part_of_the_conclusion():
+    page = bs.page(BOARD10.relative_to(ROOT))
+    for heading in (
+        "Ready to order the bare board",
+        "Quality: four layers of checks",
+        "The circuit and the board",
+        "What the factory receives",
+        "The netlist, traced from intent to copper",
+        "Parts",
+        "Decisions: findings accepted",
+        "Every check, line by line",
+        "Every file",
+        "Rebuild it from nothing",
+        "Status, step by step",
+    ):
+        assert heading in page, heading
+    for net in ("VBAT", "VSW", "LED_A", "GND"):
+        assert page.count(f'data-net="{net}"') >= 4, f"{net}: schematic, board, legend, table"
+    for href in re.findall(r'(?:href|src)="([^"#][^"]*)"', page):
+        if not href.startswith(("http://", "https://")):
+            assert (BOARD10 / href).resolve().exists(), href
+    assert "Not verified yet" in page, "the README's 'not yet' rows are carried to the verdict"
+
+
+def _copy_board(tmp_path):
+    """A copy of board 10 placed inside the repo layout the script expects (examples/<name>)."""
+    dst = ROOT / "examples" / "_tmp_board_summary_test"
+    if dst.exists():
+        shutil.rmtree(dst)
+    shutil.copytree(BOARD10, dst)
+    return dst
+
+
+def test_a_wrong_intent_turns_the_verdict_and_the_netlist_red(tmp_path):
+    dst = _copy_board(tmp_path)
+    try:
+        c = json.loads((dst / "checks.json").read_text(encoding="utf-8"))
+        c["nets"]["VSW"] = ["SW1.S", "R1.1"]  # the intent names the other throw
+        (dst / "checks.json").write_text(json.dumps(c), encoding="utf-8")
+        page = bs.page(dst.relative_to(ROOT))
+        assert "Not ready to order" in page
+        assert "our board check: 2 error(s)" in page or "our board check: 1 error(s)" in page
+        assert "✗ differs" in page
+    finally:
+        shutil.rmtree(dst)
+
+
+def test_missing_fusion_results_and_stale_approvals_are_said_plainly(tmp_path):
+    dst = _copy_board(tmp_path)
+    try:
+        (dst / "fusion" / "fusion_checks.json").unlink()
+        c = json.loads((dst / "checks.json").read_text(encoding="utf-8"))
+        c["approved"].append({"code": "SHORT", "match": "nowhere", "why": "old decision"})
+        (dst / "checks.json").write_text(json.dumps(c), encoding="utf-8")
+        page = bs.page(dst.relative_to(ROOT))
+        assert "Not ready to order" in page
+        assert "Fusion&#x27;s own checks are not recorded" in page
+        assert "nothing: stale, remove it" in page
+    finally:
+        shutil.rmtree(dst)
+
+
+def test_text_is_kept_readable_the_way_eagle_shows_it():
+    upside_down = bs.svg_text(0, 0, 1, "R180", "bottom-left", "R1")
+    assert "rotate" not in upside_down and 'text-anchor="end"' in upside_down
+    mirrored = bs.svg_text(0, 0, 1, "MR0", "bottom-left", "J1")
+    assert 'text-anchor="end"' in mirrored
+    sideways = bs.svg_text(0, 0, 1, "R270", "center", "D1")
+    assert "rotate(-90" in sideways
