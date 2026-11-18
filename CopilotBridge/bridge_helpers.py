@@ -813,9 +813,10 @@ def ecad(command):
     adsk.doEvents()
 
 
-def ecad_open(which):
+def ecad_open(which, timeout_s=60.0):
     """Switch the active electronics design to 'sch', 'brd', '3d' or 'design' (the document that
-    holds the schematic and board, the one to save) and wait until it is active."""
+    holds the schematic and board, the one to save) and wait until it is active. The first switch
+    in a new design creates that editor's document and took over 20 s once (2026-11-18)."""
     cmd, ptype = {
         "design": ("SwitchDesignDocCmd", "EcadDesignProductType"),
         "sch": ("SwitchSchDocCmd", "SchematicProductType"),
@@ -823,8 +824,8 @@ def ecad_open(which):
         "3d": ("Switch3dPcbDocCmd", "DesignProductType"),
     }[which]
     _app.userInterface.commandDefinitions.itemById(cmd).execute()
-    if not _wait_for(lambda: _product_type() == ptype):
-        raise RuntimeError(f"ecad_open({which!r}): still {_product_type()} after 20 s")
+    if not _wait_for(lambda: _product_type() == ptype, timeout_s):
+        raise RuntimeError(f"ecad_open({which!r}): still {_product_type()} after {timeout_s} s")
     if which in ("sch", "brd"):
         # coordinates in commands are in the editor's grid unit; a new board is in mil, so
         # "MOVE (100 0)" meant 2.54 mm and dragged the wrong corner (gotcha 24)
@@ -841,7 +842,7 @@ def ecad_new(grid_mm=1.27):
     _app.userInterface.commandDefinitions.itemById("NewElectronDesignDocumentCommand").execute()
     if not _wait_for(lambda: _product_type() == "EcadDesignProductType"):
         raise RuntimeError(f"ecad_new: no electronics design appeared ({_product_type()})")
-    ecad_open("sch")
+    ecad_open("sch", timeout_s=90)
     ecad(f"GRID MM {grid_mm} ON")
     return sch()
 

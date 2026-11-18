@@ -6,8 +6,9 @@ a plus and a minus (the 10 uF capacitor), and a schematic that uses power symbol
 (the 3D course is on Babook, https://babook.co.il/courses/fusion360/).
 
 Status: in progress. The owner reviewed and moved the placement by hand on 2026-11-18, and the board was
-routed again on 45 x 31 mm: Fusion's board check and ours report 0 errors. Still to do: save the board,
-the factory files, and approving the findings (gotcha 39).
+routed again on 45 x 31 mm, saved, and its factory files made: Fusion's board check, ours and the simulated
+factory report 0 errors. Still to do: the owner's approval of the ERC finding and the warnings, then it can
+be ordered.
 
 ```text
 +9V -- R1 1k -- DIS -- R2 68k -- THR -- C1 10uF -- GND          U1 = NE555: pin 7 DIS, pins 6 and 2 THR
@@ -60,7 +61,7 @@ fourth beside R2, which saved an empty strip along the top). Pins 4 and 8 (+9V) 
 | Placement reviewed and moved by the owner in Fusion, agreed; routed again (`route.py`); board shrunk to 45 x 31 mm with the fourth hole beside R2 | 2026-11-18: 0 unrouted, Fusion's board check 0 errors, looked at ([media/board.png](media/board.png)) |
 | Our board check (`pcb_check.py`) on the export | 2026-11-18, again on the 45 x 31 board: 0 errors; the netlist equals the intent in `checks.json`; 8 silkscreen warnings (thin lines in the Tinkercad resistor and NE555 footprints, marks near pads), not yet approved |
 | GND copper pour | not yet |
-| Saved to the Fusion cloud, Gerbers and drill file, `factory_check.py` | not yet: the board would not save (gotcha 39) |
+| Saved to the Fusion cloud, Gerbers and drill file, `factory_check.py` | 2026-11-18, after a clean rebuild (circuit, board, route) in a new design, once the owner had freed editable documents: saved, 10 factory files, `factory_check.py` 0 errors, the bare-board e-test equal to the schematic (7 nets, no opens, no shorts); 13 warnings (4 screw holes plated, silkscreen of the library footprints, no LCSC numbers) wait for the owner's approval |
 | Ordered, soldered, blinking | not yet (human steps) |
 
 ## What it taught this repo (so far)
