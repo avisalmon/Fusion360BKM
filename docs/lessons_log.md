@@ -6,6 +6,17 @@ assumption against a running Fusion and finding it was not quite true.
 
 ## 2026-11-18
 
+- **A human reviews the placement before anything is routed.** The owner moved board 11's parts by hand after it
+  was routed; the tracks did not follow and had to be ripped up. The road now stops after placement: the owner
+  moves what they like and agrees on size and holes, their placement is read back into `board.py`, and only then
+  does `route.py` run. [gotcha 43](procedures/gotchas.md),
+  [fusion-electronics step 3](../.claude/skills/fusion-electronics/SKILL.md)
+- **Finished boards go read-only.** Fusion Personal allows 10 editable documents ("8 of 10" in the Data Panel); a
+  full count stops every save. [gotcha 44](procedures/gotchas.md)
+- **A rule written once is not a rule followed.** The here-doc backslash trap (gotcha 41) happened again a few
+  hours after it was written down; an `assert` caught it before anything was written. Prose alone was not enough;
+  the habit is the Edit tool for any text with a backslash. [gotcha 41](procedures/gotchas.md)
+
 - **A fix checked on a case that never had the problem is not a fix.** Gotcha 21's `SET CONFIRM YES` was
   "verified" on D1, which never asks; on J1 the question still blocked Fusion. Test a fix on the case that
   failed. `sch_place` now reads `deviceset.userValue` and refuses instead of hanging.

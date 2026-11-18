@@ -39,10 +39,21 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
    every part, `sch_wire(net, ('J1','1'), ('SW1','P'), via=[corners])`, then `sch_netlist()` must equal the intent.
    Draw it **for the person reading it**: one visible loop, signal left to right, corners picked from
    `sch_pin()` read-backs, never across another pin (labels alone looked like "just components spread around").
-3. **Board** (`board.py`): `ecad_open('brd')`, `brd_outline(w, h)` (drags the default outline's corners; never
-   delete through the API, gotcha 25), `brd_hole(x, y, 3.2)` for M3, `brd_move(ref, x, y, angle)`,
-   `brd_name_size(1.0)`, pads from `brd_pad(ref, pad)` (read back, never assumed), `brd_route(signal, points,
-   layer="top"|"bottom")`, then `brd_report()`: every signal with tracks, **0 unrouted** and no `stray` layer.
+3. **Placement** (`board.py`), **then STOP and hand the board to the owner** (the owner's rule, 2026-11-18):
+   `ecad_open('brd')`, `brd_outline(w, h)` (drags the default outline's corners; never delete through the API,
+   gotcha 25), `brd_hole(x, y, 3.2)` for M3, `brd_move(ref, x, y, angle)`, `brd_name_size(1.0)`. No tracks yet.
+   Capture the window, look at it, and ask the owner to **review the placement in Fusion and move whatever they
+   like** (Move tool; Fusion's tracks do not follow cleanly, which is why routing waits), and to agree the **board
+   size, shape and holes** (where, how many, which screw). When they say it is agreed, read their placement back
+   (`brd_elements()`, `brd_report()['outline']` and `['holes']`), write it into `board.py` (`PLACE`, `W`, `H`,
+   `HOLES`), and only then route. Shrinking around an agreed placement: move every part by the same offset, then the
+   holes (`MOVE (x y) (x2 y2)` on a hole's centre moves it; read it back, one landed 0.32 mm off once), then
+   `brd_outline`. Torn-up tracks from an earlier try: `ecad('RIPUP;')` asks "All segments will be converted to
+   unrouted signals" (Yes/No), so answer it with `fusion_dialog.ps1 -Class QMessageBox -Text '*converted to
+   unrouted*' -Click Yes`.
+3b. **Routing** (`route.py`, after the placement is agreed): pads from `brd_pad(ref, pad)` (read back, never
+   assumed), `brd_route(signal, points, layer="top"|"bottom")`, then `brd_report()`: every signal with tracks,
+   **0 unrouted** and no `stray` layer.
    Leave room for the rules: Fusion keeps copper 1.02 mm from the edge and bends tracks to do so (gotcha 26).
    Two layers without vias: a track changes layer only at a through-hole pad, and **every route starts and ends on
    a pad** (a net of many pins is a chain; a WIRE ending on another track's corner raised "unexpected condition",
@@ -77,7 +88,13 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
   Fusion cloud copy exists only because CAM output needs a saved design: `ecad_save` keeps exactly one per
   board and overwrites it on every build, which also spares Fusion Personal's limited documents. Never edit a
   board by hand in Fusion and keep only that: change the script, rebuild. (A rebuild reproduced the export and
-  the Gerbers byte for byte, timestamps aside.)
+  the Gerbers byte for byte, timestamps aside.) The one planned hand edit is the owner's placement review
+  (step 3): it is read back into `board.py` before anything else happens.
+* **Fusion Personal allows 10 editable documents** (the Data Panel shows "8 of 10"; seen 2026-11-18). A full
+  count stops every save: board 11's board tab opened locked and its changes could not be saved. **When a board
+  is finished, make its documents read-only** (the owner's rule, 2026-11-18), and make them editable again only
+  when we go back to that board. How to switch it in the Data Panel is not yet verified here: the first time,
+  ask the owner to do it and tell you what they clicked, then write it into the reference.
 
 * **Read back every write**; a command that says nothing has not necessarily worked (gotcha 17).
 * **Approvals are decisions, not silence**: a finding the owner accepts goes into `checks.json` `approved` with
@@ -104,8 +121,11 @@ used them; the checks report pours as not modelled).
 - [ ] the circuit and its nets agreed in words, and written as `checks.json` `nets`
 - [ ] every part looked up with `fusion_parts.py`, with a value, ACTIVE, with a 3D model
 - [ ] schematic screenshot looked at; `sch_netlist()` equal to the intent
+- [ ] placement, board size and holes reviewed in Fusion and agreed by the owner, read back into `board.py`,
+      before any routing
 - [ ] board: 0 unrouted, screenshot looked at
 - [ ] `sch_erc()` and `brd_errors()` clean; design saved; exported; factory files written
 - [ ] `pcb_check.py` and `factory_check.py`: 0 errors, 0 warnings; approvals explained to the owner
 - [ ] `board_summary.py` page written, opened, its verdict read and shown to the owner
 - [ ] the example README's status table says exactly what was verified and when, and what was not
+- [ ] the finished board's Fusion documents made read-only (Fusion Personal's 10 editable documents)
