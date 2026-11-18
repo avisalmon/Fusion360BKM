@@ -27,6 +27,10 @@ python scripts\fusion.py run examples\10_led_switch_board\factory.py 300
 # outside Fusion, any time
 python scripts\pcb_check.py examples\10_led_switch_board\fusion\board.brd
 python scripts\factory_check.py examples\10_led_switch_board\factory
+
+# last: conclude the board with its summary page, generated from the files above (never typed)
+python scripts\board_summary.py examples\10_led_switch_board            # writes examples\...\index.html
+python scripts\board_summary.py examples\10_led_switch_board --check    # stale? (tests run this)
 ```
 
 Each prints a report by section, one line per finding: `ERROR` (must fix), `WARN` (decide), `APPROVED` (decided,

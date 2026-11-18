@@ -77,7 +77,8 @@ whether or not it worked). Research behind it: the `fusion-electronics` skill.
 | `fusion.py shot` fails in the electronics editors (no 3D viewport: `'NoneType' object has no attribute 'fit'`); capture the Fusion window with Windows instead: `scripts\fusion_window_shot.ps1 -Out <png>` (PrintWindow, PW_RENDERFULLCONTENT) | [verified] gotcha 18; script 2026-11-18 |
 | Power symbols: `GND@Power_Symbols` and `+9V@Power_Symbols` (library `Power_Symbols`, prefix SUPPLY, no package, so they exist only in the schematic). The pin carries the net name (`GND`, `+9V`); a wire of that name ending on it joins the net, and every symbol of a name is one net. +9V's pin is at the symbol's origin (arrow drawn above); GND's pin is 2.54 mm above its origin (bar drawn below). Each ADD asks for the value in a modal box (gotcha 35) | [verified] 2026-11-18, 2706.1.17 |
 | Several `NET <name>` commands with the same name, each drawn pin to pin, make one net: board 11's GND joins 5 pins and 5 symbols this way, and `sch_netlist()` reads it back as one | [verified] 2026-11-18 |
-| Board: the outline is wires on layer 20 (a new board starts as a 100 x 80 mm rectangle at 0,0); copper is layers 1 (top) and 16 (bottom); unrouted connections are airwires on layer 19; `board.holes` are the non-plated holes. A pad's `contact.x / y` are in the footprint's own coordinates: turn by the element's angle, mirror, add its position (`brd_pad`) | [verified] 2706.1.17 |
+| Board: the outline is wires on layer 20 (a new board starts as a 100 x 80 mm rectangle at 0,0); copper is layers 1 (top) and **304 (bottom)** in the live board (`board.layers`: 64 copper layers numbered 1-16 and 257-304; 16 is the inner `Route16`, gotcha 37), while the EAGLE export writes the bottom as 16; unrouted connections are airwires on layer 19; `board.holes` are the non-plated holes. A pad's `contact.x / y` are in the footprint's own coordinates: turn by the element's angle, mirror, add its position (`brd_pad`) | [verified] 2706.1.17; bottom = 304 verified 2026-11-18 |
+| `ROTATE =R90 'R1'` turns a part; unquoted, a name like R1 is read as an angle and nothing turns (gotcha 36). `SwitchDesignDocCmd` makes the electronics design document active (`EcadDesignProductType`) | [verified] 2026-11-18 |
 | `Electron.run SET CONFIRM YES` does **not** answer the fixed-value question: `VALUE J1 '9V'` on `B2B-XH-A@Connector` still opened "Part 'J1' has no user definable value. Change it anyway?" with CONFIRM YES sent just before (the 2026-11-17 "verified" saw D1, which never asks). Clicking Yes does set the value. `Part.deviceset.userValue` (bool) tells ahead of time: false for J1. `CHANGE SIZE 1.0 (x y)` resizes the text anchored at x, y | [verified] 2026-11-18, 2706.1.17 (CONFIRM, userValue); 2026-11-17 (CHANGE SIZE) |
 | ERC: `commandDefinitions.itemById('Electron::ERC').execute()` checks the schematic; `Schematic.errors` then lists the findings (`errorType` 0 warning, 1 error, 2 consistency, 3 airwire; `state` 0 active, 1 processed, 2 approved) and `Schematic.checked` is True. "Part SW1 has no value" is type 1 | [verified] 2026-11-17 |
 | Board check: `Electron::Errors` ("Check Design Rules") fills `Board.errors` (an airwire showed as type 4); `Board.checked` stays False (gotcha 32). Fusion also checks while editing and refuses rule-breaking wires and holes (gotcha 29). `Electron::DRC` / `DRC` only opens the rule-set dialog (gotcha 27). Default rules: 6 mil clearances and width, 1.02 mm copper to edge, 0.35 mm minimum drill, pad ring 25 % of the drill within 10-20 mil | [verified] 2026-11-17 |
@@ -124,14 +125,14 @@ ValueInput, Point3D, Vector3D (adsk.core classes re-exported)
 
 electronics (EAGLE commands write, the read-only API checks; mm on the editor's grid):
 ECAD_U = 320000 (EAGLE units per mm)
-ecad_new(grid_mm=1.27); ecad_open(which); ecad(command)        which: 'sch' | 'brd' | '3d'
+ecad_new(grid_mm=1.27); ecad_open(which); ecad(command)        which: 'sch' | 'brd' | '3d' | 'design'
 sch(); brd()
 sch_place(add_name, ref, x, y, value=None, angle=0)            add_name from scripts/fusion_parts.py
 sch_pin(ref, pin); sch_wire(net, a, b, via=()); sch_netlist()           a, b: ('J1', '1')
 sch_connect(net, ref, pin, stub_mm=5.08, label=True)            a labelled stub, for dense sheets
 brd_elements(); brd_move(ref, x, y, angle=None)
 brd_outline(width, height); brd_hole(x, y, drill=3.2); brd_pad(ref, pad)
-brd_route(signal, points, width=0.5, layer=1); brd_report(); brd_name_size(size=1.0)
+brd_route(signal, points, width=0.5, layer='top'|'bottom'); brd_report(); brd_name_size(size=1.0)
 sch_erc(); brd_errors()                                         Fusion's own checks: lists of findings
 ecad_save(name, folder='Fusion360BKM', project='Default Project', description=...)
 ecad_export(folder, stem) -> {'sch': path, 'brd': path}       EAGLE XML for scripts/pcb_check.py

@@ -814,8 +814,10 @@ def ecad(command):
 
 
 def ecad_open(which):
-    """Switch the active electronics design to 'sch', 'brd' or '3d' and wait until it is active."""
+    """Switch the active electronics design to 'sch', 'brd', '3d' or 'design' (the document that
+    holds the schematic and board, the one to save) and wait until it is active."""
     cmd, ptype = {
+        "design": ("SwitchDesignDocCmd", "EcadDesignProductType"),
         "sch": ("SwitchSchDocCmd", "SchematicProductType"),
         "brd": ("SwitchPcbDocCmd", "BoardProductType"),
         "3d": ("Switch3dPcbDocCmd", "DesignProductType"),
@@ -980,13 +982,16 @@ def brd_elements():
 
 def brd_move(ref, x, y, angle=None):
     """Rotate a board part to `angle`, then move it to x, y mm, and check it got there.
-    (Rotating after the move shifted SW1 by 1 mm: rotate first.)"""
+    (Rotating after the move shifted SW1 by 1 mm: rotate first.) The name is quoted: bare, R1
+    reads as an angle ("R" and a number) and ROTATE did nothing, silently (gotcha 36)."""
     if angle is not None:
-        ecad(f"ROTATE =R{angle} {ref}")
+        ecad(f"ROTATE =R{angle} '{ref}'")
     ecad(f"MOVE {ref} ({x} {y})")
-    ex, ey, _ = brd_elements()[ref]
+    ex, ey, ea = brd_elements()[ref]
     if abs(ex - x) > 0.01 or abs(ey - y) > 0.01:
         raise RuntimeError(f"MOVE {ref}: it is at ({ex:.2f}, {ey:.2f}), not ({x}, {y})")
+    if angle is not None and abs((ea - angle) % 360) > 0.01:
+        raise RuntimeError(f"ROTATE {ref}: it is at {ea} degrees, not {angle}")
 
 
 def _outline():
@@ -1045,10 +1050,23 @@ def brd_pad(ref, pad):
     raise RuntimeError(f"no part {ref} on the board")
 
 
-def brd_route(signal, points, width=0.5, layer=1):
-    """A copper track for `signal` through `points` [(x, y), ...] mm on layer 1 (top) or 16
-    (bottom). Start and end on the signal's pads; corners must not touch another signal's pad."""
-    ecad(f"LAYER {layer}")
+# Copper layers of Fusion's live board: top is 1, bottom is 304 (Fusion numbers 64 copper layers,
+# 1-16 then 257-304). Layer 16 is "Route16", an inner layer a 2-layer board does not have: tracks
+# there connect to nothing, yet the EAGLE export writes both 16 and 304 as "16 Bottom", so the file
+# looks right (gotcha 37). The exported .brd and the scripts that read it keep EAGLE's 1 and 16.
+BRD_LAYERS = {"top": 1, "bottom": 304}
+
+
+def brd_route(signal, points, width=0.5, layer="top"):
+    """A copper track for `signal` through `points` [(x, y), ...] mm on layer "top" or "bottom".
+    Start and end on the signal's pads; corners must not touch another signal's pad. A track may
+    change layer only at a through-hole pad (no vias here), so one route stays on one layer."""
+    if layer not in BRD_LAYERS:
+        raise ValueError(
+            f"layer {layer!r}: use 'top' or 'bottom' (bottom is Fusion's layer 304, not 16; "
+            "16 is an inner layer, gotcha 37)"
+        )
+    ecad(f"LAYER {BRD_LAYERS[layer]}")
     # one WIRE per straight piece: a multi-point WIRE was re-bent by Fusion into 45-degree
     # corners of its own choosing (SET WIRE_BEND 2 did not stop it; gotcha 26)
     for (x0, y0), (x1, y1) in zip(points, points[1:]):
@@ -1056,14 +1074,17 @@ def brd_route(signal, points, width=0.5, layer=1):
 
 
 def brd_report():
-    """What the board holds: outline, holes, parts, and per signal the copper tracks and the
-    connections still unrouted (airwires, layer 19)."""
+    """What the board holds: outline, holes, parts, and per signal the copper tracks (top and
+    bottom), copper on any other layer (`stray`: an inner layer connects nothing on 2 layers), and
+    the connections still unrouted (airwires, layer 19; zero-length ones count too)."""
     b = brd()
+    copper = set(BRD_LAYERS.values())
     sig = {}
     for s in _iter(b.signals):
         ws = _iter(s.wires)
         sig[s.name] = {
-            "tracks": sum(1 for w in ws if w.layer in (1, 16)),
+            "tracks": sum(1 for w in ws if w.layer in copper),
+            "stray": sorted({w.layer for w in ws if w.layer not in copper and w.layer != 19}),
             "unrouted": sum(1 for w in ws if w.layer == 19),
         }
     return {
@@ -1153,7 +1174,10 @@ def ecad_save(
     one cloud copy, overwritten on every build: earlier files under `name` in <project>/<folder>
     are closed (unsaved) and deleted, then the new design is saved in their place. That also keeps
     Fusion Personal's limited number of documents free. A design that is already saved gets a new
-    version of the same file."""
+    version of the same file. It saves the design document, whatever editor is open: saveAs on the
+    board document renamed only that tab and never finished (gotcha 39)."""
+    if _product_type() != "EcadDesignProductType":
+        ecad_open("design")
     doc = _app.activeDocument
     if doc.dataFile is not None:
         doc.save(description)

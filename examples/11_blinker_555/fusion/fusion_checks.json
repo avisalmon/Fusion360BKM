@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-18",
+  "fusion": "2706.1.17",
+  "erc": [
+    {
+      "type": "error",
+      "state": "active",
+      "description": "POWER pin U1 V+ connected to +9V",
+      "parts": [
+        "U1",
+        "V+",
+        "+9V"
+      ],
+      "layer": 0,
+      "x": 76.2,
+      "y": 73.66
+    }
+  ],
+  "board_errors": []
+}

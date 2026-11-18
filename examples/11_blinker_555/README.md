@@ -5,7 +5,7 @@ nets of two pins; this board's nets join three, four and five pins, it has a chi
 a plus and a minus (the 10 uF capacitor), and a schematic that uses power symbols. Not from a Babook lesson
 (the 3D course is on Babook, https://babook.co.il/courses/fusion360/).
 
-Status: in progress (schematic done; board, checks and factory files next).
+Status: in progress (schematic and board done and checked; the factory files wait for a Fusion restart, gotcha 39).
 
 ```text
 +9V -- R1 1k -- DIS -- R2 68k -- THR -- C1 10uF -- GND          U1 = NE555: pin 7 DIS, pins 6 and 2 THR
@@ -34,9 +34,17 @@ below +9V).
 
 ```powershell
 python scripts\fusion.py run examples\11_blinker_555\circuit.py 180    # 1. schematic (new design)
+python scripts\fusion.py run examples\11_blinker_555\board.py 180      # 2. board, on the same design
+python scripts\fusion.py run examples\11_blinker_555\factory.py 300    # 3. Fusion's checks, save, export, Gerbers
+python scripts\pcb_check.py examples\11_blinker_555\fusion\board.brd  # 4. our board check, no Fusion needed
 ```
 
 ![The schematic in Fusion](media/schematic.png)
+
+The board, 50 x 40 mm, an M3 hole in each corner: top copper red, bottom blue. Pins 4 and 8 (+9V) and
+pins 2 and 6 (THR) both cross under the 555, diagonally, one link on each layer; no vias.
+
+![The board in Fusion](media/board.png)
 
 ## Status
 
@@ -44,9 +52,11 @@ python scripts\fusion.py run examples\11_blinker_555\circuit.py 180    # 1. sche
 |---|---|
 | Parts found in Fusion's libraries (NE555 Active with a 3D model, the electrolytic with marked + and -) | 2026-11-18, Fusion 2706.1.17 |
 | Schematic from the chat: 8 parts, 9 power symbols, 7 nets; the netlist read back equal to the intent on the first run; looked at ([media/schematic.png](media/schematic.png)): one crossing (pin 6 over pin 7's wire, no dot), every other join a dot | 2026-11-18 |
-| Electrical rules check (ERC) | not yet |
-| Board: outline, placement, routing; a GND copper pour | not yet |
-| Fusion's board check, our board check, factory files | not yet |
+| Electrical rules check (ERC) | ran 2026-11-18: one finding, "POWER pin U1 V+ connected to +9V" (the 555's supply pin is named V+, its net +9V); to be approved in Fusion with that reason: not yet |
+| Board: outline, holes, placement, routing on both layers | 2026-11-18: 0 unrouted, no copper off the two layers; Fusion's board check 0 errors; looked at ([media/board.png](media/board.png)) |
+| Our board check (`pcb_check.py`) on the export | 2026-11-18: 0 errors; the netlist equals the intent in `checks.json`; 8 silkscreen warnings (thin lines in the Tinkercad resistor and NE555 footprints, marks near pads), not yet approved |
+| GND copper pour | not yet |
+| Saved to the Fusion cloud, Gerbers and drill file, `factory_check.py` | not yet: the board would not save (gotcha 39) |
 | Ordered, soldered, blinking | not yet (human steps) |
 
 ## What it taught this repo (so far)
@@ -63,3 +73,7 @@ python scripts\fusion.py run examples\11_blinker_555\circuit.py 180    # 1. sche
   while pin 7 lies between them. A crossing without a dot is not a connection; the netlist check proves it.
 * `scripts/fusion_window_shot.ps1` takes the screenshot `fusion.py shot` cannot take in the electronics
   editors (gotcha 18).
+* **The bottom copper is layer 304, not 16** (gotcha 37). The first routing put GND and a THR link on an inner
+  layer: Fusion showed zero-length airwires at every pad, while the exported file and our check looked perfect.
+* **`ROTATE =R90 R1` turns nothing**: R1 is read as an angle (gotcha 36). **Route pad to pad**: tracks ending
+  on another track's corner raised Fusion's "unexpected condition" box (gotcha 38).

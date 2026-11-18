@@ -15,6 +15,18 @@ assumption against a running Fusion and finding it was not quite true.
 - **A schematic with a chip cannot always avoid a crossing.** The 555's fixed pin order forces one; a crossing
   without a dot is not a connection, and the netlist read-back proves it. Power goes through symbols.
   [examples/11_blinker_555](../examples/11_blinker_555/README.md)
+- **An independent check is blind to what the export flattens.** Board 11's bottom tracks went onto Fusion's
+  inner layer 16 (the bottom is 304); they connected nothing, yet the EAGLE export wrote them as "16 Bottom" and
+  `pcb_check.py` passed the file. Fusion's zero-length airwires were the only witness. Why the way we worked let
+  it: board 10 used one layer, and the reference took "16 = bottom" from the exported file, not from the live
+  board. The rule: a fact about Fusion comes from Fusion (`board.layers`), and both layers of checking count:
+  Fusion's airwires and our file check. [gotcha 37](procedures/gotchas.md)
+- **A silent no-op needs a read-back.** `ROTATE =R90 R1` did nothing for R1-R3 (the name read as an angle);
+  only the routes going astray showed it. `brd_move` now reads the angle back. [gotcha 36](procedures/gotchas.md)
+- **Route pad to pad.** Tracks ending on another track's corner made Fusion raise internal-error boxes; chains
+  from pad to pad built cleanly, first time. [gotcha 38](procedures/gotchas.md)
+- **The summary page concludes every board** (the owner approved it): `board_summary.py` is step 8 of
+  `fusion-electronics`. [board_checks_and_factory.md](procedures/board_checks_and_factory.md)
 
 ## 2026-11-17
 

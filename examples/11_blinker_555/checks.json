@@ -1,0 +1,14 @@
+{
+  "about": "What scripts/pcb_check.py and factory_check.py hold this board to, besides the fab profile. 'nets' is the design intent from the README, written by hand: the schematic must match it exactly. 'approved' findings stay in the report with their reason and stop counting as problems; each one is a decision, not an oversight.",
+  "fab": "jlcpcb_2layer",
+  "nets": {
+    "+9V": ["J1.1", "U1.!RST", "U1.V+", "R1.2"],
+    "GND": ["J1.2", "U1.GND", "C1.-", "C2.2", "D1.C"],
+    "DIS": ["R1.1", "R2.2", "U1.DIS"],
+    "THR": ["R2.1", "C1.+", "U1.THR", "U1.TR"],
+    "CV": ["U1.CV", "C2.1"],
+    "OUT": ["U1.OUT", "R3.2"],
+    "LED_A": ["R3.1", "D1.A"]
+  },
+  "approved": []
+}

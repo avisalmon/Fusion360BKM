@@ -41,9 +41,13 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
    `sch_pin()` read-backs, never across another pin (labels alone looked like "just components spread around").
 3. **Board** (`board.py`): `ecad_open('brd')`, `brd_outline(w, h)` (drags the default outline's corners; never
    delete through the API, gotcha 25), `brd_hole(x, y, 3.2)` for M3, `brd_move(ref, x, y, angle)`,
-   `brd_name_size(1.0)`, pads from `brd_pad(ref, pad)` (read back, never assumed), `brd_route(signal, points)`,
-   then `brd_report()`: every signal with tracks and **0 unrouted**. Leave room for the rules: Fusion keeps copper
-   1.02 mm from the edge and bends tracks to do so (gotcha 26).
+   `brd_name_size(1.0)`, pads from `brd_pad(ref, pad)` (read back, never assumed), `brd_route(signal, points,
+   layer="top"|"bottom")`, then `brd_report()`: every signal with tracks, **0 unrouted** and no `stray` layer.
+   Leave room for the rules: Fusion keeps copper 1.02 mm from the edge and bends tracks to do so (gotcha 26).
+   Two layers without vias: a track changes layer only at a through-hole pad, and **every route starts and ends on
+   a pad** (a net of many pins is a chain; a WIRE ending on another track's corner raised "unexpected condition",
+   gotcha 38). The bottom is Fusion's layer 304, not 16 (gotcha 37): the export cannot show the difference, only
+   Fusion's airwires can. A DIP chip's diagonal links (555: pins 4-8, 2-6) go under it, one per layer (board 11).
 4. **Fusion's checks, save, export, factory files** (`factory.py`): `sch_erc()` and `brd_errors()` must return
    nothing unapproved; `ecad_save(name)` (CAM needs a saved design, gotcha 28); `ecad_export(<example>\fusion,
    'board')`; `cam_export(<example>\factory)` with `production/cam/two_layer.cam`.
@@ -56,9 +60,14 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
    `board_gerbers.zip` to upload.
 7. **Ready** = both checks print **0 errors, 0 warnings**, and every APPROVED line has a reason the owner agreed to.
    Show the owner the previews (render the SVGs with headless Edge) next to the Fusion screenshot.
-8. **Order** (human): upload the zip to the fab, compare its viewer with the preview. **Not yet done** in this repo:
+8. **Conclude the board with its summary page**: `python scripts\board_summary.py <example>` writes
+   `<example>\index.html` from the board's own files (verdict, the four layers of checks, schematic and board with
+   nets that light up, the factory's view, the netlist traced intent -> copper, parts, approvals, every file). Open
+   it, read the verdict, and show it to the owner: it is how a board is handed over (approved by the owner
+   2026-11-18). `tests/test_board_summary.py` fails when a board with a `fusion/*.brd` has a stale or missing page.
+9. **Order** (human): upload the zip to the fab, compare its viewer with the preview. **Not yet done** in this repo:
    say so; the fab's own review and a real electrical test are unverified until the first order.
-9. **The board in 3D and the case**: not yet (backlog E3.7). `Switch3dPcbDocCmd` opens the 3D PCB; outline, holes
+10. **The board in 3D and the case**: not yet (backlog E3.7). `Switch3dPcbDocCmd` opens the 3D PCB; outline, holes
    and connector positions are to feed `templates/parametric_box`.
 
 ## Rules while in this territory
@@ -98,4 +107,5 @@ used them; the checks report pours as not modelled).
 - [ ] board: 0 unrouted, screenshot looked at
 - [ ] `sch_erc()` and `brd_errors()` clean; design saved; exported; factory files written
 - [ ] `pcb_check.py` and `factory_check.py`: 0 errors, 0 warnings; approvals explained to the owner
+- [ ] `board_summary.py` page written, opened, its verdict read and shown to the owner
 - [ ] the example README's status table says exactly what was verified and when, and what was not
