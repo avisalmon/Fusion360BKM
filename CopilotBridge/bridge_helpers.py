@@ -865,20 +865,57 @@ def _part(name):
     return None
 
 
+def _answer_value_prompt(wait_s=20):
+    """Start scripts/fusion_dialog.ps1 in the background: it waits for EAGLE's "Value" box
+    (class cStringDialog, an element named Value) and clicks OK. Windows only."""
+    import subprocess
+
+    here = os.path.dirname(__file__)
+    ps1 = os.path.normpath(os.path.join(here, "..", "scripts", "fusion_dialog.ps1"))
+    if os.name != "nt" or not os.path.exists(ps1):
+        raise RuntimeError("power symbols need scripts/fusion_dialog.ps1 on Windows (gotcha 35)")
+    return subprocess.Popen(
+        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ps1,
+         "-WaitSec", str(wait_s), "-Class", "cStringDialog", "-Expect", "Value", "-Click", "OK"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+    )
+
+
 def sch_place(add_name, ref, x, y, value=None, angle=0):
     """Place `add_name` (exactly as `fusion_parts.py search` prints it) as `ref` at x, y mm.
     `angle` is 0/90/180/270, or an EAGLE orientation such as 'MR0' (mirrored)."""
     if _part(ref):
         raise RuntimeError(f"{ref} is already in the schematic")
     orient = angle if str(angle).startswith(("R", "MR", "SR", "SMR")) else f"R{angle}"
-    ecad(f"ADD {add_name} {ref} {orient} ({x} {y})")
+    watcher = None
+    if add_name.endswith("@Power_Symbols"):
+        # a power symbol (GND, +9V) asks for its net name in a modal "Value" box on every ADD
+        # (gotcha 35); nothing inside Fusion can answer it, so a separate process waits for that
+        # one box and clicks OK, which keeps the name the library offers. Other dialogs: left alone.
+        watcher = _answer_value_prompt()
+    try:
+        ecad(f"ADD {add_name} {ref} {orient} ({x} {y})")
+    finally:
+        if watcher is not None:
+            try:
+                watcher.wait(timeout=30)
+            except Exception:
+                watcher.kill()
     if not _part(ref):
         raise RuntimeError(
             f"ADD {add_name} placed nothing: the name is not in Fusion's libraries "
             "(look it up with scripts/fusion_parts.py; gotcha 20)"
         )
-    if value is not None:
-        # a part whose library fixes its value asks "change it anyway?"; ecad_open set CONFIRM YES
+    if value is not None and value != _part(ref).value:
+        # a part whose library fixes its value (deviceset.userValue false: J1's JST header) opens
+        # a modal "change it anyway?" that SET CONFIRM YES does NOT answer (gotcha 21, re-tested
+        # 2026-11-18 on a new design): it would block the bridge, so refuse instead of asking
+        if not _part(ref).deviceset.userValue:
+            raise RuntimeError(
+                f"{ref}'s library fixes its value ({_part(ref).value!r}); pass value=None for it, "
+                f"or pick a part whose value can be set (gotcha 21)"
+            )
         ecad(f"VALUE {ref} '{value}'")
         if _part(ref).value != value:
             raise RuntimeError(f"VALUE {ref} did not take: the value is {_part(ref).value!r}")

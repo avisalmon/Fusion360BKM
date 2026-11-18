@@ -4,6 +4,18 @@ The short version of every lesson in this blueprint, newest first, so you can se
 Each line points to where the full rule lives. Most of them came from something going wrong, or from checking an
 assumption against a running Fusion and finding it was not quite true.
 
+## 2026-11-18
+
+- **A fix checked on a case that never had the problem is not a fix.** Gotcha 21's `SET CONFIRM YES` was
+  "verified" on D1, which never asks; on J1 the question still blocked Fusion. Test a fix on the case that
+  failed. `sch_place` now reads `deviceset.userValue` and refuses instead of hanging.
+  [gotcha 21](procedures/gotchas.md)
+- **Power symbols ask for their name in a modal box; a watcher answers only that box.** `sch_place` starts
+  `fusion_dialog.ps1 -WaitSec -Class -Expect -Click OK` before placing one. [gotcha 35](procedures/gotchas.md)
+- **A schematic with a chip cannot always avoid a crossing.** The 555's fixed pin order forces one; a crossing
+  without a dot is not a connection, and the netlist read-back proves it. Power goes through symbols.
+  [examples/11_blinker_555](../examples/11_blinker_555/README.md)
+
 ## 2026-11-17
 
 - **The repo holds the board; Fusion is only the vehicle.** Scripts, intent, export and factory files live in

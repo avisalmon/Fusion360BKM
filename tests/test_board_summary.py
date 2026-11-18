@@ -15,7 +15,13 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import board_summary as bs  # noqa: E402
 
 BOARD10 = ROOT / "examples" / "10_led_switch_board"
-BOARDS = sorted(p for p in (ROOT / "examples").iterdir() if (p / "circuit.py").exists())
+# the page concludes a board, so it is owed once the board has its EAGLE export; a board still at
+# the schematic step (no fusion/*.brd yet) has nothing to conclude
+BOARDS = sorted(
+    p
+    for p in (ROOT / "examples").iterdir()
+    if (p / "circuit.py").exists() and any((p / "fusion").glob("*.brd"))
+)
 
 
 @pytest.mark.parametrize("folder", BOARDS, ids=lambda p: p.name)

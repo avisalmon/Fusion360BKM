@@ -76,8 +76,9 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
 * **The intent is written by hand** in `checks.json` `nets` from the agreed circuit, not copied from the schematic:
   it is what catches a wire to the wrong pin.
 * **Fab numbers come with their source and date**; re-read the fab's page before an order.
-* **A modal dialog blocks the bridge**: never send `DRC` (gotcha 27); `ecad_open` sets `SET CONFIRM YES` so EAGLE's
-  yes/no questions do not appear (gotcha 21); `fusion.py dialog` lists what is open.
+* **A modal dialog blocks the bridge**: never send `DRC` (gotcha 27); a part whose library fixes its value (a
+  connector) gets `value=None`, because `VALUE` on it asks a question nothing answers from a script (gotcha 21;
+  `sch_place` refuses it); `fusion.py dialog` lists what is open.
 * Screenshots: `fusion.py shot` does not work in these editors (gotcha 18); capture the Fusion window with Windows
   (PrintWindow) and look at it.
 * Every new trap becomes a numbered gotcha, every new fact a tagged row in the reference, every new check a test

@@ -7,11 +7,17 @@
   .\fusion_dialog.ps1 -Click Continue      # click a button by name in the modal dialog
   .\fusion_dialog.ps1 -Select 'Suspend*'   # select a radio button / list row by (wildcard) name
   .\fusion_dialog.ps1 -Select 'Suspend*' -Click Continue
+  .\fusion_dialog.ps1 -WaitSec 20 -Class cStringDialog -Expect Value -Click OK
+                                           # wait up to 20 s for that one dialog, then click; any other
+                                           # dialog is left alone (sch_place uses this for power symbols)
 #>
 param(
     [string]$Click,
     [string]$Select,
-    [switch]$All          # dump every window, not just the modal one
+    [switch]$All,         # dump every window, not just the modal one
+    [int]$WaitSec = 0,    # keep looking for a matching dialog this long (0: look once)
+    [string]$Class,       # only a dialog whose UI Automation class is this (e.g. cStringDialog)
+    [string]$Expect       # only a dialog showing an element with this exact name (e.g. Value)
 )
 
 Add-Type -AssemblyName UIAutomationClient
@@ -43,18 +49,37 @@ public class FusionWinEnum {
 $proc = Get-Process -Name Fusion360 -ErrorAction SilentlyContinue
 if (-not $proc) { Write-Host 'Fusion360 is not running.'; exit 1 }
 
-$wins = [FusionWinEnum]::List([uint32]$proc.Id)
-$main = $wins | Where-Object { $_.Title -like '*Autodesk Fusion*' } | Select-Object -First 1
-$modal = $wins | Where-Object { $_.Enabled -and $_.Class -like 'Qt*QWindowIcon' -and $_.Title -notlike '*Autodesk Fusion*' }
+$A = [System.Windows.Automation.AutomationElement]
+$ct = [System.Windows.Automation.ControlType]
+
+function Test-Wanted($w) {
+    # with -Class / -Expect, a dialog counts only if it is exactly the one asked for
+    if (-not $Class -and -not $Expect) { return $true }
+    try {
+        $root = $A::FromHandle($w.Handle)
+        if ($Class -and $root.Current.ClassName -ne $Class) { return $false }
+        if ($Expect) {
+            $names = $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition) | ForEach-Object { $_.Current.Name }
+            if ($names -notcontains $Expect) { return $false }
+        }
+        return $true
+    } catch { return $false }
+}
+
+$deadline = (Get-Date).AddSeconds($WaitSec)
+do {
+    $wins = [FusionWinEnum]::List([uint32]$proc.Id)
+    $main = $wins | Where-Object { $_.Title -like '*Autodesk Fusion*' } | Select-Object -First 1
+    $modal = $wins | Where-Object { $_.Enabled -and $_.Class -like 'Qt*QWindowIcon' -and $_.Title -notlike '*Autodesk Fusion*' }
+    $targets = if ($All) { $wins } else { @($modal | Where-Object { Test-Wanted $_ }) }
+    if ($targets -or (Get-Date) -ge $deadline) { break }
+    Start-Sleep -Milliseconds 250
+} while ($true)
 
 Write-Host ("Fusion pid {0}; main window enabled = {1}" -f $proc.Id, $(if ($main) { $main.Enabled } else { 'n/a' }))
 foreach ($w in $wins) { Write-Host ("  {0,-10} {1,-28} enabled={2,-5} '{3}'" -f $w.Handle, $w.Class, $w.Enabled, $w.Title) }
 
-$targets = if ($All) { $wins } else { $modal }
 if (-not $targets) { Write-Host 'No modal dialog detected.'; exit 0 }
-
-$A = [System.Windows.Automation.AutomationElement]
-$ct = [System.Windows.Automation.ControlType]
 foreach ($w in $targets) {
     $root = $A::FromHandle($w.Handle)
     Write-Host ("`n=== {0} [{1}] ===" -f $w.Handle, $root.Current.ClassName)

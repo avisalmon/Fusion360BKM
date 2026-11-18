@@ -65,7 +65,8 @@ What the factory receives, drawn from the Gerbers alone (top, then bottom as see
 ## What it taught this repo
 
 * Electronics writes are EAGLE commands, checked by reading back (gotcha 17); a wrong library name places nothing.
-* `VALUE` on a part with a fixed value asks a blocking question (gotcha 21); `SET CONFIRM YES` answers it, so every
+* `VALUE` on a part with a fixed value asks a blocking question (gotcha 21); J1 keeps its library value (board 11
+  showed that `SET CONFIRM YES` does not answer the question), so every
   part gets a value: the ERC calls a missing one an error, and the BOM needs it.
 * A part whose technology is `_` crashes Fusion's ADD (gotcha 22); `fusion_parts.py` flags them.
 * The board editor starts on a mil grid (gotcha 24); deleting through the API broke Fusion (gotcha 25).
