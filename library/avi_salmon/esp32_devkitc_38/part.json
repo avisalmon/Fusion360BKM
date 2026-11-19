@@ -13,11 +13,26 @@
   },
   "mounting": "through-hole: two rows of 19 male header pins",
   "dimensions_mm": {
-    "pitch": {"value": 2.54, "source": "the owner, 2026-11-19"},
-    "row_spacing": {"value": 25.4, "source": "the owner, 2026-11-19; the top photo, scaled by the pitch, agrees"},
-    "board": {"value": [27.9, 54.4], "source": "Espressif's DevKitC V4 guide; the top photo, scaled by the pitch, gives about 27.5 x 53 (rough): not measured on this board yet"},
-    "pcb_thickness": {"value": 1.6, "source": "estimate from photos/side.jpg, not measured"},
-    "tallest_above_board": {"value": 3.2, "source": "estimate (the ESP-WROOM-32 can and the micro-USB socket), not measured"}
+    "pitch": {
+      "value": 2.54,
+      "source": "the owner, 2026-11-19"
+    },
+    "row_spacing": {
+      "value": 25.4,
+      "source": "the owner, 2026-11-19; the top photo, scaled by the pitch, agrees"
+    },
+    "board": {
+      "value": [27.9, 54.4],
+      "source": "Espressif's DevKitC V4 guide; the top photo, scaled by the pitch, gives about 27.5 x 53 (rough): not measured on this board yet"
+    },
+    "pcb_thickness": {
+      "value": 1.6,
+      "source": "estimate from photos/side.jpg, not measured"
+    },
+    "tallest_above_board": {
+      "value": 3.2,
+      "source": "estimate (the ESP-WROOM-32 can and the micro-USB socket), not measured"
+    }
   },
   "footprint": {
     "type": "dual_row",
@@ -30,7 +45,7 @@
     "body": [27.9, 54.4],
     "why": "drill 1.0 mm for 0.64 mm square header pins (diagonal 0.9 mm), pad 1.7 mm: the common 2.54 mm header land; the body outline is drawn centred on the pins"
   },
-  "pin_numbering":"1-19 down the left row and 20-38 down the right row, antenna at the top, seen from above",
+  "pin_numbering": "1-19 down the left row and 20-38 down the right row, antenna at the top, seen from above",
   "pins": [
     [1, "3V3", "supply", "3.3 V out of the board's regulator"],
     [2, "EN", "input", "reset, low = reset (RST button)"],
@@ -71,12 +86,29 @@
     [37, "SD0", "nc", "GPIO7, wired to the module's flash: do not use"],
     [38, "CLK", "nc", "GPIO6, wired to the module's flash: do not use"]
   ],
-  "photos": {"top": "photos/top.jpg", "side": "photos/side.jpg", "symbol": "fusion/symbol.png", "footprint": "fusion/footprint.png"},
+  "photos": {
+    "top": "photos/top.jpg",
+    "side": "photos/side.jpg",
+    "symbol": "fusion/symbol.png",
+    "footprint": "fusion/footprint.png"
+  },
   "status": {
     "identified": "2026-11-19",
     "footprint": "2026-11-19: generated (library_build.py), placed on a board in Fusion 2706.1.17 from this part's .lbr, pads read back (pitch and row spacing exact), looked at (fusion/footprint.png)",
     "symbol": "2026-11-19: placed in a schematic in Fusion 2706.1.17, every pin name read back in order, looked at (fusion/symbol.png)",
-    "3d_model": "not yet",
+    "3d_model": "2026-11-19: a simple model in part.json (model), built by examples/12_tiny_arcade/board3d.py; from the sources in each line; the header and socket sizes are common values, not measured",
     "used_on_a_board": "not yet"
+  },
+  "model": {
+    "about": "Its own shape, seated on its pins' plastic (z 0); x, y in the footprint's frame (pin 1, 3V3, at the top left). Boxes are [cx, cy, z0, w, d, h], cylinders [cx, cy, z0, diameter, h], mm.",
+    "boxes": [
+      [-12.7, 0, 0, 2.5, 48.3, 2.5, "header plastic, left row (2.5 mm, the standard 2.54 mm male header)"],
+      [12.7, 0, 0, 2.5, 48.3, 2.5, "header plastic, right row"],
+      [0, 0, 2.5, 27.9, 54.4, 1.6, "the DevKitC board, 27.9 x 54.4 (Espressif's DevKitC V4 guide), 1.6 thick (estimate)"],
+      [0, 14.45, 4.1, 18.0, 25.5, 3.1, "ESP32-WROOM-32 module, 18 x 25.5 x 3.1 (Espressif's WROOM-32 datasheet), at the 3V3 end"],
+      [0, -25.45, 4.1, 7.5, 5.5, 2.5, "micro-USB socket at the far end, sticking out about 1 mm (estimate)"]
+    ],
+    "cylinders": [],
+    "status": "2026-11-19: from the sources in each line; the header and socket sizes are common values, not measured"
   }
 }

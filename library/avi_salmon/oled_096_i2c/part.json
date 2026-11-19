@@ -25,9 +25,18 @@
     "why": "drill 1.0 mm, pad 1.7 mm: the common 2.54 mm header land. The outline, 27.3 x 27.3 mm (the common size of this module) with the pins 1.4 mm below its top edge (from the top photo): not measured on this one"
   },
   "dimensions_mm": {
-    "pitch": {"value": 2.54, "source": "a standard 2.54 mm header (the photo, scaled by the board's holes, agrees); not measured"},
-    "board": {"value": [27.3, 27.3], "source": "the common size of this module in sellers' listings (27.3 x 27.3, 27.3 x 27.8; other makers 26 or 28 square); the owner: a standard 0.96 inch module, 2026-11-19; not measured on this one"},
-    "holes": {"value": "4, 2.0 mm diameter, near the corners; spacing not known", "source": "diameter from DFRobot's SSD1306 module page (a similar module); no listing gives the spacing: measure before the box"}
+    "pitch": {
+      "value": 2.54,
+      "source": "a standard 2.54 mm header (the photo, scaled by the board's holes, agrees); not measured"
+    },
+    "board": {
+      "value": [27.3, 27.3],
+      "source": "the common size of this module in sellers' listings (27.3 x 27.3, 27.3 x 27.8; other makers 26 or 28 square); the owner: a standard 0.96 inch module, 2026-11-19; not measured on this one"
+    },
+    "holes": {
+      "value": "4, 2.0 mm diameter, near the corners; spacing not known",
+      "source": "diameter from DFRobot's SSD1306 module page (a similar module); no listing gives the spacing: measure before the box"
+    }
   },
   "pin_numbering": "1-4 from left to right, seen from the front with the pins at the top",
   "pins": [
@@ -36,12 +45,27 @@
     [3, "SCL", "input", "I2C clock (on the ESP32 by convention G22)"],
     [4, "SDA", "io", "I2C data (on the ESP32 by convention G21)"]
   ],
-  "photos": {"top": "photos/top.jpg", "side": "photos/side.jpg", "symbol": "fusion/symbol.png", "footprint": "fusion/footprint.png"},
+  "photos": {
+    "top": "photos/top.jpg",
+    "side": "photos/side.jpg",
+    "symbol": "fusion/symbol.png",
+    "footprint": "fusion/footprint.png"
+  },
   "status": {
     "identified": "2026-11-19",
     "footprint": "2026-11-19: generated (library_build.py), placed on a board in Fusion 2706.1.17 from this part's .lbr, pads read back (pitch and row spacing exact), looked at (fusion/footprint.png)",
     "symbol": "2026-11-19: placed in a schematic in Fusion 2706.1.17, every pin name read back in order, looked at (fusion/symbol.png)",
-    "3d_model": "not yet",
+    "3d_model": "2026-11-19: a simple model in part.json (model), built by examples/12_tiny_arcade/board3d.py; the glass size and position are the common panel's, not measured on this one",
     "used_on_a_board": "not yet"
+  },
+  "model": {
+    "about": "Seated on its header's plastic (z 0); x, y in the footprint's frame (pins along the top). Boxes [cx, cy, z0, w, d, h] mm.",
+    "boxes": [
+      [0, 0, 0, 10.16, 2.5, 2.5, "header plastic, 4 pins (the standard 2.54 mm male header)"],
+      [0, -12.25, 2.5, 27.3, 27.3, 1.2, "the module board, 27.3 square (as the footprint), 1.2 thick (estimate)"],
+      [0, -12.25, 3.7, 26.7, 19.26, 1.4, "the glass panel, 26.7 x 19.26 x 1.4 (the common 0.96 inch SSD1306 panel outline; not measured)"]
+    ],
+    "cylinders": [],
+    "status": "2026-11-19: the glass size and position are the common panel's, not measured on this one"
   }
 }

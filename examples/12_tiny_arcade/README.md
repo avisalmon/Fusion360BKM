@@ -41,6 +41,7 @@ python scripts\fusion.py run examples\12_tiny_arcade\route.py 300     # 2b. trac
 python scripts\fusion.py run examples\12_tiny_arcade\factory.py 600   # 3. Fusion's checks, save, export, Gerbers
 python scripts\pcb_check.py examples\12_tiny_arcade\fusion\board.brd  # 4. our board check, no Fusion needed
 python scripts\factory_check.py examples\12_tiny_arcade\factory       # 5. the simulated factory
+python scripts\fusion.py run examples\12_tiny_arcade\board3d.py 300   # 6. the board in 3D, the parts on it
 ```
 
 ![The schematic in Fusion](media/schematic.png)
@@ -53,6 +54,11 @@ direction pad right), then the routed board: top copper red, bottom blue.
 ![The owner's placement](media/placement_owner.png)
 
 ![The routed board](media/board.png)
+
+The board in 3D, each part built from the model in its library record (boxes and cylinders, every size
+with its source):
+
+![The board in 3D](media/board3d.png)
 
 ## Status
 
@@ -67,7 +73,7 @@ direction pad right), then the routed board: top copper red, bottom blue.
 | Fusion's checks | 2026-11-19: board check 0 errors; ERC 5 findings, unused ESP32 input pins (EN, SVP, SVN, G34, G35), approved in `checks.json` with that reason, **to be confirmed by the owner** |
 | Our board check (`pcb_check.py`) and the simulated factory (`factory_check.py`) | 2026-11-19, after a clean rebuild in a new design: 0 errors; the netlist equal to the intent; the bare-board e-test equal to the schematic (11 nets, no opens, no shorts); open: 9 warnings, no part has a 3D model yet |
 | Saved to the Fusion cloud (project "Tiny Arcade"), factory files | 2026-11-19 |
-| The board in 3D, with the parts as 3D objects | not yet |
+| The board in 3D, with the parts as 3D objects (`board3d.py`: each part's model from its library part.json, at its place on Fusion's 3D board) | 2026-11-19: built; each part's bounding box read back over its footprint; looked at ([media/board3d.png](media/board3d.png)). Heights above the board's underside: ESP32 17.2 mm on female headers (assumed, as on the owner's Tiny Arcade), buzzer 11.0, screen 6.6, buttons 6.5 (the 5 mm button is assumed): **to be measured** |
 | Printing concept (owner's review), the box, printed | not yet |
 
 ## What it taught this repo (so far)

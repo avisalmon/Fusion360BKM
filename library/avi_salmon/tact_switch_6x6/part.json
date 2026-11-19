@@ -22,27 +22,56 @@
     "drill": 1.0,
     "pad": 1.8,
     "body": [6.0, 6.0],
-    "pads_of_pin": {"1": [1, 3], "2": [2, 4]},
-    "symbol_sides": {"left": [1], "right": [2]},
+    "pads_of_pin": {
+      "1": [1, 3],
+      "2": [2, 4]
+    },
+    "symbol_sides": {
+      "left": [1],
+      "right": [2]
+    },
     "symbol_half_width": 2,
     "why": "pads 1 and 2 are the two legs on one side (4.5 mm apart, the switch); 3 and 4 the legs on the other side, 6.5 mm across. Pin 1 is pads 1 and 3 (joined inside), pin 2 is pads 2 and 4. Drill 1.0 mm, the usual hole for these legs"
   },
   "dimensions_mm": {
-    "legs": {"value": [6.5, 4.5], "source": "the common 6 x 6 mm tact switch (6.5 mm across the body, 4.5 mm along a side); the owner's photo, scaled by the 6 mm body, agrees (about 4.4 mm along a side); not measured with calipers"},
-    "body": {"value": [6.0, 6.0], "source": "the size the part is sold as; the owner's photo agrees"},
-    "height": {"value": null, "source": "not known: these come with plungers from 4.3 to 13 mm above the board; measure before the box"}
+    "legs": {
+      "value": [6.5, 4.5],
+      "source": "the common 6 x 6 mm tact switch (6.5 mm across the body, 4.5 mm along a side); the owner's photo, scaled by the 6 mm body, agrees (about 4.4 mm along a side); not measured with calipers"
+    },
+    "body": {
+      "value": [6.0, 6.0],
+      "source": "the size the part is sold as; the owner's photo agrees"
+    },
+    "height": {
+      "value": null,
+      "source": "not known: these come with plungers from 4.3 to 13 mm above the board; measure before the box"
+    }
   },
   "pin_numbering": "pin 1 is the two legs of one contact (pads 1 and 3, straight across the body); pin 2 the other contact (pads 2 and 4)",
   "pins": [
     [1, "1", "pas", "one contact: to the GPIO (with its pull-up on)"],
     [2, "2", "pas", "the other contact: to GND"]
   ],
-  "photos": {"top_and_pinout": "photos/top_and_pinout.jpg", "symbol": "fusion/symbol.png", "footprint": "fusion/footprint.png"},
+  "photos": {
+    "top_and_pinout": "photos/top_and_pinout.jpg",
+    "symbol": "fusion/symbol.png",
+    "footprint": "fusion/footprint.png"
+  },
   "status": {
     "identified": "2026-11-19",
     "footprint": "2026-11-19: placed on a board in Fusion 2706.1.17 from this part's .lbr; pads read back 6.5 x 4.5 mm; with pin 1 on net BTN and pin 2 on GND the board's signals were BTN = pads 1 and 3, GND = pads 2 and 4 (read from the signals' contactRefs); looked at (fusion/footprint.png)",
     "symbol": "2026-11-19: placed in a schematic in Fusion 2706.1.17, pins 1 and 2 wired and read back (Fusion labels each 1*2 / 2*2: one pin on two pads), looked at (fusion/symbol.png)",
-    "3d_model": "not yet",
+    "3d_model": "2026-11-19: a simple model in part.json (model), built by examples/12_tiny_arcade/board3d.py; the height is an assumption until measured",
     "used_on_a_board": "not yet"
+  },
+  "model": {
+    "about": "Standing on the board (z 0). Boxes [cx, cy, z0, w, d, h], cylinders [cx, cy, z0, diameter, h] mm.",
+    "boxes": [
+      [0, 0, 0, 6.0, 6.0, 3.5, "body 6 x 6 x 3.5 (the common size)"]
+    ],
+    "cylinders": [
+      [0, 0, 3.5, 3.5, 1.5, "plunger 3.5 across; its top at 5.0 mm, the most common height (6 x 6 x 5). Assumed: these come 4.3 to 13 mm tall, measure yours"]
+    ],
+    "status": "2026-11-19: the height is an assumption until measured"
   }
 }

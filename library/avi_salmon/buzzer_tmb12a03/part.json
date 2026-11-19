@@ -25,9 +25,18 @@
     "why": "pitch 7.6 mm from the sellers' listings and the common footprint BUZ-TH_BD12.0-P7.60; the owner measured about 8 mm with a ruler, which agrees within a ruler's reading. Drill 1.0 mm for legs of about 0.6 mm. The circle is the 12 mm body"
   },
   "dimensions_mm": {
-    "pitch": {"value": 7.6, "source": "the sellers' listings (pitch 7.6 mm) and the footprint name BUZ-TH_BD12.0-P7.60; the owner measured about 8 mm with a ruler, 2026-11-19"},
-    "diameter": {"value": 12.0, "source": "the sellers' listings (12 mm); not measured on this one"},
-    "height": {"value": 9.5, "source": "the sellers' listings (9.5 mm above the board); not measured on this one: measure before the box"}
+    "pitch": {
+      "value": 7.6,
+      "source": "the sellers' listings (pitch 7.6 mm) and the footprint name BUZ-TH_BD12.0-P7.60; the owner measured about 8 mm with a ruler, 2026-11-19"
+    },
+    "diameter": {
+      "value": 12.0,
+      "source": "the sellers' listings (12 mm); not measured on this one"
+    },
+    "height": {
+      "value": 9.5,
+      "source": "the sellers' listings (9.5 mm above the board); not measured on this one: measure before the box"
+    }
   },
   "electrical": {
     "rated_voltage": "3 V DC (operating range 1.5 to 4 or 5 V depending on the listing)",
@@ -39,12 +48,24 @@
     [1, "+", "pas", "positive: straight to the 3V3 rail"],
     [2, "-", "pas", "negative: to the transistor's collector or drain, which switches it to GND"]
   ],
-  "photos": {"top": "photos/top.jpg", "symbol": "fusion/symbol.png", "footprint": "fusion/footprint.png"},
+  "photos": {
+    "top": "photos/top.jpg",
+    "symbol": "fusion/symbol.png",
+    "footprint": "fusion/footprint.png"
+  },
   "status": {
     "identified": "2026-11-19",
     "footprint": "2026-11-19: generated (library_build.py), placed on a board in Fusion 2706.1.17 from this part's .lbr, pads read back 7.6 mm apart with pad 1 (+) square, looked at (fusion/footprint.png)",
     "symbol": "2026-11-19: placed in a schematic in Fusion 2706.1.17, pins + and - read back, looked at (fusion/symbol.png)",
-    "3d_model": "not yet",
+    "3d_model": "2026-11-19: a simple model in part.json (model), built by examples/12_tiny_arcade/board3d.py; from the listings",
     "used_on_a_board": "not yet"
+  },
+  "model": {
+    "about": "Standing on the board (z 0). Cylinders [cx, cy, z0, diameter, h] mm.",
+    "boxes": [],
+    "cylinders": [
+      [0, 0, 0, 12.0, 9.5, "12 mm across, 9.5 high (the sellers' listings; not measured)"]
+    ],
+    "status": "2026-11-19: from the listings"
   }
 }
