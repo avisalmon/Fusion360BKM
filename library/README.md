@@ -25,4 +25,7 @@ In a circuit script: `ecad("USE '<repo>/library/<owner>/<part>/<part>.lbr'")`, t
 `ADD <DEVICESET>@<part_id>`. One part per `.lbr`: Fusion 2706 fails on a local library with two or more
 (gotcha 47).
 
+Round parts (a buzzer) give `body_diameter` instead of `body`; `symbol_half_width` (grid steps, default 5)
+narrows the symbol of a part with few pins.
+
 Not done yet: the 3D models, and the browsable page of the whole library.

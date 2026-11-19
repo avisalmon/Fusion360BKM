@@ -1,0 +1,50 @@
+{
+  "id": "buzzer_tmb12a03",
+  "name": "Active buzzer TMB12A03, 3 V, 12 mm",
+  "category": "Sound",
+  "description": "Active magnetic buzzer: it has its own oscillator, so plain DC on its legs gives a steady tone of about 2.3 to 2.4 kHz (no PWM needed). Rated 3 V. The + leg is marked on the body and the seal sticker. The seal keeps flux out during washing: peel it off after soldering, or the buzzer stays quiet.",
+  "location": "kit",
+  "quantity": null,
+  "prefix": "BZ",
+  "maker": "TMB12A03 (made by Huaneng and by YUEXIN, among others; the maker of this one is not marked)",
+  "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_Jiangsu-Huaneng-Elec-TMB12A03_C96222.pdf",
+  "identified": {
+    "date": "2026-11-19",
+    "how": "from the kit photo (BZ1 next to the ESP32: the TMB12A marking, the + mark, the washing seal) and the owner, who read the full marking TMB12A03 on 2026-11-19"
+  },
+  "mounting": "through-hole: two legs, + and -",
+  "footprint": {
+    "type": "single_row",
+    "name": "BUZZER_TMB12A03",
+    "per_row": 2,
+    "pitch": 7.6,
+    "drill": 1.0,
+    "pad": 1.8,
+    "body_diameter": 12.0,
+    "symbol_half_width": 2,
+    "why": "pitch 7.6 mm from the sellers' listings and the common footprint BUZ-TH_BD12.0-P7.60; the owner measured about 8 mm with a ruler, which agrees within a ruler's reading. Drill 1.0 mm for legs of about 0.6 mm. The circle is the 12 mm body"
+  },
+  "dimensions_mm": {
+    "pitch": {"value": 7.6, "source": "the sellers' listings (pitch 7.6 mm) and the footprint name BUZ-TH_BD12.0-P7.60; the owner measured about 8 mm with a ruler, 2026-11-19"},
+    "diameter": {"value": 12.0, "source": "the sellers' listings (12 mm); not measured on this one"},
+    "height": {"value": 9.5, "source": "the sellers' listings (9.5 mm above the board); not measured on this one: measure before the box"}
+  },
+  "electrical": {
+    "rated_voltage": "3 V DC (operating range 1.5 to 4 or 5 V depending on the listing)",
+    "current": "up to 30 mA (Huaneng's specification)",
+    "on_an_esp32": "30 mA is more than an ESP32 GPIO should supply (about 20 mA is the safe figure): drive it through an NPN transistor or a small MOSFET from the 3V3 rail, with a resistor into the base or gate"
+  },
+  "pin_numbering": "1 is +, 2 is -",
+  "pins": [
+    [1, "+", "pas", "positive: straight to the 3V3 rail"],
+    [2, "-", "pas", "negative: to the transistor's collector or drain, which switches it to GND"]
+  ],
+  "photos": {"top": "photos/top.jpg", "symbol": "fusion/symbol.png", "footprint": "fusion/footprint.png"},
+  "status": {
+    "identified": "2026-11-19",
+    "footprint": "2026-11-19: generated (library_build.py), placed on a board in Fusion 2706.1.17 from this part's .lbr, pads read back 7.6 mm apart with pad 1 (+) square, looked at (fusion/footprint.png)",
+    "symbol": "2026-11-19: placed in a schematic in Fusion 2706.1.17, pins + and - read back, looked at (fusion/symbol.png)",
+    "3d_model": "not yet",
+    "used_on_a_board": "not yet"
+  }
+}

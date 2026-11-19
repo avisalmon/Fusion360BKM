@@ -77,16 +77,23 @@ def package_xml(fp):
             f'<pad name="{num}" x="{f(x)}" y="{f(y)}" drill="{f(fp["drill"])}" '
             f'diameter="{f(fp["pad"])}"{shape}/>'
         )
-    w, h = fp["body"]
     cx, cy = fp.get("body_centre", (0, 0))  # the body's centre, measured from the pins' centre
-    corners = [(cx - w / 2, cy + h / 2), (cx + w / 2, cy + h / 2), (cx + w / 2, cy - h / 2),
-               (cx - w / 2, cy - h / 2)]  # fmt: skip
-    for (x1, y1), (x2, y2) in zip(corners, corners[1:] + corners[:1]):
-        for layer in (21, 51):  # silkscreen and the documentation layer
+    if "body_diameter" in fp:  # a round part (a buzzer): a circle instead of a rectangle
+        w = h = fp["body_diameter"]
+        for layer in (21, 51):
             out.append(
-                f'<wire x1="{f(x1)}" y1="{f(y1)}" x2="{f(x2)}" y2="{f(y2)}" width="0.2" '
-                f'layer="{layer}"/>'
+                f'<circle x="{f(cx)}" y="{f(cy)}" radius="{f(w / 2)}" width="0.2" layer="{layer}"/>'
             )
+    else:
+        w, h = fp["body"]
+        corners = [(cx - w / 2, cy + h / 2), (cx + w / 2, cy + h / 2), (cx + w / 2, cy - h / 2),
+                   (cx - w / 2, cy - h / 2)]  # fmt: skip
+        for (x1, y1), (x2, y2) in zip(corners, corners[1:] + corners[:1]):
+            for layer in (21, 51):  # silkscreen and the documentation layer
+                out.append(
+                    f'<wire x1="{f(x1)}" y1="{f(y1)}" x2="{f(x2)}" y2="{f(y2)}" width="0.2" '
+                    f'layer="{layer}"/>'
+                )
     out.append(f'<text x="{f(cx)}" y="{f(cy + h / 2 + 1)}" size="1.27" layer="25" '
                'align="bottom-center">>NAME</text>')  # fmt: skip
     out.append(f'<text x="{f(cx)}" y="{f(cy - h / 2 - 1)}" size="1.27" layer="27" '
@@ -101,7 +108,7 @@ def symbol_xml(part, names):
     fp = part["footprint"]
     n = fp["per_row"]
     top = (n - 1) * G / 2
-    half_w = 5 * G
+    half_w = fp.get("symbol_half_width", 5) * G  # in grid steps; a two-pin part needs less
     out = [f'<symbol name="{fp["name"]}">']
     box = [(-half_w, top + G), (half_w, top + G), (half_w, -top - G), (-half_w, -top - G)]
     for (x1, y1), (x2, y2) in zip(box, box[1:] + box[:1]):
