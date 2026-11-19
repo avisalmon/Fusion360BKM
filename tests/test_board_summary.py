@@ -136,6 +136,13 @@ def test_the_page_is_the_same_whether_text_files_have_crlf_or_lf(tmp_path):
         shutil.rmtree(dst)
 
 
+def test_files_are_listed_in_the_same_order_on_windows_and_linux():
+    """Windows sorts Paths ignoring case (board_gerbers.zip before BOM.csv), Linux does not."""
+    for _, rows in bs.file_rows(BOARD10.relative_to(ROOT), "board"):
+        names = [r[0].rsplit("/", 1)[-1] for r in rows]
+        assert names == sorted(names), names
+
+
 def test_text_is_kept_readable_the_way_eagle_shows_it():
     upside_down = bs.svg_text(0, 0, 1, "R180", "bottom-left", "R1")
     assert "rotate" not in upside_down and 'text-anchor="end"' in upside_down

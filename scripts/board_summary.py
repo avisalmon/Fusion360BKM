@@ -570,17 +570,23 @@ ROLE_NOTES = {
 
 def file_rows(folder, brd_stem):
     stems = {stem: role for role, (stem, _) in fc.LAYER_FILES.items()}
+
+    def _name(p):  # by name as a string: Windows sorts Paths ignoring case, Linux (CI) does not
+        return p.name
+
     groups = []
-    src = [p for p in sorted(folder.iterdir()) if p.is_file() and p.name != "index.html"]
+    src = [p for p in sorted(folder.iterdir(), key=_name) if p.is_file() and p.name != "index.html"]
     groups.append(("Source (the board is these)", src))
-    groups.append(("Fusion's export (what the checks read)", sorted((folder / "fusion").glob("*"))))
+    groups.append(
+        ("Fusion's export (what the checks read)", sorted((folder / "fusion").glob("*"), key=_name))
+    )
     groups.append(
         (
             "Factory files (made by Fusion's CAM job and factory_check.py)",
-            sorted((folder / "factory").glob("*")),
+            sorted((folder / "factory").glob("*"), key=_name),
         )
     )
-    groups.append(("Pictures", sorted((folder / "media").glob("*"))))
+    groups.append(("Pictures", sorted((folder / "media").glob("*"), key=_name)))
     out = []
     for title, files in groups:
         rows = []
@@ -1080,6 +1086,13 @@ def main(argv=None):
         old = target.read_bytes().decode("utf-8").replace("\r\n", "\n") if target.exists() else ""
         if old != text:
             print(f"{target} is stale: run python scripts\\board_summary.py {folder}")
+            # the page is long lines, so show where it first differs (CI's only window, gotcha 45)
+            i = next(
+                (k for k, (x, y) in enumerate(zip(old, text)) if x != y), min(len(old), len(text))
+            )
+            print(f"  first difference at character {i}:")
+            print(f"  committed: ...{old[max(0, i - 120) : i + 120]!r}")
+            print(f"  fresh:     ...{text[max(0, i - 120) : i + 120]!r}")
             return 1
         print(f"{target} is up to date")
         return 0
