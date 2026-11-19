@@ -44,13 +44,13 @@
 <pad name="2" x="-3.25" y="-2.25" drill="1" diameter="1.8"/>
 <pad name="3" x="3.25" y="2.25" drill="1" diameter="1.8"/>
 <pad name="4" x="3.25" y="-2.25" drill="1" diameter="1.8"/>
-<wire x1="-3" y1="3" x2="3" y2="3" width="0.2" layer="21"/>
+<wire x1="-1.8667" y1="3" x2="2.3133" y2="3" width="0.2" layer="21"/>
 <wire x1="-3" y1="3" x2="3" y2="3" width="0.2" layer="51"/>
-<wire x1="3" y1="3" x2="3" y2="-3" width="0.2" layer="21"/>
+<wire x1="3" y1="1.0763" x2="3" y2="-1.0763" width="0.2" layer="21"/>
 <wire x1="3" y1="3" x2="3" y2="-3" width="0.2" layer="51"/>
-<wire x1="3" y1="-3" x2="-3" y2="-3" width="0.2" layer="21"/>
+<wire x1="2.3133" y1="-3" x2="-2.3133" y2="-3" width="0.2" layer="21"/>
 <wire x1="3" y1="-3" x2="-3" y2="-3" width="0.2" layer="51"/>
-<wire x1="-3" y1="-3" x2="-3" y2="3" width="0.2" layer="21"/>
+<wire x1="-3" y1="-1.0763" x2="-3" y2="0.6965" width="0.2" layer="21"/>
 <wire x1="-3" y1="-3" x2="-3" y2="3" width="0.2" layer="51"/>
 <text x="0" y="4" size="1.27" layer="25" align="bottom-center">>NAME</text>
 <text x="0" y="-4" size="1.27" layer="27" align="top-center">>VALUE</text>

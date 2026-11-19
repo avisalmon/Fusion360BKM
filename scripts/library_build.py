@@ -68,6 +68,34 @@ def footprint_pads(fp):
     return pads
 
 
+def _clear_of_pads(a, b, pads):
+    """The pieces of the straight line a-b (horizontal or vertical) that stay out of every circle
+    (x, y, r) in `pads`; pieces shorter than 0.2 mm are dropped."""
+    (x1, y1), (x2, y2) = a, b
+    horizontal = abs(y1 - y2) < 1e-9
+    lo, hi = sorted((x1, x2) if horizontal else (y1, y2))
+    fixed = y1 if horizontal else x1
+    cuts = []
+    for px, py, r in pads:
+        d = abs((py if horizontal else px) - fixed)
+        if d < r:
+            c = px if horizontal else py
+            h = (r * r - d * d) ** 0.5
+            cuts.append((c - h, c + h))
+    pieces, start = [], lo
+    for c0, c1 in sorted(cuts):
+        if c0 > start:
+            pieces.append((start, min(c0, hi)))
+        start = max(start, c1)
+    if start < hi:
+        pieces.append((start, hi))
+    pt = (lambda v: (v, fixed)) if horizontal else (lambda v: (fixed, v))
+    out = [(pt(s), pt(e)) for s, e in pieces if e - s >= 0.2]
+    if (x1, y1) > (x2, y2):  # keep the line's own direction
+        out = [(e, s) for s, e in reversed(out)]
+    return out
+
+
 def package_xml(fp):
     out = [f'<package name="{fp["name"]}">']
     out.append(f"<description>{escape(fp.get('why', ''))}</description>")
@@ -88,12 +116,19 @@ def package_xml(fp):
         w, h = fp["body"]
         corners = [(cx - w / 2, cy + h / 2), (cx + w / 2, cy + h / 2), (cx + w / 2, cy - h / 2),
                    (cx - w / 2, cy - h / 2)]  # fmt: skip
-        for (x1, y1), (x2, y2) in zip(corners, corners[1:] + corners[:1]):
-            for layer in (21, 51):  # silkscreen and the documentation layer
-                out.append(
-                    f'<wire x1="{f(x1)}" y1="{f(y1)}" x2="{f(x2)}" y2="{f(y2)}" width="0.2" '
-                    f'layer="{layer}"/>'
-                )
+        # keep-out round each pad: its half-width (a square pad 1 reaches out to its corners) + 0.3
+        pads = [
+            (x, y, fp["pad"] / 2 * (1.415 if n == 1 else 1) + 0.3) for n, x, y in footprint_pads(fp)
+        ]
+        for a, b in zip(corners, corners[1:] + corners[:1]):
+            # silkscreen (21) stops short of the pads, the fab would clip it there anyway (the tact
+            # switch's legs sit on its body's edge); the documentation layer (51) keeps the outline
+            for layer, pieces in ((21, _clear_of_pads(a, b, pads)), (51, [(a, b)])):
+                for (x1, y1), (x2, y2) in pieces:
+                    out.append(
+                        f'<wire x1="{f(x1)}" y1="{f(y1)}" x2="{f(x2)}" y2="{f(y2)}" width="0.2" '
+                        f'layer="{layer}"/>'
+                    )
     out.append(f'<text x="{f(cx)}" y="{f(cy + h / 2 + 1)}" size="1.27" layer="25" '
                'align="bottom-center">>NAME</text>')  # fmt: skip
     out.append(f'<text x="{f(cx)}" y="{f(cy - h / 2 - 1)}" size="1.27" layer="27" '

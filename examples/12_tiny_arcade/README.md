@@ -7,15 +7,17 @@ real parts from his store with their pins confirmed on the part. The kit's pins 
 (Flappy) run unchanged. One flow: **board, then the board in 3D, then a 3D-printed box**, with two reviews
 by the owner: the placement, and the printing concept.
 
-Status: in progress. The schematic is built and checked; the placement is a first proposal, waiting for the
-owner's review. Not yet: routing, factory files, the 3D board, the box.
+Status: in progress. The board is done: the owner's placement (2026-11-19), routed on two layers with no
+vias; Fusion's checks, our checks and the simulated factory all pass with 0 errors; the factory files are made
+([summary page](index.html)). Open: the parts have no 3D models yet (9 warnings), which is the next stage. Not
+yet: the board in 3D, the box, an order.
 
 | Part | Pin on the ESP32 | Note |
 |---|---|---|
 | screen SCL / SDA, VCC, GND | G22 / G21, 3V3, GND | the kit's pins |
 | buzzer + / - | G23 / GND | the kit's pin |
 | A, B | G4, G13 | A is the kit's one button |
-| UP, DOWN, LEFT, RIGHT | G32, G33, G25, G26 | |
+| UP, DOWN, LEFT, RIGHT | G33, G26, G25, G32 | chosen so the four tracks reach the direction pad without crossing |
 
 Each button's other contact goes to GND; the program turns on the pin's internal pull-up (released 1,
 pressed 0), so there are no resistors. Pins avoided: 0, 2, 5, 12, 15 (they decide how the ESP32 starts),
@@ -35,11 +37,22 @@ pressed 0), so there are no resistors. Pins avoided: 0, 2, 5, 12, 15 (they decid
 ```powershell
 python scripts\fusion.py run examples\12_tiny_arcade\circuit.py 300   # 1. schematic (new design)
 python scripts\fusion.py run examples\12_tiny_arcade\board.py 300     # 2. outline, holes, placement; the owner reviews
+python scripts\fusion.py run examples\12_tiny_arcade\route.py 300     # 2b. tracks, once the owner agrees
+python scripts\fusion.py run examples\12_tiny_arcade\factory.py 600   # 3. Fusion's checks, save, export, Gerbers
+python scripts\pcb_check.py examples\12_tiny_arcade\fusion\board.brd  # 4. our board check, no Fusion needed
+python scripts\factory_check.py examples\12_tiny_arcade\factory       # 5. the simulated factory
 ```
 
 ![The schematic in Fusion](media/schematic.png)
 
+The first placement proposal, then the owner's (a console: A and B left, the screen in the middle, the
+direction pad right), then the routed board: top copper red, bottom blue.
+
 ![The first placement proposal](media/placement_proposal.png)
+
+![The owner's placement](media/placement_owner.png)
+
+![The routed board](media/board.png)
 
 ## Status
 
@@ -48,8 +61,12 @@ python scripts\fusion.py run examples\12_tiny_arcade\board.py 300     # 2. outli
 | Parts: the owner's library, each part's symbol and footprint placed in Fusion and read back | 2026-11-19, Fusion 2706.1.17 |
 | Schematic from the chat: 9 parts, 10 supply symbols, 11 nets; the netlist read back equal to the intent; looked at ([media/schematic.png](media/schematic.png)): no wire crosses another | 2026-11-19 |
 | The ESP32's GND pins (the "power" kind, no wire) on the board's GND signal | 2026-11-19: pads 14, 20 and 26 read back in GND |
-| Placement, first proposal: 86 x 64 mm, four M3 holes | 2026-11-19: placed and looked at ([media/placement_proposal.png](media/placement_proposal.png)); **waiting for the owner's review** |
-| Routing, Fusion's checks, our checks, factory files | not yet |
+| Placement, first proposal: 86 x 64 mm, four M3 holes | 2026-11-19: placed and looked at ([media/placement_proposal.png](media/placement_proposal.png)) |
+| Placement reviewed and moved by the owner in Fusion (a console layout), read back into `board.py`; B moved 1.5 mm off the corner screw, agreed | 2026-11-19 ([media/placement_owner.png](media/placement_owner.png)) |
+| Routed (`route.py`): two layers, no vias; the direction pins swapped so no tracks cross (UP G33, DOWN G26, RIGHT G32) | 2026-11-19: 0 unrouted, no copper off the two layers, looked at ([media/board.png](media/board.png)) |
+| Fusion's checks | 2026-11-19: board check 0 errors; ERC 5 findings, unused ESP32 input pins (EN, SVP, SVN, G34, G35), approved in `checks.json` with that reason, **to be confirmed by the owner** |
+| Our board check (`pcb_check.py`) and the simulated factory (`factory_check.py`) | 2026-11-19, after a clean rebuild in a new design: 0 errors; the netlist equal to the intent; the bare-board e-test equal to the schematic (11 nets, no opens, no shorts); open: 9 warnings, no part has a 3D model yet |
+| Saved to the Fusion cloud (project "Tiny Arcade"), factory files | 2026-11-19 |
 | The board in 3D, with the parts as 3D objects | not yet |
 | Printing concept (owner's review), the box, printed | not yet |
 
@@ -58,5 +75,9 @@ python scripts\fusion.py run examples\12_tiny_arcade\board.py 300     # 2. outli
 * **Check what a command added, not only what it was asked to add.** Every ADD from a local library left
   one more copy of the part at the sheet's edge, which took the next name the script wanted. `sch_place`
   now ends the ADD (`EDIT .s1`) and fails if anything else appeared (gotcha 48).
+* **Our check learned the supply pins**: an ESP32 pin named GND@14 of direction "pwr" joins GND with no
+  wire; Fusion's board did, our check's schematic did not, so they disagreed. `pcb_check.py` now joins such
+  pins by name, as EAGLE does.
+* **Silkscreen stops short of the pads** in generated footprints (a square pad 1 reaches out to its corners).
 * **One pin on two pads** (the tact switch's joined legs) and **GND pins that join by name**: the board's
   signal has them, the schematic's nets do not list them.

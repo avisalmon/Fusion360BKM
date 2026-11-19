@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-19",
+  "fusion": "2706.1.17",
+  "erc": [
+    {
+      "type": "consistency",
+      "state": "active",
+      "description": "Unconnected INPUT pin U1 EN",
+      "parts": [
+        "U1",
+        "EN"
+      ],
+      "layer": 0,
+      "x": 83.82,
+      "y": 96.52
+    },
+    {
+      "type": "consistency",
+      "state": "active",
+      "description": "Unconnected INPUT pin U1 SVP",
+      "parts": [
+        "U1",
+        "SVP"
+      ],
+      "layer": 0,
+      "x": 83.82,
+      "y": 93.98
+    },
+    {
+      "type": "consistency",
+      "state": "active",
+      "description": "Unconnected INPUT pin U1 SVN",
+      "parts": [
+        "U1",
+        "SVN"
+      ],
+      "layer": 0,
+      "x": 83.82,
+      "y": 91.44
+    },
+    {
+      "type": "consistency",
+      "state": "active",
+      "description": "Unconnected INPUT pin U1 G34",
+      "parts": [
+        "U1",
+        "G34"
+      ],
+      "layer": 0,
+      "x": 83.82,
+      "y": 88.9
+    },
+    {
+      "type": "consistency",
+      "state": "active",
+      "description": "Unconnected INPUT pin U1 G35",
+      "parts": [
+        "U1",
+        "G35"
+      ],
+      "layer": 0,
+      "x": 83.82,
+      "y": 86.36
+    }
+  ],
+  "board_errors": []
+}

@@ -111,11 +111,21 @@ def load_sch(path):
         if dev is not None:
             for c in dev.iter("connect"):
                 connects[(c.get("gate"), c.get("pin"))] = c.get("pad").split()
+        # pins of direction "pwr" join the net of their own name (GND@14 joins GND) with no wire:
+        # EAGLE's supply pins, and Fusion's board puts their pads on that signal (board 12)
+        supply = {}
+        if ds is not None and lib is not None:
+            for g in ds.iter("gate"):
+                sym = lib.find(f"symbols/symbol[@name='{g.get('symbol')}']")
+                for pin in sym.iter("pin") if sym is not None else ():
+                    if pin.get("direction") == "pwr":
+                        supply[(g.get("name"), pin.get("name"))] = pin.get("name").split("@")[0]
         parts[p.get("name")] = {
             "package": dev.get("package") if dev is not None else None,
             "value": p.get("value", ""),
             "uservalue": ds is not None and ds.get("uservalue") == "yes",
             "connects": connects,
+            "supply": supply,
             "found": dev is not None,
         }
     nets, used = {}, set()
@@ -126,6 +136,12 @@ def load_sch(path):
             used.add(key)
             for pad in parts.get(key[0], {}).get("connects", {}).get(key[1:], []):
                 pads.add(f"{key[0]}.{pad}")
+    for ref, p in parts.items():
+        for (gate, pin), net in p["supply"].items():
+            if (ref, gate, pin) not in used and (gate, pin) in p["connects"]:
+                used.add((ref, gate, pin))
+                for pad in p["connects"][(gate, pin)]:
+                    nets.setdefault(net, set()).add(f"{ref}.{pad}")
     unconnected = [
         (ref, pin, pads)
         for ref, p in parts.items()

@@ -179,3 +179,11 @@ def test_parts_on_top_of_each_other(tmp_path):
 def test_a_part_without_a_3d_model(tmp_path):
     t = brd_text().replace(' package3d_urn="urn:adsk.eagle:package:39353/2"', "")
     assert "PART-3D" in codes(run(tmp_path, brd=t), "WARN")
+
+
+def test_supply_pins_join_their_net_by_name():
+    """Board 12: the ESP32's GND@14, GND@20, GND@26 are "pwr" pins with no wire. Fusion's board puts
+    their pads on GND; the schematic must too, or board and schematic look different."""
+    sch = pc.load_sch(ROOT / "examples" / "12_tiny_arcade" / "fusion" / "board.sch")
+    assert {"U1.14", "U1.20", "U1.26"} <= sch["nets"]["GND"]
+    assert not [u for u in sch["unconnected"] if u[1].startswith("GND")]

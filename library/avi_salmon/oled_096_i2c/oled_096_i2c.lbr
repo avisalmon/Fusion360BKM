@@ -44,7 +44,8 @@
 <pad name="2" x="-1.27" y="0" drill="1" diameter="1.7"/>
 <pad name="3" x="1.27" y="0" drill="1" diameter="1.7"/>
 <pad name="4" x="3.81" y="0" drill="1" diameter="1.7"/>
-<wire x1="-13.65" y1="1.4" x2="13.65" y2="1.4" width="0.2" layer="21"/>
+<wire x1="-13.65" y1="1.4" x2="-4.3561" y2="1.4" width="0.2" layer="21"/>
+<wire x1="-3.2639" y1="1.4" x2="13.65" y2="1.4" width="0.2" layer="21"/>
 <wire x1="-13.65" y1="1.4" x2="13.65" y2="1.4" width="0.2" layer="51"/>
 <wire x1="13.65" y1="1.4" x2="13.65" y2="-25.9" width="0.2" layer="21"/>
 <wire x1="13.65" y1="1.4" x2="13.65" y2="-25.9" width="0.2" layer="51"/>

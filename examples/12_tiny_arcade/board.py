@@ -6,25 +6,27 @@ Then STOP: the owner reviews the placement in Fusion, moves what they like and a
 and holes; their placement is read back into PLACE below, and only then route.py lays the tracks
 (fusion-electronics, step 3).
 
-First proposal (2026-11-19), small and laid out like the owner's "ESP32 Tiny Arcade": the ESP32
-along the top with its USB socket at the left edge (a cable must reach it), the screen bottom left,
-the direction pad in the middle, A and B to the right (B lower, A higher, as on a game pad), the
-buzzer top right. Every part on top.
+The first proposal (2026-11-19) had the screen bottom left, the direction pad in the middle and A
+and B on the right. The owner moved it into a console: A and B on the left, the screen in the
+middle, the direction pad on the right, the buzzer top right; the ESP32 along the top with its USB
+socket at the left edge (a cable must reach it). Every part on top.
 """
 
 W, H = 86, 64
 # M3, 3.5 mm in from the edges; the top-left corner is under the ESP32, that hole moves right
 HOLES = [(3.5, 3.5), (W - 3.5, 3.5), (W - 3.5, H - 3.5), (60.5, H - 3.5)]
 PLACE = [  # ref, x, y, angle (the footprint's origin is the centre of its pins)
+    # the owner's placement, moved by hand in Fusion and read back with brd_elements(), 2026-11-19:
+    # a game console, A and B on the left, the screen in the middle, the direction pad on the right
     ("U1", 28.2, 48.5, 270),  # pin 1 (3V3) end to the right, the USB end to the left edge
-    ("DISP1", 22, 30, 0),  # pins along its top edge, the glass below them
-    ("BZ1", 72, 50, 0),
-    ("SW3", 50, 26, 0),  # UP
-    ("SW4", 50, 8, 0),  # DOWN
-    ("SW5", 41, 17, 0),  # LEFT
-    ("SW6", 59, 17, 0),  # RIGHT
-    ("SW2", 70, 12, 0),  # B
-    ("SW1", 78.5, 21, 0),  # A
+    ("DISP1", 32.16, 28.73, 0),  # pins along its top edge, the glass below them
+    ("BZ1", 70.73, 55.08, 0),
+    ("SW1", 9.92, 24.81, 0),  # A
+    ("SW2", 8.0, 11.0, 0),  # B: moved 1.5 mm right and up off the corner screw (agreed 2026-11-19)
+    ("SW3", 65.24, 28.54, 0),  # UP
+    ("SW4", 65.24, 10.54, 0),  # DOWN
+    ("SW5", 56.24, 19.54, 0),  # LEFT
+    ("SW6", 74.24, 19.54, 0),  # RIGHT
 ]
 
 ecad_open("brd")

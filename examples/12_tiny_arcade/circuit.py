@@ -7,7 +7,9 @@ programs (Flappy) run unchanged; five buttons are added on free pins:
     screen SCL / SDA -> G22 / G21, VCC -> 3V3, GND -> GND        (the kit's pins)
     buzzer + -> G23, - -> GND                                      (the kit's pin)
     A -> G4 (the kit's one button), B -> G13
-    UP / DOWN / LEFT / RIGHT -> G32 / G33 / G25 / G26
+    UP / DOWN / LEFT / RIGHT -> G33 / G26 / G25 / G32
+    (chosen so the four tracks reach the direction pad on the board without crossing: the pin
+    furthest right on the ESP32 goes to the button furthest right, 2026-11-19)
     every button's other contact -> GND; the program turns on the pin's internal pull-up
     (released reads 1, pressed 0), so no resistors
 
@@ -37,10 +39,10 @@ PARTS = [  # ref, part, x, y, orientation (our parts fix their own value)
     ("BZ1", BUZ, 139.7, 105.41, 0),  # + at y 106.68, - at 104.14
     ("SW1", SW, 134.62, 67.31, 0),  # A, level with G4 (68.58) on the right
     # the left-hand buttons, turned 180 degrees: contact 1 faces the ESP32, contact 2 the ground
-    ("SW3", SW, 50.8, 107.95, 180),  # UP, contacts at y 106.68
-    ("SW4", SW, 50.8, 95.25, 180),  # DOWN, 93.98
+    ("SW6", SW, 50.8, 107.95, 180),  # RIGHT, contacts at y 106.68
+    ("SW3", SW, 50.8, 95.25, 180),  # UP, 93.98
     ("SW5", SW, 50.8, 82.55, 180),  # LEFT, 81.28
-    ("SW6", SW, 50.8, 69.85, 180),  # RIGHT, 68.58
+    ("SW4", SW, 50.8, 69.85, 180),  # DOWN, 68.58
     ("SW2", SW, 50.8, 57.15, 180),  # B, 55.88
     ("P1", V33, 81.28, 104.14, 0),
     ("P2", V33, 132.08, 91.44, 90),  # beside the screen's VCC, pointing left
@@ -56,16 +58,16 @@ PARTS = [  # ref, part, x, y, orientation (our parts fix their own value)
 
 WIRES = [  # net, from pin, to pin, corners (mm)
     # the direction pad and B: one corner each, the corners further out for the higher pins
-    ("BTN_UP", ("SW3", "1"), ("U1", "G32"), [(78.74, 106.68), (78.74, 83.82)]),
-    ("BTN_DOWN", ("SW4", "1"), ("U1", "G33"), [(76.2, 93.98), (76.2, 81.28)]),
+    ("BTN_RIGHT", ("SW6", "1"), ("U1", "G32"), [(78.74, 106.68), (78.74, 83.82)]),
+    ("BTN_UP", ("SW3", "1"), ("U1", "G33"), [(76.2, 93.98), (76.2, 81.28)]),
     ("BTN_LEFT", ("SW5", "1"), ("U1", "G25"), [(73.66, 81.28), (73.66, 78.74)]),
-    ("BTN_RIGHT", ("SW6", "1"), ("U1", "G26"), [(71.12, 68.58), (71.12, 76.2)]),
+    ("BTN_DOWN", ("SW4", "1"), ("U1", "G26"), [(71.12, 68.58), (71.12, 76.2)]),
     ("BTN_B", ("SW2", "1"), ("U1", "G13"), [(68.58, 55.88), (68.58, 63.5)]),
     ("BTN_A", ("U1", "G4"), ("SW1", "1"), []),
-    ("GND", ("SW3", "2"), ("G1", "GND"), []),
-    ("GND", ("SW4", "2"), ("G2", "GND"), []),
+    ("GND", ("SW6", "2"), ("G1", "GND"), []),
+    ("GND", ("SW3", "2"), ("G2", "GND"), []),
     ("GND", ("SW5", "2"), ("G3", "GND"), []),
-    ("GND", ("SW6", "2"), ("G4", "GND"), []),
+    ("GND", ("SW4", "2"), ("G4", "GND"), []),
     ("GND", ("SW2", "2"), ("G5", "GND"), []),
     ("GND", ("SW1", "2"), ("G6", "GND"), []),
     # the buzzer, up and over: + from G23, - to its own ground
@@ -80,7 +82,7 @@ WIRES = [  # net, from pin, to pin, corners (mm)
 ]
 
 NAMES = [  # what each button does, printed beside it (the pins already name the screen's lines)
-    ("UP", 27.94, 106.68), ("DOWN", 27.94, 93.98), ("LEFT", 27.94, 81.28), ("RIGHT", 27.94, 68.58),
+    ("RIGHT", 27.94, 106.68), ("UP", 27.94, 93.98), ("LEFT", 27.94, 81.28), ("DOWN", 27.94, 68.58),
     ("B", 27.94, 55.88), ("A", 147.32, 72.39),
 ]  # fmt: skip
 

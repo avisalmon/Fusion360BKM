@@ -1,0 +1,115 @@
+{
+  "about": "What scripts/pcb_check.py and factory_check.py hold this board to, besides the fab profile. 'nets' is the design intent from the README, written by hand: the schematic must match it exactly. 'approved' findings stay in the report with their reason and stop counting as problems; each one is a decision, not an oversight. Tokens are a part's pin (U1.G4) or pad (SW1.3); a switch's pin 1 is pads 1 and 3, pin 2 pads 2 and 4, so both pads are named.",
+  "fab": "jlcpcb_2layer",
+  "nets": {
+    "GND": [
+      "U1.GND@14",
+      "U1.GND@20",
+      "U1.GND@26",
+      "DISP1.GND",
+      "BZ1.-",
+      "SW1.2",
+      "SW1.4",
+      "SW2.2",
+      "SW2.4",
+      "SW3.2",
+      "SW3.4",
+      "SW4.2",
+      "SW4.4",
+      "SW5.2",
+      "SW5.4",
+      "SW6.2",
+      "SW6.4"
+    ],
+    "3V3": [
+      "U1.3V3",
+      "DISP1.VCC"
+    ],
+    "SCL": [
+      "U1.G22",
+      "DISP1.SCL"
+    ],
+    "SDA": [
+      "U1.G21",
+      "DISP1.SDA"
+    ],
+    "BUZZER": [
+      "U1.G23",
+      "BZ1.+"
+    ],
+    "BTN_A": [
+      "U1.G4",
+      "SW1.1",
+      "SW1.3"
+    ],
+    "BTN_B": [
+      "U1.G13",
+      "SW2.1",
+      "SW2.3"
+    ],
+    "BTN_UP": [
+      "U1.G33",
+      "SW3.1",
+      "SW3.3"
+    ],
+    "BTN_DOWN": [
+      "U1.G26",
+      "SW4.1",
+      "SW4.3"
+    ],
+    "BTN_LEFT": [
+      "U1.G25",
+      "SW5.1",
+      "SW5.3"
+    ],
+    "BTN_RIGHT": [
+      "U1.G32",
+      "SW6.1",
+      "SW6.3"
+    ]
+  },
+  "approved": [
+    {
+      "code": "FUSION-ERC",
+      "match": "Unconnected INPUT pin U1",
+      "why": "ESP32 pins this board does not use: EN has its own pull-up and RST button on the DevKitC; SVP, SVN, G34, G35 are input-only pins left free (proposed 2026-11-19, to be confirmed by the owner)"
+    },
+    {
+      "code": "NPTH-PLATED",
+      "match": "board hole",
+      "why": "M3 screw holes: plated is fine for a screw"
+    },
+    {
+      "code": "LCSC",
+      "match": "BZ1, DISP1, SW1, SW2, SW3, SW4, SW5, SW6, U1",
+      "why": "a kit soldered by hand from the owner's own parts: no assembly is ordered"
+    }
+  ],
+  "unconnected_ok": [
+    "U1.5V",
+    "U1.EN",
+    "U1.SVP",
+    "U1.SVN",
+    "U1.G34",
+    "U1.G35",
+    "U1.G27",
+    "U1.G14",
+    "U1.G12",
+    "U1.SD2",
+    "U1.SD3",
+    "U1.CMD",
+    "U1.TXD",
+    "U1.RXD",
+    "U1.G19",
+    "U1.G18",
+    "U1.G5",
+    "U1.G17",
+    "U1.G16",
+    "U1.G0",
+    "U1.G2",
+    "U1.G15",
+    "U1.SD1",
+    "U1.SD0",
+    "U1.CLK"
+  ]
+}

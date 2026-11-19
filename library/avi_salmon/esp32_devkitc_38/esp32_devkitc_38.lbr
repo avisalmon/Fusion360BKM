@@ -84,7 +84,8 @@
 <wire x1="13.95" y1="27.2" x2="13.95" y2="-27.2" width="0.2" layer="51"/>
 <wire x1="13.95" y1="-27.2" x2="-13.95" y2="-27.2" width="0.2" layer="21"/>
 <wire x1="13.95" y1="-27.2" x2="-13.95" y2="-27.2" width="0.2" layer="51"/>
-<wire x1="-13.95" y1="-27.2" x2="-13.95" y2="27.2" width="0.2" layer="21"/>
+<wire x1="-13.95" y1="-27.2" x2="-13.95" y2="22.0259" width="0.2" layer="21"/>
+<wire x1="-13.95" y1="23.6941" x2="-13.95" y2="27.2" width="0.2" layer="21"/>
 <wire x1="-13.95" y1="-27.2" x2="-13.95" y2="27.2" width="0.2" layer="51"/>
 <text x="0" y="28.2" size="1.27" layer="25" align="bottom-center">>NAME</text>
 <text x="0" y="-28.2" size="1.27" layer="27" align="top-center">>VALUE</text>
