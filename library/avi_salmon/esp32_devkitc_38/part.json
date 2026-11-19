@@ -9,7 +9,7 @@
   "datasheet": "https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitc/user_guide.html",
   "identified": {
     "date": "2026-11-19",
-    "how": "from the owner's photo (photos/top.jpg): module marking ESP-WROOM-32, chip marking CP2102, the printed pin labels; the owner confirmed the left side's labels"
+    "how": "from the owner's photo (photos/top.jpg): module marking ESP-WROOM-32, chip marking CP2102, the printed pin labels; the owner confirmed both rows against the board, 2026-11-19"
   },
   "mounting": "through-hole: two rows of 19 male header pins",
   "dimensions_mm": {

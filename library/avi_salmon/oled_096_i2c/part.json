@@ -3,7 +3,7 @@
   "name": "OLED display 0.96 inch, 128 x 64, I2C (4 pins)",
   "category": "Display",
   "description": "Monochrome OLED module with a 4-pin I2C header (GND, VCC, SCL, SDA), four corner mounting holes, the glass panel's flex cable folded behind the board. Most modules like this use the SSD1306 controller at I2C address 0x3C; the controller on this one is not read yet.",
-  "location": "to confirm",
+  "location": "kit",
   "quantity": null,
   "prefix": "DISP",
   "maker": "unknown (generic module)",
@@ -20,14 +20,14 @@
     "pitch": 2.54,
     "drill": 1.0,
     "pad": 1.7,
-    "body": [25.0, 25.0],
-    "body_centre": [0, -11.25],
-    "why": "drill 1.0 mm, pad 1.7 mm: the common 2.54 mm header land. The outline, 25 x 25 mm with the pins 1.25 mm below its top edge, is read from the top photo scaled by the pitch (rough): not measured"
+    "body": [27.3, 27.3],
+    "body_centre": [0, -12.25],
+    "why": "drill 1.0 mm, pad 1.7 mm: the common 2.54 mm header land. The outline, 27.3 x 27.3 mm (the common size of this module) with the pins 1.4 mm below its top edge (from the top photo): not measured on this one"
   },
   "dimensions_mm": {
     "pitch": {"value": 2.54, "source": "a standard 2.54 mm header (the photo, scaled by the board's holes, agrees); not measured"},
-    "board": {"value": [25.0, 25.0], "source": "the top photo scaled by the 2.54 mm pin pitch, about 25 x 25 (rough): not measured"},
-    "holes": {"value": "4, about 21.5 x 22.3 apart, near the corners", "source": "the top photo scaled by the pitch (rough): not measured"}
+    "board": {"value": [27.3, 27.3], "source": "the common size of this module in sellers' listings (27.3 x 27.3, 27.3 x 27.8; other makers 26 or 28 square); the owner: a standard 0.96 inch module, 2026-11-19; not measured on this one"},
+    "holes": {"value": "4, 2.0 mm diameter, near the corners; spacing not known", "source": "diameter from DFRobot's SSD1306 module page (a similar module); no listing gives the spacing: measure before the box"}
   },
   "pin_numbering": "1-4 from left to right, seen from the front with the pins at the top",
   "pins": [
