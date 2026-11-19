@@ -4,6 +4,12 @@ The short version of every lesson in this blueprint, newest first, so you can se
 Each line points to where the full rule lives. Most of them came from something going wrong, or from checking an
 assumption against a running Fusion and finding it was not quite true.
 
+## 2026-11-19
+
+- **Run what CI runs, and read CI after a push.** The push of board 11 failed on `ruff format --check`, a check
+  CI had all along and our pre-commit list did not. A test now keeps that list equal to ci.yml.
+  [gotcha 45](procedures/gotchas.md)
+
 ## 2026-11-18
 
 - **A human reviews the placement before anything is routed.** The owner moved board 11's parts by hand after it

@@ -878,9 +878,24 @@ def _answer_value_prompt(wait_s=20):
     if os.name != "nt" or not os.path.exists(ps1):
         raise RuntimeError("power symbols need scripts/fusion_dialog.ps1 on Windows (gotcha 35)")
     return subprocess.Popen(
-        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ps1,
-         "-WaitSec", str(wait_s), "-Class", "cStringDialog", "-Expect", "Value", "-Click", "OK"],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            ps1,
+            "-WaitSec",
+            str(wait_s),
+            "-Class",
+            "cStringDialog",
+            "-Expect",
+            "Value",
+            "-Click",
+            "OK",
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )
 

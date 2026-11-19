@@ -60,6 +60,24 @@ def test_ci_lints_tests_and_checks_the_skills():
     assert "Fusion cannot run in CI" in ci, "say why the designs are only parsed here"
 
 
+def test_the_checks_we_run_before_a_commit_are_the_checks_ci_runs():
+    """A push of 18 commits failed CI on `ruff format --check`, which CLAUDE.md's list left out
+    (2026-11-19). Every check command in ci.yml must be in rule 7 and the skills that repeat it."""
+    ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    runs = [r for r in re.findall(r"^\s*(?:- )?run: (\S.*)$", ci, re.M) if r != "|"]  # | = gitleaks
+    checks = [c.strip() for r in runs for c in r.split("&&") if not c.strip().startswith("pip ")]
+    assert "ruff format --check ." in checks, checks
+    for doc in (
+        "CLAUDE.md",
+        ".claude/skills/build-example/SKILL.md",
+        ".claude/skills/publish-to-github/SKILL.md",
+    ):
+        text = (ROOT / doc).read_text(encoding="utf-8")
+        for check in checks:
+            name = check.replace("python scripts/", "")
+            assert name in text, f"{doc} does not list CI's check: {check}"
+
+
 def test_the_dev_requirements_point_at_a_real_install_guide():
     text = (ROOT / "requirements-dev.txt").read_text(encoding="utf-8")
     guide = re.search(r"docs/procedures/\S+\.md", text)

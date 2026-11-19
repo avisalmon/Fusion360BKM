@@ -73,7 +73,7 @@ Numbering: two digits, in build order; the slug is lowercase letters, digits and
    test), a reference fact with its tag, a gotcha row (never renumber), a skill update (`fusion-modeling` recipe,
    `fusion-mentor` concept), a line in [docs/lessons_log.md](../../../docs/lessons_log.md), a roadmap line moved
    from "not yet" to "verified here". An example that taught nothing was probably too close to the last one.
-7. **Checks**: `pytest -q`, `ruff check .`, `python scripts/sync_skills.py --check`; `fusion.py run` of the committed
+7. **Checks**: `pytest -q`, `ruff check .`, `ruff format --check .`, `python scripts/sync_skills.py --check`; `fusion.py run` of the committed
    `design.py` one last time from a clean `new_design`. Commit (push on Avi's word).
 
 ## Rules

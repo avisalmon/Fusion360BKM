@@ -58,8 +58,12 @@ WIRES = [  # net, from pin, to pin, corners (mm)
     ("DIS", ("U1", "DIS"), ("R2", "2"), [(81.28, 63.5), (81.28, 71.12)]),
     ("THR", ("R2", "1"), ("C1", "+"), []),
     ("THR", ("U1", "THR"), ("R2", "1"), [(86.36, 68.58), (86.36, 60.96)]),  # the one crossing
-    ("THR", ("U1", "TR"), ("C1", "+"),  # pin 2: around under the chip, to C1's + side
-     [(40.64, 63.5), (40.64, 15.24), (86.36, 15.24), (86.36, 55.88)]),
+    (
+        "THR",
+        ("U1", "TR"),
+        ("C1", "+"),  # pin 2: around under the chip, to C1's + side
+        [(40.64, 63.5), (40.64, 15.24), (86.36, 15.24), (86.36, 55.88)],
+    ),
     # control voltage decoupled, and the output driving the LED
     ("CV", ("U1", "CV"), ("C2", "1"), []),
     ("OUT", ("U1", "OUT"), ("R3", "2"), [(78.74, 58.42)]),

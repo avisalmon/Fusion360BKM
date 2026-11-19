@@ -136,7 +136,8 @@ Say in the notes what it is, which Fusion built it, and how it was checked (buil
 
 * `git status --short`, then `git add <files>` by name (never a blind `git add -A`), then commit with a message
   that says why.
-* Before a commit: `pytest -q`, `ruff check .`, `sync_skills.py --check` (CLAUDE.md rule 7).
+* Before a commit: `pytest -q`, `ruff check .`, `ruff format --check .`, `sync_skills.py --check` (CLAUDE.md rule 7);
+  after the push, `gh run list --limit 1` until it says success.
 * `git push` only on the owner's word. At the start of a session `scripts/check_updates.py` fetches both the
   blueprint and the owner's repository and pulls in what is safe; it never pushes.
 

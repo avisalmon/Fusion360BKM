@@ -89,8 +89,9 @@ The map of all documentation is [docs/README.md](docs/README.md).
    Dismiss only the dialog you identified (`fusion_dialog.ps1 -Class/-Expect/-Text`), never "OK to anything";
    **closing or restarting the owner's Fusion is the owner's decision**: ask first.
 7. **Check before you commit.** The blueprint's own tooling is in `requirements-dev.txt`. Before a commit run
-   `pytest -q`, `ruff check .` and `python scripts/sync_skills.py --check`, **read the result, then commit as a
-   separate step** (a commit chained after the tests went in with 4 failing); CI runs the same on every push. CI cannot
+   `pytest -q`, `ruff check .`, `ruff format --check .` and `python scripts/sync_skills.py --check`, **read the
+   result, then commit as a separate step** (a commit chained after the tests went in with 4 failing); CI runs the
+   same on every push (a test keeps this list equal to CI's), and after a push, read CI's result. CI cannot
    run Fusion: a design counts as working only when it was built on a real computer and the README says so.
 8. **Tell the truth about status**: say what exists, not what you intend. Each design's README has a status table
    (built in Fusion, checked by numbers, checked by eye, exported, printed): tick one only when it was done and seen,

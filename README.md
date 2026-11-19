@@ -3,7 +3,7 @@
 ### Learn Fusion 360 by hand, then design parts (and later circuits) by talking to an AI that drives Fusion for you.
 
 <!-- last-updated:start -->
-**Last updated 18 November 2026** · 11 new lessons · [See what's new](docs/lessons_log.md)
+**Last updated 19 November 2026** · 1 new lesson · [See what's new](docs/lessons_log.md)
 <!-- last-updated:end -->
 
 **Start page (Hebrew / English): https://avisalmon.github.io/Fusion360BKM/**
