@@ -9,6 +9,10 @@ assumption against a running Fusion and finding it was not quite true.
 - **Run what CI runs, and read CI after a push.** The push of board 11 failed on `ruff format --check`, a check
   CI had all along and our pre-commit list did not. A test now keeps that list equal to ci.yml.
   [gotcha 45](procedures/gotchas.md)
+- **Photos are published data.** Library photos lose their metadata before they are committed, after being
+  turned upright. [gotcha 46](procedures/gotchas.md)
+- **Read-only is the owner's switch.** `DataFile.isReadOnly` only reads; on a Personal licence a file is
+  editable only when the owner designates it so in the Data Panel. [fusion_reference](fusion_reference.md)
 
 ## 2026-11-18
 

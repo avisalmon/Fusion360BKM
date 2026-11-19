@@ -1,0 +1,47 @@
+{
+  "id": "oled_096_i2c",
+  "name": "OLED display 0.96 inch, 128 x 64, I2C (4 pins)",
+  "category": "Display",
+  "description": "Monochrome OLED module with a 4-pin I2C header (GND, VCC, SCL, SDA), four corner mounting holes, the glass panel's flex cable folded behind the board. Most modules like this use the SSD1306 controller at I2C address 0x3C; the controller on this one is not read yet.",
+  "location": "to confirm",
+  "quantity": null,
+  "prefix": "DISP",
+  "maker": "unknown (generic module)",
+  "datasheet": null,
+  "identified": {
+    "date": "2026-11-19",
+    "how": "from the owner's photos (photos/top.jpg, photos/side.jpg): the printed pin labels GND VCC SCL SDA, four pins on a 2.54 mm header pointing down, the panel and its flex cable. The size (0.96 inch) and the SSD1306 controller are the usual ones for this board, not read from it"
+  },
+  "mounting": "through-hole: one row of 4 male header pins, pointing down from the back; 4 mounting holes",
+  "footprint": {
+    "type": "single_row",
+    "name": "OLED_096_I2C_4P",
+    "per_row": 4,
+    "pitch": 2.54,
+    "drill": 1.0,
+    "pad": 1.7,
+    "body": [25.0, 25.0],
+    "body_centre": [0, -11.25],
+    "why": "drill 1.0 mm, pad 1.7 mm: the common 2.54 mm header land. The outline, 25 x 25 mm with the pins 1.25 mm below its top edge, is read from the top photo scaled by the pitch (rough): not measured"
+  },
+  "dimensions_mm": {
+    "pitch": {"value": 2.54, "source": "a standard 2.54 mm header (the photo, scaled by the board's holes, agrees); not measured"},
+    "board": {"value": [25.0, 25.0], "source": "the top photo scaled by the 2.54 mm pin pitch, about 25 x 25 (rough): not measured"},
+    "holes": {"value": "4, about 21.5 x 22.3 apart, near the corners", "source": "the top photo scaled by the pitch (rough): not measured"}
+  },
+  "pin_numbering": "1-4 from left to right, seen from the front with the pins at the top",
+  "pins": [
+    [1, "GND", "power", "ground. Check the label: on some modules VCC comes first, and swapping them can kill the display"],
+    [2, "VCC", "supply", "supply, 3.3 V to 5 V on most modules (a regulator on the back); not checked on this one"],
+    [3, "SCL", "input", "I2C clock (on the ESP32 by convention G22)"],
+    [4, "SDA", "io", "I2C data (on the ESP32 by convention G21)"]
+  ],
+  "photos": {"top": "photos/top.jpg", "side": "photos/side.jpg", "symbol": "fusion/symbol.png", "footprint": "fusion/footprint.png"},
+  "status": {
+    "identified": "2026-11-19",
+    "footprint": "2026-11-19: generated (library_build.py), placed on a board in Fusion 2706.1.17 from this part's .lbr, pads read back (pitch and row spacing exact), looked at (fusion/footprint.png)",
+    "symbol": "2026-11-19: placed in a schematic in Fusion 2706.1.17, every pin name read back in order, looked at (fusion/symbol.png)",
+    "3d_model": "not yet",
+    "used_on_a_board": "not yet"
+  }
+}
