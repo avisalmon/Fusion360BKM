@@ -912,8 +912,13 @@ def sch_place(add_name, ref, x, y, value=None, angle=0):
         # (gotcha 35); nothing inside Fusion can answer it, so a separate process waits for that
         # one box and clicks OK, which keeps the name the library offers. Other dialogs: left alone.
         watcher = _answer_value_prompt()
+    before = {p.name for p in _iter(sch().parts)}
     try:
         ecad(f"ADD {add_name} {ref} {orient} ({x} {y})")
+        # ADD stays active with one more copy on the cursor, and that copy became a real part at
+        # the sheet's edge (U2, SW2 from a local library; DISP2 before, gotcha 48). "EDIT .s1" (the
+        # sheet already open) ends the ADD and the copy goes; checked below
+        ecad("EDIT .s1")
     finally:
         if watcher is not None:
             try:
@@ -925,6 +930,9 @@ def sch_place(add_name, ref, x, y, value=None, angle=0):
             f"ADD {add_name} placed nothing: the name is not in Fusion's libraries "
             "(look it up with scripts/fusion_parts.py; gotcha 20)"
         )
+    extra = sorted({p.name for p in _iter(sch().parts)} - before - {ref})
+    if extra:
+        raise RuntimeError(f"ADD {ref} also left {extra} in the schematic (gotcha 48)")
     if value is not None and value != _part(ref).value:
         # a part whose library fixes its value (deviceset.userValue false: J1's JST header) opens
         # a modal "change it anyway?" that SET CONFIRM YES does NOT answer (gotcha 21, re-tested

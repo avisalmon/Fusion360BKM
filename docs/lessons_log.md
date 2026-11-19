@@ -6,6 +6,10 @@ assumption against a running Fusion and finding it was not quite true.
 
 ## 2026-11-19
 
+- **Check what a command added, not only what it was asked to add.** Each ADD from our own library left an extra copy of the
+  part on the sheet; `sch_place` now ends the ADD and fails on any part nobody asked for. [gotcha 48](procedures/gotchas.md)
+- **Our own library places like Fusion's.** Board 12 (the Tiny Arcade) is the first built only from the owner's parts: a
+  pin on two pads (the tact switch) and GND pins that join by name on the board (not in the schematic's nets).
 - **Run what CI runs, and read CI after a push.** The push of board 11 failed on `ruff format --check`, a check
   CI had all along and our pre-commit list did not. A test now keeps that list equal to ci.yml.
   [gotcha 45](procedures/gotchas.md)
