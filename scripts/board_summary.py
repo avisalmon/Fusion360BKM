@@ -604,7 +604,9 @@ def file_rows(folder, brd_stem):
                 )
             else:
                 note = FILE_NOTES.get(p.name, "")
-            rows.append((rel, p.stat().st_size, note))
+            # sized as git stores it: Windows checks text out with CRLF, Linux (CI) with LF, and a
+            # size from disk made every page stale on the other system (gotcha 45)
+            rows.append((rel, len(p.read_bytes().replace(b"\r\n", b"\n")), note))
         if rows:
             out.append((title, rows))
     return out

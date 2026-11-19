@@ -121,6 +121,21 @@ def test_a_fusion_finding_is_approved_only_by_a_matching_reason_in_checks_json(t
         shutil.rmtree(dst)
 
 
+def test_the_page_is_the_same_whether_text_files_have_crlf_or_lf(tmp_path):
+    """Windows checks text out with CRLF, CI's Linux with LF: the file sizes on the page made every
+    page stale on CI (2026-11-19, gotcha 45)."""
+    dst = _copy_board(tmp_path)
+    try:
+        f = dst / "checks.json"
+        lf = f.read_bytes().replace(b"\r\n", b"\n")
+        f.write_bytes(lf)
+        page_lf = bs.page(dst.relative_to(ROOT))
+        f.write_bytes(lf.replace(b"\n", b"\r\n"))
+        assert bs.page(dst.relative_to(ROOT)) == page_lf
+    finally:
+        shutil.rmtree(dst)
+
+
 def test_text_is_kept_readable_the_way_eagle_shows_it():
     upside_down = bs.svg_text(0, 0, 1, "R180", "bottom-left", "R1")
     assert "rotate" not in upside_down and 'text-anchor="end"' in upside_down
