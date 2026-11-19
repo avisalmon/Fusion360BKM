@@ -115,9 +115,14 @@ def symbol_xml(part, names):
         out.append(
             f'<wire x1="{f(x1)}" y1="{f(y1)}" x2="{f(x2)}" y2="{f(y2)}" width="0.254" layer="94"/>'
         )
+    sides = fp.get("symbol_sides")  # {"left": [pin numbers], "right": [...]}, else by footprint row
     for num, _name, kind, *_ in part["pins"]:
-        left = num <= n
-        i = (num - 1) % n
+        if sides:
+            left = num in sides["left"]
+            i = (sides["left"] if left else sides["right"]).index(num)
+        else:
+            left = num <= n
+            i = (num - 1) % n
         x = -half_w - 2 * G if left else half_w + 2 * G
         rot = "" if left else ' rot="R180"'
         out.append(
@@ -139,8 +144,11 @@ def deviceset_xml(part, names):
     out.append(f"<description>{escape(desc)}</description>")
     out.append(f'<gates><gate name="G$1" symbol="{fp["name"]}" x="0" y="0"/></gates>')
     out.append(f'<devices><device name="" package="{fp["name"]}"><connects>')
+    # pads_of_pin: one pin on several pads, e.g. a tact switch whose legs are joined in pairs
+    pads_of = fp.get("pads_of_pin", {})
     for num, *_ in part["pins"]:
-        out.append(f'<connect gate="G$1" pin={quoteattr(names[num])} pad="{num}"/>')
+        pads = " ".join(str(p) for p in pads_of.get(str(num), [num]))
+        out.append(f'<connect gate="G$1" pin={quoteattr(names[num])} pad="{pads}"/>')
     out.append('</connects><technologies><technology name="">')
     attrs = {"LOCATION": part["location"], "QUANTITY": part.get("quantity")}
     attrs.update(part.get("attributes", {}))
