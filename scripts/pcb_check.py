@@ -398,6 +398,18 @@ def _load_element(e, pkg, rules, pad_signal, out):
         el["body"] = (min(xs), min(ys), max(xs), max(ys))
 
 
+def library_model(lib_name):
+    """A part from our own library (library/<owner>/<part>/, one part per .lbr named as its folder)
+    carries its 3D model in part.json, which board3d.py and case.py build from: its path, or ''."""
+    if not lib_name:
+        return ""
+    for pj in sorted((ROOT / "library").glob(f"*/{lib_name}/part.json")):
+        model = json.loads(pj.read_text(encoding="utf-8-sig")).get("model") or {}
+        if model.get("boxes") or model.get("cylinders"):
+            return pj.relative_to(ROOT).as_posix()
+    return ""
+
+
 def load_brd(path):
     root = ET.parse(path).getroot()
     rules = _rules(root)
@@ -427,7 +439,7 @@ def load_brd(path):
             "mirror": orientation(e.get("rot"))[0],
             "pads": [],
             "found": pkg is not None,
-            "model3d": e.get("package3d_urn", ""),
+            "model3d": e.get("package3d_urn", "") or library_model(e.get("library", "")),
             "body": None,
             "attributes": {
                 a.get("name"): (a.get("value") or "").strip() for a in e.findall("attribute")

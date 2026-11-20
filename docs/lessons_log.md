@@ -12,6 +12,13 @@ assumption against a running Fusion and finding it was not quite true.
 - **"It switched" needs proof of where it landed.** `ecad_open('3d')` took any design for the 3D board and built the
   parts into the case; a name that Fusion silently refused let a re-run stack a second set of parts. Both were
   caught by looking at the screenshot. [gotchas 49, 50](procedures/gotchas.md)
+- **A board ends in a production package, not a model.** Board 12's case script also models the screws and writes the
+  STLs, the .f3d, the assembly .step, a true-size paper template for the thumbs, assembly steps and one BOM for
+  everything; the summary page shows it all. [fusion-electronics skill](../.claude/skills/fusion-electronics/SKILL.md)
+- **A warning must stay true.** "No 3D model: the case will miss it" kept firing after the case was built from
+  our library's models; `pcb_check.py` now finds a part's model in its `part.json`, with a test.
+- **Look first, engineer second.** The first case was sound and was rejected as "too boxy"; ask what it should
+  feel like before modelling what it must hold.
 - **The summary page carries the whole flow.** A board's page now shows the board in 3D and its case, captioned
   with the README's own words.
 

@@ -23,12 +23,16 @@ bridge/
 # Share a finished part as a GitHub Release, never in git. Source of truth = design.py.
 # One exception: each example keeps its Fusion archive (examples/NN_name/<name>.f3d), the way the
 # DE10 BKMs keep the .qar project, so a reader can open the finished design without the bridge.
+# A second one (the owner's call, 2026-11-20): an example that is a full production package keeps
+# its print files in examples/NN_name/production/ (STL to print, STEP of the assembly).
 exports/
 *.stl
 *.step
 *.stp
 *.f3d
 !examples/**/*.f3d
+!examples/*/production/*.stl
+!examples/*/production/*.step
 *.f3z
 *.3mf
 *.obj

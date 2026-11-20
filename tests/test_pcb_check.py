@@ -187,3 +187,12 @@ def test_supply_pins_join_their_net_by_name():
     sch = pc.load_sch(ROOT / "examples" / "12_tiny_arcade" / "fusion" / "board.sch")
     assert {"U1.14", "U1.20", "U1.26"} <= sch["nets"]["GND"]
     assert not [u for u in sch["unconnected"] if u[1].startswith("GND")]
+
+
+def test_a_part_from_our_library_has_its_3d_model_in_part_json():
+    """Board 12's parts come from library/avi_salmon, whose part.json carries the model that
+    board3d.py and case.py build: no PART-3D warning; a library with no such model still warns."""
+    els = pc.load_brd(ROOT / "examples" / "12_tiny_arcade" / "fusion" / "board.brd")["elements"]
+    assert els["U1"]["model3d"] == "library/avi_salmon/esp32_devkitc_38/part.json"
+    assert all(e["model3d"] for e in els.values())
+    assert pc.library_model("no_such_part") == ""

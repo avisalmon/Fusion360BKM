@@ -1,0 +1,73 @@
+{
+ "about": "written by case.py; board_summary.py puts it on the page",
+ "outline_mm": [
+  140.0,
+  82.0,
+  20.9
+ ],
+ "printed": [
+  {
+   "name": "Body",
+   "file": "production/tiny_arcade_case_body.stl",
+   "volume_cm3": 40.08,
+   "mass_g_solid": 49.7,
+   "orient": "open side up (as drawn)",
+   "why": "the rounded bottom edge (radius 4) rises gently from the bed; nothing hangs in the air"
+  },
+  {
+   "name": "Deck",
+   "file": "production/tiny_arcade_case_deck.stl",
+   "volume_cm3": 35.75,
+   "mass_g_solid": 44.3,
+   "orient": "flat side down (as drawn)",
+   "why": "the posts and the rim grow straight up from a flat plate"
+  }
+ ],
+ "print_settings": "PLA, 0.2 mm layers, 0.4 mm nozzle, 4 walls (the 2.4 mm walls print solid), 20 % infill, no supports: the 3D printing rules of thumb in docs/fusion_reference.md",
+ "assembly": [
+  "Solder the parts onto the board: the ESP32 straight on (its pin strips' plastic on the board), the screen, the buzzer (+ to the square pad), the six buttons. Clip the leads under the board to 2 mm or less.",
+  "Screw the board onto the deck's four posts: 4 x M3 x 8 from above, through the board's holes. Turn each one until it is snug, no further: it cuts its thread in the plastic.",
+  "Lay the power bank in the body, its ports toward the port bay in the left end.",
+  "Lay the deck on the body and screw it down: 4 x M3 x 10 through the deck into the columns in the grips.",
+  "Plug the cable into the bank (through the port bay) and into the ESP32's micro-USB (at the gap in the rim). Charge the bank through the same bay."
+ ],
+ "fit": {
+  "pairs_checked": 431,
+  "clashes_mm3": {}
+ },
+ "thumbs_mm": {
+  "A": {
+   "from_end": 36.9,
+   "from_front": 33.8
+  },
+  "B": {
+   "from_end": 35.0,
+   "from_front": 20.0
+  },
+  "UP": {
+   "from_end": 47.8,
+   "from_front": 37.5
+  },
+  "DOWN": {
+   "from_end": 47.8,
+   "from_front": 19.5
+  },
+  "LEFT": {
+   "from_end": 56.8,
+   "from_front": 28.5
+  },
+  "RIGHT": {
+   "from_end": 38.8,
+   "from_front": 28.5
+  }
+ },
+ "files": {
+  "body_stl": "production/tiny_arcade_case_body.stl",
+  "deck_stl": "production/tiny_arcade_case_deck.stl",
+  "f3d": "production/tiny_arcade_case.f3d",
+  "step": "production/tiny_arcade_assembly.step",
+  "template": "production/template_top_1to1.svg",
+  "bom": "production/BOM.csv"
+ },
+ "assumed": "the bank (100 x 70 x 15 mm, its ports and button), the buttons' height (5 mm), the screen's and the buzzer's heights: each from a listing or a common size, to be measured"
+}

@@ -18,6 +18,7 @@ Standard library only.
 """
 
 import argparse
+import csv
 import html
 import json
 import math
@@ -548,12 +549,23 @@ FILE_NOTES = {
     "circuit.py": "step 1, in Fusion: the schematic (parts, values, wires)",
     "board.py": "step 2, in Fusion: outline, holes, placement, routing",
     "factory.py": "step 3, in Fusion: ERC and board check, save, export, Gerbers",
+    "route.py": "step 2b, in Fusion: the tracks, after the owner agreed the placement",
+    "board3d.py": "in Fusion: the board in 3D, each part from its library model",
+    "case.py": "in Fusion: the case around the board, its fit checks and the production files",
     "checks.json": "the design intent (nets written by hand) and the approved findings",
     "fusion_checks.json": "Fusion's ERC and board check findings, recorded by factory.py",
     "BOM.csv": "bill of materials, JLCPCB columns",
     "CPL.csv": "pick-and-place (component placement list), JLCPCB columns",
     "preview_top.svg": "top side, drawn from the Gerbers",
     "preview_bottom.svg": "bottom side as seen from below, drawn from the Gerbers",
+}
+PRODUCTION_NOTES = {
+    ".stl": "<b>print this</b>: one printed part, in mm, already the right way up",
+    ".f3d": "the case's design: open in Fusion (File > Open), the whole timeline",
+    ".step": "the whole assembly (case, board, parts, bank, screws) for any CAD program",
+    ".svg": "the top at true size: print on paper at 100 % and hold it",
+    ".csv": "bill of materials for everything: board, parts, printed parts, screws, bank, cable",
+    ".json": "the production data this page shows (assembly, fit checks, thumb distances)",
 }
 ROLE_NOTES = {
     "copper_top": "copper, top",
@@ -586,6 +598,12 @@ def file_rows(folder, brd_stem):
             sorted((folder / "factory").glob("*"), key=_name),
         )
     )
+    groups.append(
+        (
+            "Production (made by case.py: print, assemble, buy)",
+            sorted((folder / "production").glob("*"), key=_name),
+        )
+    )
     groups.append(("Pictures", sorted((folder / "media").glob("*"), key=_name)))
     out = []
     for title, files in groups:
@@ -602,6 +620,8 @@ def file_rows(folder, brd_stem):
                 note = "Gerber: " + ROLE_NOTES.get(stems.get(p.stem, ""), "a layer")
             elif p.name == f"{brd_stem}_gerbers.zip":
                 note = "<b>upload this to the fab</b>: every Gerber and the drill file"
+            elif p.parent.name == "production":
+                note = PRODUCTION_NOTES.get(p.suffix, "")
             elif p.parent.name == "media":
                 note = (
                     "screenshot from Fusion"
@@ -770,6 +790,88 @@ def report_html(rep, title, cmd):
     return "".join(parts)
 
 
+def production_html(folder):
+    """The case's production: print, fit, thumbs, assembly, the bill of materials for everything.
+    From production/production.json and production/BOM.csv, which the case script writes."""
+    prod = folder / "production" / "production.json"
+    if not prod.exists():
+        return ""
+    p = json.loads(prod.read_text(encoding="utf-8"))
+    files = p.get("files", {})
+    h = [
+        "<h2>Production: print, assemble, everything to buy</h2>",
+        "<p>Made by the case script from the same sources as the board (where each part is, what it looks "
+        "like), so the case follows the board. Assumed, not yet measured: "
+        f"{esc(p.get('assumed', 'nothing'))}.</p>",
+        '<h3>Print</h3><div class="tablewrap"><table><tr><th>Part</th><th>File</th><th>Plastic</th>'
+        "<th>On the bed</th><th>Why no supports</th></tr>",
+    ]
+    for r in p.get("printed", []):
+        h.append(
+            f'<tr><td>{esc(r["name"])}</td><td><a href="{esc(r["file"])}">{esc(Path(r["file"]).name)}</a></td>'
+            f"<td>{r['volume_cm3']} cm3, at most {r['mass_g_solid']} g of PLA</td><td>{esc(r['orient'])}</td>"
+            f"<td>{esc(r['why'])}</td></tr>"
+        )
+    h.append(f"</table></div><p>{esc(p.get('print_settings', ''))}.</p>")
+    fit = p.get("fit", {})
+    clashes = fit.get("clashes_mm3", {})
+    h.append(
+        "<h3>Does it fit?</h3><p>Every printed part and every screw was intersected with the board, each "
+        f"part on it and the power bank: {fit.get('pairs_checked', 0)} pairs, "
+        + (
+            yes(True, "nothing overlaps (0 mm3)")
+            if not clashes
+            else yes(False, "overlaps: " + ", ".join(f"{k} {v} mm3" for k, v in clashes.items()))
+        )
+        + ". A screw's thread biting into its 2.5 mm hole is meant, so it is not counted.</p>"
+    )
+    thumbs = p.get("thumbs_mm", {})
+    if thumbs:
+        h.append(
+            "<h3>The thumbs</h3><p>Where each button is, in mm from the case's nearest end and from its "
+            "front edge. The way to know whether it is comfortable is a hand: print "
+            f'<a href="{esc(files.get("template", ""))}">the true-size template</a> on paper at 100 %, '
+            'cut it out and hold it.</p><div class="tablewrap"><table><tr><th>Button</th>'
+            "<th>From the end</th><th>From the front</th></tr>"
+            + "".join(
+                f"<tr><td>{esc(k)}</td><td>{v['from_end']}</td><td>{v['from_front']}</td></tr>"
+                for k, v in thumbs.items()
+            )
+            + "</table></div>"
+        )
+    if p.get("assembly"):
+        h.append(
+            "<h3>Assemble</h3><ol>" + "".join(f"<li>{esc(s)}</li>" for s in p["assembly"]) + "</ol>"
+        )
+        if (folder / "media" / "case_exploded.png").exists():
+            h.append(
+                '<div class="shots"><figure><img src="media/case_exploded.png" alt="Exploded view" '
+                'loading="lazy"><figcaption>Exploded: body, power bank, deck and its screws, board and '
+                "its screws</figcaption></figure></div>"
+            )
+    bom = folder / "production" / "BOM.csv"
+    if bom.exists():
+        rows = list(csv.reader(bom.read_text(encoding="utf-8").splitlines()))
+        h.append(
+            '<h3>Bill of materials: everything</h3><p><a href="production/BOM.csv">production/BOM.csv</a>'
+            '</p><div class="tablewrap"><table><tr>'
+            + "".join(f"<th>{esc(c)}</th>" for c in rows[0])
+            + "</tr>"
+        )
+        for r in rows[1:]:
+            cells = []
+            for c in r:
+                if c.startswith("http"):
+                    cells.append(f'<td><a href="{esc(c)}">the listing</a></td>')
+                elif c.startswith("production/"):
+                    cells.append(f'<td><a href="{esc(c)}">{esc(Path(c).name)}</a></td>')
+                else:
+                    cells.append(f"<td>{esc(c)}</td>")
+            h.append("<tr>" + "".join(cells) + "</tr>")
+        h.append("</table></div>")
+    return "\n".join(h) + "\n"
+
+
 def page(folder):
     folder = Path(folder)
     rel = folder.resolve().relative_to(ROOT).as_posix()
@@ -798,7 +900,7 @@ def page(folder):
         f'<meta name="description" content="{esc(facts["lead"][:240])}">\n'
         f'<link rel="stylesheet" href="../example.css">\n<style>{CSS}</style>\n</head>\n<body>\n<main>\n'
         f'<nav class="crumbs"><a href="../../index.html">Fusion 360 BKM</a> / <a href="../index.html">Examples</a> / {esc(facts["num"])}</nav>\n'
-        f'<h1>{esc(title)}</h1>\n<p class="lead">{esc(facts["tagline"].capitalize() + ". " if facts["tagline"] else "")}{esc(facts["lead"])}</p>\n'
+        f'<h1>{esc(title)}</h1>\n<p class="lead">{esc(facts["tagline"].capitalize() + ". " if facts["tagline"] else "")}{md_inline(facts["lead"])}</p>\n'
     )
     # ---- verdict
     if ready:
@@ -922,7 +1024,9 @@ def page(folder):
         for m in re.finditer(r"!\[([^\]]*)\]\((media/[^)]+)\)", readme.read_text(encoding="utf-8")):
             alts.setdefault(m.group(2), m.group(1))
     solid = [
-        p for p in alts if re.match(r"media/(board3d|case)[^/]*\.png$", p) and (folder / p).exists()
+        p  # the exploded view goes with the assembly steps, in the production section
+        for p in alts
+        if re.match(r"media/(board3d|case)(?!_exploded)[^/]*\.png$", p) and (folder / p).exists()
     ]
     if solid:
         made_by = [s for s in ("board3d.py", "case.py") if (folder / s).exists()]
@@ -942,6 +1046,7 @@ def page(folder):
             )
             + "</div>\n"
         )
+    h.append(production_html(folder))
     # ---- netlist
     h.append(
         "<h2>The netlist, traced from intent to copper</h2>\n<p>Each net, followed through every stage. The intent is "

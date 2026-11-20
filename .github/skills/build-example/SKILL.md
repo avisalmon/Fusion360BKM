@@ -44,7 +44,8 @@ examples/NN_slug/
   media/           screenshots from `fusion.py shot` (PNG; one straight-on, one from the top or a section when
                    it helps); brief.jpg when the object started from a sketch or photo
   <slug>.f3d       the archive exported from the finished design (`export_f3d`), committed: the .gitignore allows
-                   .f3d inside examples/ only. STL/STEP are not committed (fusion.py export rebuilds them).
+                   .f3d inside examples/ only. STL/STEP are not committed (fusion.py export rebuilds them),
+                   except a production package's `production/*.stl|.step` (board 12).
 ```
 
 The catalogue: a row in [examples/README.md](../../../examples/README.md) and a card in

@@ -94,8 +94,20 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
      clash. Then screenshots from several sides, the cover off, and the cover from below, and **look at each**.
    * README pictures with alt text: `board_summary.py` puts `media/board3d*.png` and `media/case*.png` on the
      summary page with those words.
+   * Show the look before the engineering: the owner rejected a sound but boxy first case ("too boxy"); a
+     second, rounded one with the board open on top was agreed. Ask what it should feel like, not only what
+     it must hold.
+   * **The production package** (the owner's rule, 2026-11-20: "everything supposed to be in the project and
+     in the final HTML"): the same `case.py` models the screws (head and shank; heads checked against
+     everything, shanks against the board, since a thread biting into its pilot hole is meant) and writes
+     `production/`: an STL per printed part (the right way up), the case `.f3d` (re-open it once), the
+     assembly `.step`, a true-size paper template of the top (`.svg`, with a 50 mm line to check the print
+     scale, so a hand can try the buttons before plastic), `BOM.csv` for everything (PCB, parts, printed parts,
+     screws, battery, cable), and `production.json` (print orientation and why, assembly steps, fit checks,
+     thumb distances), plus an exploded view in `media/case_exploded.png`. `board_summary.py` turns these into
+     the page's Production section and file list. The `.gitignore` lets `examples/*/production/*.stl|.step` in.
    Sizes that are assumed (a part's height, a battery bought online) stay marked "to be measured" until the
-   owner measures them.
+   owner measures them. Comfort is never claimed from the model: the template, then the print, in a hand.
 
 ## Rules while in this territory
 

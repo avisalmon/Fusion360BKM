@@ -161,3 +161,21 @@ def test_the_3d_board_and_the_case_are_on_the_page_with_the_readmes_words():
     assert 'href="case.py"' in section
     # a board with no 3D pictures has no such section
     assert "The board in 3D, and its case" not in bs.page(ROOT / "examples" / "10_led_switch_board")
+
+
+def test_the_production_package_is_on_the_page():
+    """Board 12: the case script's production files: print, fit, thumbs, assembly, BOM."""
+    folder = ROOT / "examples" / "12_tiny_arcade"
+    page = bs.page(folder)
+    section = page.split("<h2>Production: print, assemble, everything to buy</h2>", 1)[1].split(
+        "<h2>", 1
+    )[0]
+    for f in ("tiny_arcade_case_body.stl", "tiny_arcade_case_deck.stl", "template_top_1to1.svg"):
+        assert f in section and (folder / "production" / f).exists()
+    assert "nothing overlaps (0 mm3)" in section
+    assert "<li>" in section and "media/case_exploded.png" in section
+    for item in ("PCB", "TACT_SWITCH_6X6", "M3x8", "M3x10", "power bank", "cable"):
+        assert f"<td>{item}</td>" in section
+    # every production file is listed with what it is for
+    assert "<b>print this</b>" in page
+    assert "Production: print" not in bs.page(ROOT / "examples" / "10_led_switch_board")

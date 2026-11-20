@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="152.0mm" height="114.0mm" viewBox="0 0 152.0 114.0" font-family="sans-serif">
+<rect x="6.0" y="6.0" width="140.0" height="82.0" rx="30.0" fill="#eee" stroke="#000" stroke-width="0.3"/>
+<rect x="30.0" y="12.0" width="92.0" height="70.0" rx="5" fill="#fff" stroke="#888" stroke-width="0.2"/>
+<rect x="33.0" y="15.0" width="86" height="64" rx="0" fill="#cfe8d4" stroke="#2a7" stroke-width="0.2"/>
+<rect x="51.81" y="52.89" width="26.7" height="19.26" rx="0.5" fill="#235" stroke="none"/>
+<rect x="34.0" y="16.55" width="54.4" height="27.9" rx="0.5" fill="none" stroke="#333" stroke-width="0.25" stroke-dasharray="1 1"/>
+<circle cx="103.73" cy="23.92" r="6" fill="none" stroke="#333" stroke-width="0.25"/>
+<rect x="39.92" y="51.19" width="6" height="6" rx="0.5" fill="#444"/>
+<circle cx="42.92" cy="54.19" r="1.75" fill="#c33"/>
+<text x="42.92" y="49.69" font-size="3" text-anchor="middle">A</text>
+<rect x="38.0" y="65.0" width="6" height="6" rx="0.5" fill="#444"/>
+<circle cx="41.0" cy="68.0" r="1.75" fill="#c33"/>
+<text x="41.0" y="63.5" font-size="3" text-anchor="middle">B</text>
+<rect x="95.24" y="47.46" width="6" height="6" rx="0.5" fill="#444"/>
+<circle cx="98.24" cy="50.46" r="1.75" fill="#c33"/>
+<text x="98.24" y="45.96" font-size="3" text-anchor="middle">UP</text>
+<rect x="95.24" y="65.46" width="6" height="6" rx="0.5" fill="#444"/>
+<circle cx="98.24" cy="68.46" r="1.75" fill="#c33"/>
+<text x="98.24" y="63.959999999999994" font-size="3" text-anchor="middle">DOWN</text>
+<rect x="86.24" y="56.46" width="6" height="6" rx="0.5" fill="#444"/>
+<circle cx="89.24" cy="59.46" r="1.75" fill="#c33"/>
+<text x="89.24" y="54.96" font-size="3" text-anchor="middle">LEFT</text>
+<rect x="104.24" y="56.46" width="6" height="6" rx="0.5" fill="#444"/>
+<circle cx="107.24" cy="59.46" r="1.75" fill="#c33"/>
+<text x="107.24" y="54.96" font-size="3" text-anchor="middle">RIGHT</text>
+<circle cx="36.5" cy="75.5" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="115.5" cy="75.5" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="115.5" cy="18.5" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="93.5" cy="18.5" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="134.0" cy="29.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="134.0" cy="65.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="18.0" cy="29.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="18.0" cy="65.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<line x1="6" y1="98.0" x2="56" y2="98.0" stroke="#000" stroke-width="0.5"/>
+<text x="6" y="103.0" font-size="3.2" text-anchor="start">this line is 50 mm: measure it after printing (print at 100 %, no "fit to page")</text>
+<text x="6" y="108.0" font-size="3.2" text-anchor="start">Tiny Arcade, the top at true size: the outline, the board, the buttons (red: the plunger you press)</text>
+</svg>
