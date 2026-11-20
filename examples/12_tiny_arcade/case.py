@@ -16,7 +16,9 @@ Two printed parts, each printed flat with no supports:
   through the board's holes), inside a raised rim that guards its edges and is open at the ESP32's
   USB. Four M3 x 10 screws through the deck into columns in the grips hold the two together.
   Printed flat side down.
-A short cable (10 cm) runs outside, from the bank's port bay over the left grip to the ESP32's USB.
+The bank sits 5 mm right of centre, so the left grip has room for a short cable (10 cm): from the
+bank's USB, up through a slot in the deck, to the ESP32's micro-USB. The cable is modelled too.
+An example for learning, not made for production (the owner, 2026-11-20).
 
 The board, its parts, the bank and the eight screws are in the design too (board.py says where each
 part is, the library's part.json what it looks like), and every printed part is intersected with
@@ -51,9 +53,13 @@ RIM_GAP, RIM_T, RIM_ABOVE = (
     2.0,
     0.5,
 )  # the rim: gap to the board, thickness, above the board top
-GRIP_SCREWS = [(58.0, 18.0), (58.0, -18.0), (-58.0, 18.0), (-58.0, -18.0)]  # from the centre
+BANK_X = 5.0  # the bank's centre, right of the case's: the left grip keeps room for the cable
+GRIP_SCREWS = [(61.0, 18.0), (61.0, -18.0), (-58.0, 25.0), (-58.0, -25.0)]  # clear of bank, cable
+CABLE_D, PLUG_A, PLUG_MICRO = 4.0, (17.5, 12.0, 7.0), (18.0, 11.0, 7.0)  # cable; plugs: out, w, h
+CABLE_X = -64.0  # where the cable rises, through the deck's slot
+SLOT = (8.0, 12.0)  # the deck's cable slot
 COLUMN_D, SCREW_CLR_D = 7.0, 3.4
-BAY_W, BAY_H = 40.0, 11.0  # the bank's port bay (its ports are not measured yet)
+BAY_W, BAY_H = 40.0, 11.0  # the bank's port bay, to reach its ports and see its lights
 USB_NOTCH = 14.0  # the rim's opening at the ESP32's USB
 BOARD_T = 1.6
 # M3 pan-head screws, ISO 7045: head 5.6 across, 2.4 high (drawn as a plain cylinder)
@@ -92,6 +98,8 @@ ZD = BODY_H + DECK_T  # the deck's top
 ZB = ZD + POST_H  # the board's underside
 ZT = ZB + BOARD_T  # the board's top
 BX, BY = -BW / 2, -BH / 2
+LEFT_END = BANK_X - BANK[0] / 2 - BANK_CLR  # where the bank's ends are
+RIGHT_END = BANK_X + BANK[0] / 2 + BANK_CLR
 
 
 def place(ref, x, y):
@@ -150,7 +158,7 @@ top = root()
 
 # --- the power bank, the board and its parts (what the case holds) ------------------------------
 bank_c = new_component("Power bank", top)
-bank = rounded(bank_c, WALL, BANK[2], BANK[0], BANK[1], BANK_R)
+bank = rounded(bank_c, WALL, BANK[2], BANK[0], BANK[1], BANK_R, cx=BANK_X)
 fillet_all(bank, BANK_EDGE, lambda e: not is_vertical(e))
 bank.name = "power bank"
 set_appearance_color(bank, 200, 200, 200)
@@ -160,7 +168,7 @@ board = block(board_c, ZB, BOARD_T, BX, BY, BX + BW, BY + BH)
 cut(board, [rod(board_c, ZB - 1, BOARD_T + 2, BX + hx, BY + hy, 3.2) for hx, hy in HOLES])
 board.name = "board"
 set_appearance_color(board, 20, 110, 50)
-refs = [bank, board]
+refs = [bank, board]  # (the cable joins them below, once the ESP32's USB is known)
 usb = None  # the ESP32's micro-USB socket: y of its centre
 for r, pid in PARTS.items():
     model = json.load(open(f"{LIB}/{pid}/part.json", encoding="utf-8-sig"))["model"]
@@ -180,6 +188,23 @@ for r, pid in PARTS.items():
         set_appearance_color(b, *COLOURS[pid])
     refs += made
 
+# --- the short cable: a USB-A plug in the bank's left end, up through the deck, to the ESP32 ---
+cable_c = new_component("USB cable", top)
+pz = WALL + BANK[2] / 2  # the bank's port: halfway up its end (its ports not measured)
+uz = ZT + 4.1 + 2.5 / 2  # the ESP32's micro-USB socket, from its model (4.1 up, 2.5 high)
+la, wa, ha = PLUG_A
+lm, wm, hm = PLUG_MICRO
+cable = [
+    block(cable_c, pz - ha / 2, ha, LEFT_END - la, -wa / 2, LEFT_END, wa / 2),  # the USB-A plug
+    rod(cable_c, pz, uz - pz, CABLE_X, 0, CABLE_D),  # up through the deck's slot
+    block(cable_c, uz - CABLE_D / 2, CABLE_D, CABLE_X - CABLE_D / 2, 0, CABLE_X + CABLE_D / 2, usb),
+    block(cable_c, uz - hm / 2, hm, BX - lm, usb - wm / 2, BX, usb + wm / 2),  # the micro-USB plug
+]
+for b in cable:
+    b.name = "cable"
+    set_appearance_color(b, 40, 100, 220)  # blue, to stand out
+refs += cable
+
 case = new_component("Case", top)
 
 # --- the body: a rounded shell, open on top -----------------------------------------------------
@@ -187,14 +212,13 @@ body_c = new_component("Body", case)
 body = rounded(body_c, 0, BODY_H, L, W, R)
 fillet_all(body, BOTTOM_R, at_z(0))
 shell(body, [top_face(body)], WALL)
-ENDS = BANK[0] / 2 + BANK_CLR  # where the bank's ends are
 columns = [rod(body_c, 0.5, BODY_H - 0.5, x, y, COLUMN_D) for x, y in GRIP_SCREWS]
 ribs = [block(body_c, 0.5, WALL + 8, x0, y - 5, x0 + 2, y + 5)
-        for x0 in (ENDS, -ENDS - 2) for y in (-28, 28)]  # fmt: skip
+        for x0 in (RIGHT_END, LEFT_END - 2) for y in (-25, 25)]  # fmt: skip
 union(body, columns + ribs)
 cut(body, [rod(body_c, BODY_H - 8, 9, x, y, PILOT_D) for x, y in GRIP_SCREWS])
 bay_z = WALL + (BANK[2] - BAY_H) / 2
-cut(body, [block(body_c, bay_z, BAY_H, -L / 2 - 1, -BAY_W / 2, -ENDS + 1, BAY_W / 2)])
+cut(body, [block(body_c, bay_z, BAY_H, -L / 2 - 1, -BAY_W / 2, LEFT_END + 1, BAY_W / 2)])
 body.name = "body"
 set_appearance_color(body, 38, 42, 52)
 
@@ -218,6 +242,9 @@ cut(
     [rod(deck_c, BODY_H - 1, DECK_T + POST_H + 2, BX + hx, BY + hy, PILOT_D) for hx, hy in HOLES],
 )
 cut(deck, [rod(deck_c, BODY_H - 1, DECK_T + 2, x, y, SCREW_CLR_D) for x, y in GRIP_SCREWS])
+cut(
+    deck, [rounded(deck_c, BODY_H - 1, DECK_T + 2, SLOT[0], SLOT[1], SLOT[0] / 2 - 0.1, cx=CABLE_X)]
+)
 deck.name = "deck"
 set_appearance_color(deck, 236, 236, 230)
 
@@ -382,8 +409,8 @@ bom.append(["power bank", 1, f"power bank 5000 mAh, {bank_size}",
             "inside the body, ports to the left", BANK_LINK,
             "size assumed until measured"])  # fmt: skip
 bom.append(["cable", 1, "USB-A to micro-USB cable, about 10 cm",
-            "the bank's port bay to the ESP32's USB", "any",
-            "outside, over the left grip"])  # fmt: skip
+            "the bank's USB, up through the deck's slot, to the ESP32's USB", "any",
+            "fits the left grip: modelled and checked"])  # fmt: skip
 with open(f"{EX}/{files['bom']}", "w", encoding="utf-8", newline="") as f:
     w = csv.writer(f, lineterminator="\n")
     w.writerow(["Item", "Qty", "Part", "Where it goes", "Source", "Notes"])
@@ -420,17 +447,19 @@ production = {
         f"Screw the board onto the deck's four posts: {len(HOLES)} x M3 x 8 from above, through "
         "the board's holes. Turn each one until it is snug, no further: it cuts its thread in the "
         "plastic.",
-        "Lay the power bank in the body, its ports toward the port bay in the left end.",
-        f"Lay the deck on the body and screw it down: {len(GRIP_SCREWS)} x M3 x 10 through the "
-        "deck into the columns in the grips.",
-        "Plug the cable into the bank (through the port bay) and into the ESP32's micro-USB (at "
-        "the gap in the rim). Charge the bank through the same bay.",
+        "Lay the power bank in the body, its ports toward the left grip, and plug the short "
+        "cable's USB-A into it.",
+        "Feed the cable's other end up through the slot in the deck's left grip, lay the deck on "
+        f"the body and screw it down: {len(GRIP_SCREWS)} x M3 x 10 into the columns in the grips.",
+        "Plug the cable into the ESP32's micro-USB, at the gap in the rim. Charge the bank "
+        "through the port bay in the left end.",
     ],
     "fit": {"pairs_checked": len(pairs), "clashes_mm3": clashes},
     "thumbs_mm": reach,
     "files": files,
-    "assumed": "the bank (100 x 70 x 15 mm, its ports and button), the buttons' height (5 mm), the "
-    "screen's and the buzzer's heights: each from a listing or a common size, to be measured",
+    "assumed": "this is an example for learning, not made for production: the bank is the owner's "
+    "100 x 70 x 15 mm, its USB port taken at the middle of its left end; the parts' heights are "
+    "their common sizes",
 }
 with open(f"{OUT}/production.json", "w", encoding="utf-8", newline="\n") as f:
     json.dump(production, f, indent=1, ensure_ascii=False)
@@ -461,7 +490,7 @@ for n, dz in lift.items():
     m = adsk.core.Matrix3D.create()
     m.translation = adsk.core.Vector3D.create(0, 0, dz / 10)
     occ[n].transform2 = m
-view(V.IsoTopRightViewOrientation, "case_exploded")
+view(V.IsoTopRightViewOrientation, "case_exploded", hide=("USB cable",))
 for n in lift:
     occ[n].transform2 = adsk.core.Matrix3D.create()
 view(V.IsoTopRightViewOrientation, "case_v2")

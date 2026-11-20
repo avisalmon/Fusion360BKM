@@ -37,19 +37,43 @@ def test_cad_files_and_pictures_are_binary_to_git():
     assert re.search(r"^\* text=auto eol=lf", attributes, re.M)
 
 
+def must_not_be_tracked(path):
+    """Exports, the bridge's files, the virtualenv and the owner's designs stay out of git. Two
+    exceptions, both in .gitignore: an example's Fusion archive, and an example's production package
+    (examples/NN_name/production/*.stl|.step, the owner's call 2026-11-20)."""
+    if path.startswith(("exports/", "bridge/", "env/")):
+        return True
+    if path.startswith("my_designs/") and path != "my_designs/README.md":
+        return True
+    if path.endswith(".f3d"):
+        return not path.startswith("examples/")
+    if path.endswith((".stl", ".step")):
+        return not re.fullmatch(r"examples/\d\d_[a-z0-9_]+/production/[^/]+", path)
+    return path.endswith(".3mf")
+
+
+def test_the_tracking_rule_rejects_what_it_should():
+    assert not must_not_be_tracked("examples/12_tiny_arcade/production/tiny_arcade_case_body.stl")
+    assert not must_not_be_tracked("examples/12_tiny_arcade/production/tiny_arcade_assembly.step")
+    assert not must_not_be_tracked("examples/12_tiny_arcade/production/tiny_arcade_case.f3d")
+    for path in (
+        "examples/12_tiny_arcade/case_body.stl",  # not in production/
+        "examples/12_tiny_arcade/production/sub/x.stl",
+        "exports/phone_stand.stl",
+        "my_designs/phone_stand/phone_stand.step",
+        "phone_stand.f3d",
+        "env/Lib/site.py",
+        "examples/12_tiny_arcade/production/x.3mf",
+    ):
+        assert must_not_be_tracked(path), path
+
+
 @pytest.mark.skipif(not (ROOT / ".git").exists() or not shutil.which("git"), reason="no git repo")
 def test_no_exports_or_personal_designs_are_tracked():
     tracked = subprocess.run(
         ["git", "ls-files"], cwd=ROOT, capture_output=True, text=True
     ).stdout.splitlines()
-    bad = [
-        path
-        for path in tracked
-        if path.startswith(("exports/", "bridge/", "env/"))
-        or (path.startswith("my_designs/") and path != "my_designs/README.md")
-        or (path.endswith(".f3d") and not path.startswith("examples/"))
-        or path.endswith((".stl", ".step", ".3mf"))
-    ]
+    bad = [path for path in tracked if must_not_be_tracked(path)]
     assert not bad, bad
 
 

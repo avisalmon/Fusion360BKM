@@ -12,6 +12,8 @@ assumption against a running Fusion and finding it was not quite true.
 - **"It switched" needs proof of where it landed.** `ecad_open('3d')` took any design for the 3D board and built the
   parts into the case; a name that Fusion silently refused let a re-run stack a second set of parts. Both were
   caught by looking at the screenshot. [gotchas 49, 50](procedures/gotchas.md)
+- **Stage, then test.** A test that reads what git tracks passed locally and failed on CI, because the new files were
+  not yet added when the tests ran. Checks now run after `git add`. [gotcha 51](procedures/gotchas.md)
 - **A board ends in a production package, not a model.** Board 12's case script also models the screws and writes the
   STLs, the .f3d, the assembly .step, a true-size paper template for the thumbs, assembly steps and one BOM for
   everything; the summary page shows it all. [fusion-electronics skill](../.claude/skills/fusion-electronics/SKILL.md)

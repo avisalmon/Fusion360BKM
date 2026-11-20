@@ -27,10 +27,10 @@
 <circle cx="115.5" cy="75.5" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
 <circle cx="115.5" cy="18.5" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
 <circle cx="93.5" cy="18.5" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
-<circle cx="134.0" cy="29.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
-<circle cx="134.0" cy="65.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
-<circle cx="18.0" cy="29.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
-<circle cx="18.0" cy="65.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="137.0" cy="29.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="137.0" cy="65.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="18.0" cy="22.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="18.0" cy="72.0" r="1.6" fill="none" stroke="#000" stroke-width="0.2"/>
 <line x1="6" y1="98.0" x2="56" y2="98.0" stroke="#000" stroke-width="0.5"/>
 <text x="6" y="103.0" font-size="3.2" text-anchor="start">this line is 50 mm: measure it after printing (print at 100 %, no "fit to page")</text>
 <text x="6" y="108.0" font-size="3.2" text-anchor="start">Tiny Arcade, the top at true size: the outline, the board, the buttons (red: the plunger you press)</text>

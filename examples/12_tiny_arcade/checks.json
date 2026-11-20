@@ -72,7 +72,7 @@
     {
       "code": "FUSION-ERC",
       "match": "Unconnected INPUT pin U1",
-      "why": "ESP32 pins this board does not use: EN has its own pull-up and RST button on the DevKitC; SVP, SVN, G34, G35 are input-only pins left free (proposed 2026-11-19, to be confirmed by the owner)"
+      "why": "ESP32 pins this board does not use: EN has its own pull-up and RST button on the DevKitC; SVP, SVN, G34, G35 are input-only pins left free (proposed 2026-11-19, confirmed by the owner 2026-11-20)"
     },
     {
       "code": "NPTH-PLATED",

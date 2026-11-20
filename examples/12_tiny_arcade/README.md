@@ -11,9 +11,10 @@ Status: in progress. The board is done: the owner's placement (2026-11-19), rout
 vias; Fusion's checks, our checks and the simulated factory all pass with 0 errors; the factory files are made
 ([summary page](index.html)). The board is in 3D, each part from its library model. The case (a rounded
 handheld, the power bank inside, the board open on top) is agreed by the owner, and its production package is
-made: STL files to print, the design (.f3d), the assembly (.step) with its screws, a true-size paper template,
-assembly steps, and a bill of materials for everything (2026-11-20). Not yet: real measurements of the bank and
-the parts, a print, an order.
+made: STL files to print, the design (.f3d), the assembly (.step) with its screws and its cable, a true-size
+paper template, assembly steps, and a bill of materials for everything (2026-11-20). **An example for learning,
+not made for production** (the owner's word): it is not printed or ordered, and the bank is the owner's size,
+100 x 70 x 15 mm.
 
 | Part | Pin on the ESP32 | Note |
 |---|---|---|
@@ -81,7 +82,10 @@ parts, each flat and with no supports:
   inside a raised rim that guards its edges and is open at the ESP32's USB. Four M3 x 10 screws through the
   deck into columns in the grips hold the deck and the body together. It prints flat side down.
 
-A short cable (10 cm) runs from the bank's port bay, over the left grip, to the ESP32's USB.
+The bank sits 5 mm right of the centre, so the left grip has room for a short cable (10 cm): its USB-A plug in
+the bank's left end, up through a slot in the deck, to the ESP32's micro-USB at the gap in the rim. The cable is
+modelled too (blue in the pictures), so the fit check proves there is room for it. The port bay in the left end
+reaches the bank's charging port and shows its lights.
 
 The board, its parts and the bank are in the design as reference bodies, and the script intersects every
 printed part with every one of them: all 0 mm3. Version 1 proved the check: a part moved 0.5 mm into
@@ -93,7 +97,7 @@ another gave exactly the expected volume.
 
 ![From the left: the bank's port bay, the rim open at the ESP32's USB](media/case_v2_left.png)
 
-![Inside, the deck off: the bank, its ribs, the grip columns](media/case_v2_open.png)
+![Inside, the deck off: the bank, its ribs, the grip columns, the cable (blue) rising in the left grip](media/case_v2_open.png)
 
 ![From above](media/case_v2_top.png)
 
@@ -102,8 +106,8 @@ another gave exactly the expected volume.
 | File | What it is |
 |---|---|
 | [tiny_arcade_case_body.stl](production/tiny_arcade_case_body.stl), [tiny_arcade_case_deck.stl](production/tiny_arcade_case_deck.stl) | the two printed parts, in mm, the right way up for the bed |
-| [tiny_arcade_case.f3d](production/tiny_arcade_case.f3d) | the case's design in Fusion, the whole timeline (re-opened once to prove it: 7 components, 33 bodies) |
-| [tiny_arcade_assembly.step](production/tiny_arcade_assembly.step) | the whole assembly (case, board, parts, bank, the 8 screws) for any CAD program |
+| [tiny_arcade_case.f3d](production/tiny_arcade_case.f3d) | the case's design in Fusion, the whole timeline (re-opened once to prove it: 8 components, 37 bodies) |
+| [tiny_arcade_assembly.step](production/tiny_arcade_assembly.step) | the whole assembly (case, board, parts, bank, cable, the 8 screws) for any CAD program |
 | [template_top_1to1.svg](production/template_top_1to1.svg) | the top at true size: print it on paper at 100 %, cut it out, hold it, try the buttons with your thumbs |
 | [BOM.csv](production/BOM.csv) | everything to buy or make: the PCB, the 9 parts, the 2 printed parts, 8 screws, the bank, the cable |
 | [production.json](production/production.json) | the assembly steps, the fit checks and the thumb distances, for the summary page |
@@ -111,7 +115,8 @@ another gave exactly the expected volume.
 Print in PLA, 0.2 mm layers, 4 walls, 20 % infill, no supports. Lay the body open side up and the deck flat side
 down; both are already the right way up in the STL. Assembly (with the [exploded view](media/case_exploded.png)):
 solder the board; screw it onto the deck (4 x M3 x 8); lay the bank in the body, ports to the left; screw the
-deck onto the body (4 x M3 x 10, into the grips); plug in the cable.
+deck onto the body (4 x M3 x 10, into the grips), the cable's far end through the deck's slot first; plug
+it into the ESP32.
 
 The thumbs: A and B sit 35-37 mm in from the left end; the direction pad's centre sits about 48 mm in from the
 right end (LEFT 57 mm, RIGHT 39 mm). The pad is 11 mm further in from its end than A and B are from theirs, because
@@ -129,7 +134,7 @@ the board is centred in the case. Whether that is comfortable is for a hand to s
 | Placement, first proposal: 86 x 64 mm, four M3 holes | 2026-11-19: placed and looked at ([media/placement_proposal.png](media/placement_proposal.png)) |
 | Placement reviewed and moved by the owner in Fusion (a console layout), read back into `board.py`; B moved 1.5 mm off the corner screw, agreed | 2026-11-19 ([media/placement_owner.png](media/placement_owner.png)) |
 | Routed (`route.py`): two layers, no vias; the direction pins swapped so no tracks cross (UP G33, DOWN G26, RIGHT G32) | 2026-11-19: 0 unrouted, no copper off the two layers, looked at ([media/board.png](media/board.png)) |
-| Fusion's checks | 2026-11-19: board check 0 errors; ERC 5 findings, unused ESP32 input pins (EN, SVP, SVN, G34, G35), approved in `checks.json` with that reason, **to be confirmed by the owner** |
+| Fusion's checks | 2026-11-19: board check 0 errors; ERC 5 findings, unused ESP32 input pins (EN, SVP, SVN, G34, G35), approved in `checks.json` with that reason, confirmed by the owner 2026-11-20 |
 | Our board check (`pcb_check.py`) and the simulated factory (`factory_check.py`) | 2026-11-19, after a clean rebuild in a new design: 0 errors; the netlist equal to the intent; the bare-board e-test equal to the schematic (11 nets, no opens, no shorts). 2026-11-20: 0 warnings, once `pcb_check.py` learned that our library's parts carry their 3D model in part.json |
 | Saved to the Fusion cloud (project "Tiny Arcade"), factory files | 2026-11-19 |
 | The board in 3D, with the parts as 3D objects (`board3d.py`: each part's model from its library part.json, at its place on Fusion's 3D board) | 2026-11-19: built; each part's bounding box read back over its footprint; looked at ([media/board3d.png](media/board3d.png)). Heights above the board's underside: ESP32 8.7 mm (soldered straight on, 2026-11-20; it was 17.2 on female headers), buzzer 11.0, screen 6.6, buttons 6.5 (the 5 mm button is assumed): **to be measured** |
@@ -137,9 +142,9 @@ the board is centred in the case. Whether that is comfortable is for a hand to s
 | Printing concept: a power bank underneath, a short cable outside (the owner's direction); bank 100 x 70 x 15 mm (the owner's working size; the AliExpress listing's drawing says 93 x 63.5 x 14) | 2026-11-20 |
 | The case, version 1 (a closed box, button caps) | 2026-11-20: built, 0 mm3 against every part; the owner: "too boxy" |
 | The case, version 2 (`case.py`): a rounded handheld, the board open on top, the bank inside; body and deck | 2026-11-20: built in Fusion 2706.1.17; looked at from five views (media/case_v2*.png); **agreed by the owner** ("I like it"); the bank, the buttons, the screen and the buzzer are assumed sizes, **to be measured** |
-| Production package (`production/`): STLs, .f3d (re-opened: 7 components, 33 bodies), .step, true-size template, BOM for everything, assembly steps, exploded view; the 8 screws modelled | 2026-11-20: 431 pairs intersected (printed parts and screw heads against everything, shanks against the board and its parts): 0 mm3; the template rendered and looked at |
-| The thumbs: comfortable to hold and press | **not yet**: the distances are measured on the model (above); a hand on the paper template, then on the print, will say |
-| Printed, fitted | not yet |
+| Production package (`production/`): STLs, .f3d (re-opened: 8 components, 37 bodies), .step, true-size template, BOM for everything, assembly steps, exploded view; the 8 screws and the cable modelled | 2026-11-20: 503 pairs intersected (printed parts and screw heads against everything, the cable included; shanks against the board and its parts): 0 mm3; the template rendered and looked at |
+| The thumbs: comfortable to hold and press | measured on the model only (above); not tried by hand: an example, not printed |
+| Printed, fitted | not planned: an example for learning (the owner, 2026-11-20) |
 
 ## What it taught this repo (so far)
 

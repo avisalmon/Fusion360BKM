@@ -9,16 +9,16 @@
   {
    "name": "Body",
    "file": "production/tiny_arcade_case_body.stl",
-   "volume_cm3": 40.08,
-   "mass_g_solid": 49.7,
+   "volume_cm3": 40.74,
+   "mass_g_solid": 50.5,
    "orient": "open side up (as drawn)",
    "why": "the rounded bottom edge (radius 4) rises gently from the bed; nothing hangs in the air"
   },
   {
    "name": "Deck",
    "file": "production/tiny_arcade_case_deck.stl",
-   "volume_cm3": 35.75,
-   "mass_g_solid": 44.3,
+   "volume_cm3": 35.51,
+   "mass_g_solid": 44.0,
    "orient": "flat side down (as drawn)",
    "why": "the posts and the rim grow straight up from a flat plate"
   }
@@ -27,12 +27,12 @@
  "assembly": [
   "Solder the parts onto the board: the ESP32 straight on (its pin strips' plastic on the board), the screen, the buzzer (+ to the square pad), the six buttons. Clip the leads under the board to 2 mm or less.",
   "Screw the board onto the deck's four posts: 4 x M3 x 8 from above, through the board's holes. Turn each one until it is snug, no further: it cuts its thread in the plastic.",
-  "Lay the power bank in the body, its ports toward the port bay in the left end.",
-  "Lay the deck on the body and screw it down: 4 x M3 x 10 through the deck into the columns in the grips.",
-  "Plug the cable into the bank (through the port bay) and into the ESP32's micro-USB (at the gap in the rim). Charge the bank through the same bay."
+  "Lay the power bank in the body, its ports toward the left grip, and plug the short cable's USB-A into it.",
+  "Feed the cable's other end up through the slot in the deck's left grip, lay the deck on the body and screw it down: 4 x M3 x 10 into the columns in the grips.",
+  "Plug the cable into the ESP32's micro-USB, at the gap in the rim. Charge the bank through the port bay in the left end."
  ],
  "fit": {
-  "pairs_checked": 431,
+  "pairs_checked": 503,
   "clashes_mm3": {}
  },
  "thumbs_mm": {
@@ -69,5 +69,5 @@
   "template": "production/template_top_1to1.svg",
   "bom": "production/BOM.csv"
  },
- "assumed": "the bank (100 x 70 x 15 mm, its ports and button), the buttons' height (5 mm), the screen's and the buzzer's heights: each from a listing or a common size, to be measured"
+ "assumed": "this is an example for learning, not made for production: the bank is the owner's 100 x 70 x 15 mm, its USB port taken at the middle of its left end; the parts' heights are their common sizes"
 }
