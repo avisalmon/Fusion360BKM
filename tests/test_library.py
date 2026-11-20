@@ -74,8 +74,15 @@ def test_the_library_page_is_current_and_shows_every_part():
     for pj in (ROOT / "library").glob("*/*/part.json"):
         assert f'id="{pj.parent.name}"' in page, pj.parent.name
     assert "Take one, give back two" in page and "לוקחים אחד, מחזירים שניים" in page
-    assert "mailto:avi.salmon@gmail.com?subject=Take%20one%2C%20give%20back%20two" in page
+    assert 'data-mail="?subject=Take%20one%2C%20give%20back%20two' in page
     assert "north of Israel" in page
+    # the owner's address is on the page only encoded, decoded by the browser (against bots)
+    import base64
+
+    assert not re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", page), "an email address in plain text"
+    code = re.search(r'<body data-m="([^"]+)"', page).group(1)
+    addr = base64.b64decode(code).decode()[::-1]
+    assert re.fullmatch(r"[\w.+-]+@gmail\.com", addr), "the encoded address decodes to an address"
     # every local link and image on it exists
     for href in re.findall(r'(?:href|src)="([^"#][^"]*)"', page):
         if not href.startswith(("http://", "https://", "mailto:")):

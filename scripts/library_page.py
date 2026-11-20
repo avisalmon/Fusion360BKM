@@ -72,17 +72,21 @@ def rel(p):
     return p.relative_to(LIB).as_posix()
 
 
-OWNER_MAIL = "avi.salmon@gmail.com"  # published on the owner's word, 2026-11-20
+# The owner's address (his word, 2026-11-20), kept out of reach of address-harvesting bots: never
+# written in plain text, here or on the page. It is base64 of the address reversed; the page's
+# script decodes it in the reader's browser and fills every [data-mail] link and [data-mail-text].
+OWNER_MAIL_CODE = "bW9jLmxpYW1nQG5vbWxhcy5pdmE="
 
 
-def borrow_link(d):
+def borrow_query(d):
+    """The ?subject=...&body=... of a part's "I want one" email (the address is added by the script)."""
     subject = f"Take one, give back two: {d['name']}"
     body = (
         f"I would like to borrow: {d['name']} (library/{d['_owner']}/{d['id']}).\n"
         "I will order two and bring them back when they arrive."
     )
     q = urllib.parse.urlencode({"subject": subject, "body": body}, quote_via=urllib.parse.quote)
-    return f"mailto:{OWNER_MAIL}?{q}"
+    return f"?{q}"
 
 
 def check_line(label_he, label_en, text):
@@ -144,7 +148,7 @@ def card(d, uses):
         "</ul>",
         f'<p class="used">{both("על הלוחות", "On boards")}: {used_html}</p>',
         '<div class="actions">',
-        f'<a class="btn" href="{esc(borrow_link(d))}">{both("אני רוצה אחד", "I want one")}</a>',
+        f'<a class="btn" href="#deal" data-mail="{esc(borrow_query(d))}">{both("אני רוצה אחד", "I want one")}</a>',
         "</div>",
         "<details>",
         f"<summary>{both('כל הפרטים', 'All the details')}</summary>",
@@ -343,6 +347,18 @@ JS = """
     });
   });
   apply();
+
+  // the owner's address, decoded here so that it is never written in the page itself
+  var code = document.body.getAttribute("data-m") || "", addr = "";
+  try { addr = atob(code).split("").reverse().join(""); } catch (e) {}
+  if (addr) {
+    document.querySelectorAll("[data-mail]").forEach(function (a) {
+      a.setAttribute("href", "mailto:" + addr + a.getAttribute("data-mail"));
+    });
+    document.querySelectorAll("[data-mail-text]").forEach(function (a) {
+      (a.querySelector("bdi") || a).textContent = addr;
+    });
+  }
 })();
 """
 
@@ -372,7 +388,7 @@ def page():
         'photos, pins, footprint, symbol and 3D model, checked in Fusion. Take one, give back two.">',
         f"<style>{CSS}</style>",
         "</head>",
-        "<body>",
+        f'<body data-m="{OWNER_MAIL_CODE}">',
         '<header class="top"><div class="wrap">',
         '<a class="brand" href="../index.html"><span class="brand-dot"></span><span>Fusion 360 BKM</span></a>',
         '<div class="lang-switch" role="group" aria-label="Language / שפה">',
@@ -393,7 +409,7 @@ def page():
         )
         + "</p>",
         '<div class="duo">',
-        '<div class="box deal">',
+        '<div class="box deal" id="deal">',
         "<h2>" + both("לוקחים אחד, מחזירים שניים", "Take one, give back two") + "</h2>",
         "<p>"
         + both(
@@ -405,8 +421,8 @@ def page():
         "<li>" + both("מוצאים את הרכיב למטה.", "Find the part below.") + "</li>",
         "<li>"
         + both(
-            f'לוחצים "אני רוצה אחד" (נפתח מייל לאבי), או כותבים אליו: <a href="mailto:{OWNER_MAIL}"><bdi>{OWNER_MAIL}</bdi></a>.',
-            f'Click "I want one" (it opens an email to Avi), or write to <a href="mailto:{OWNER_MAIL}">{OWNER_MAIL}</a>.',
+            'לוחצים "אני רוצה אחד" (נפתח מייל לאבי), או כותבים אליו: <a href="#deal" data-mail="" data-mail-text><bdi>…</bdi></a>.',
+            'Click "I want one" (it opens an email to Avi), or write to <a href="#deal" data-mail="" data-mail-text>…</a>.',
         )
         + "</li>",
         "<li>"
