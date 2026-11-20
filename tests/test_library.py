@@ -74,8 +74,9 @@ def test_the_library_page_is_current_and_shows_every_part():
     for pj in (ROOT / "library").glob("*/*/part.json"):
         assert f'id="{pj.parent.name}"' in page, pj.parent.name
     assert "Take one, give back two" in page and "לוקחים אחד, מחזירים שניים" in page
-    assert "/issues/new?title=Take%20one%2C%20give%20back%20two" in page
+    assert "mailto:avi.salmon@gmail.com?subject=Take%20one%2C%20give%20back%20two" in page
+    assert "north of Israel" in page
     # every local link and image on it exists
     for href in re.findall(r'(?:href|src)="([^"#][^"]*)"', page):
-        if not href.startswith(("http://", "https://")):
+        if not href.startswith(("http://", "https://", "mailto:")):
             assert (ROOT / "library" / href).exists(), href

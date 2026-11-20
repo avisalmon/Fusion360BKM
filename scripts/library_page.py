@@ -72,14 +72,17 @@ def rel(p):
     return p.relative_to(LIB).as_posix()
 
 
+OWNER_MAIL = "avi.salmon@gmail.com"  # published on the owner's word, 2026-11-20
+
+
 def borrow_link(d):
-    title = f"Take one, give back two: {d['name']}"
+    subject = f"Take one, give back two: {d['name']}"
     body = (
         f"I would like to borrow: {d['name']} (library/{d['_owner']}/{d['id']}).\n"
         "I will order two and bring them back when they arrive."
     )
-    q = urllib.parse.urlencode({"title": title, "body": body}, quote_via=urllib.parse.quote)
-    return f"{REPO}/issues/new?{q}"
+    q = urllib.parse.urlencode({"subject": subject, "body": body}, quote_via=urllib.parse.quote)
+    return f"mailto:{OWNER_MAIL}?{q}"
 
 
 def check_line(label_he, label_en, text):
@@ -402,8 +405,8 @@ def page():
         "<li>" + both("מוצאים את הרכיב למטה.", "Find the part below.") + "</li>",
         "<li>"
         + both(
-            'לוחצים "אני רוצה אחד" (נפתחת בקשה ב-GitHub), או פשוט שואלים את אבי.',
-            'Click "I want one" (it opens a request on GitHub), or just ask Avi.',
+            f'לוחצים "אני רוצה אחד" (נפתח מייל לאבי), או כותבים אליו: <a href="mailto:{OWNER_MAIL}"><bdi>{OWNER_MAIL}</bdi></a>.',
+            f'Click "I want one" (it opens an email to Avi), or write to <a href="mailto:{OWNER_MAIL}">{OWNER_MAIL}</a>.',
         )
         + "</li>",
         "<li>"
@@ -412,7 +415,13 @@ def page():
             "Take it today, order two, and bring them when they arrive.",
         )
         + "</li>",
-        "</ol></div>",
+        "</ol>",
+        "<p>"
+        + both(
+            "אבי גר בצפון הארץ: אם נוח לכם להגיע ולאסוף, בשמחה. אם לא, קנו את הרכיב ברשת.",
+            "Avi lives in the north of Israel: if you can come and pick it up, you are welcome. If not, buy the part online.",
+        )
+        + "</p></div>",
         '<div class="box">',
         "<h2>" + both("ככה נראית ספרייה", "What a library looks like") + "</h2>",
         "<p>"
