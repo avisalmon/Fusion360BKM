@@ -1,24 +1,26 @@
-r"""12_tiny_arcade, step 5: the case, with the power bank under the board. Run after board.py.
+r"""12_tiny_arcade, step 5: the case, version 2: a rounded handheld, the board open on top, the
+power bank inside under it. Run after board.py.
 
     python scripts\fusion.py run examples\12_tiny_arcade\case.py 600
 
-Three kinds of printed part, each printed flat with no supports:
-* Body: an open box. The power bank lies on its floor, its ports facing the left wall, where a slot
-  shows them (charge it, see its lights, plug the cable in). Printed open side up.
-* Cover: a flat top plate. The board hangs from four posts under it (four M3 x 8 screws from
-  below, through the board's holes). Four corner columns reach down to just above the bank and are
-  held by four M3 x 8 screws through the body's end walls. Over the screen a block comes down to the
-  glass, so the window is not a deep hole. Printed top face down.
-* Six button caps: they stand on the buttons and come up through the cover; a flange under the
-  cover keeps them in.
-A short USB cable (10 cm, the owner's choice) runs outside on the left face from the bank's port to
-the ESP32's micro-USB, which has its own opening above the slot.
+The owner's brief (2026-11-20): rounded, modern, the battery under the board, the screen and the
+buttons open so they are pressed and seen directly. (Version 1, a closed box with button caps, is in
+git history: "too boxy".)
 
-The board and its parts are built here as reference bodies, from the same sources as board3d.py:
-board.py (where each part is), the library's part.json (each part's model). The ESP32 is soldered
-straight onto the board (the owner's choice 2026-11-20). The script ends by intersecting every
-printed part with every reference body: all must be 0 mm3, or the case hits something.
-Every number below is in mm; change it here and run again.
+Two printed parts, each printed flat with no supports:
+* Body: a rounded shell (corners of radius 30 seen from above, a rounded bottom edge), 140 x 82 mm.
+  The bank lies in it; ribs stop it sliding. Its ends are grips, the thumbs land on A and B (left)
+  and the direction pad (right). A port bay in the left end shows the bank's ports and lights.
+  Printed open side up.
+* Deck: the lid, the same outline. The board sits on four posts on it (4 x M3 x 8 from above,
+  through the board's holes), inside a raised rim that guards its edges and is open at the ESP32's
+  USB. Four M3 x 10 screws through the deck into columns in the grips hold the two together.
+  Printed flat side down.
+A short cable (10 cm) runs outside, from the bank's port bay over the left grip to the ESP32's USB.
+
+The board, its parts and the bank are built as reference bodies (board.py says where each part is,
+the library's part.json what it looks like), and the script ends by intersecting every printed part
+with every reference body: all must be 0 mm3. Every number is in mm at the top; change and re-run.
 """
 
 import json
@@ -29,23 +31,26 @@ import adsk.fusion
 
 # --- the numbers -----------------------------------------------------------------------------
 BANK = (100.0, 70.0, 15.0)  # the power bank: the owner's working size 2026-11-20, to be measured
-BANK_CLR = 0.3  # around the bank, each side
-WALL, FLOOR, PLATE = 2.0, 1.6, 2.0  # body walls, body floor, cover plate
-BOARD_T = 1.6  # the board's thickness (the order's default)
-UNDER = 2.5  # under the board: the soldered leads and the M3 screw heads
-GAP_BANK = 1.0  # between the bank's top and the lowest thing above it
-GAP_TOP = 0.5  # above the tallest part on the board
-CORNER_R = 3.0  # the case's outer corners
-POST_D, PILOT_D, PILOT_DEPTH = 6.0, 2.5, 8.0  # posts under the cover; M3 screws cut their thread
-COL, COL_CLR, SCREW_CLR_D = 6.8, 0.2, 3.4  # corner columns; their gap to the walls; M3 clearance
-CAP_BASE_D, CAP_FLANGE_D, CAP_STEM_D, CAP_HOLE_D = 5.0, 8.6, 6.0, 6.8
-CAP_FLANGE_T, CAP_PLAY, CAP_PROUD = 1.0, 0.2, 1.5  # flange; its gap to the cover; above the cover
-BUZZER_HOLE_D, BUZZER_HOLE_R = 2.0, 3.5
-SLOT_W, SLOT_H = (
-    50.0,
-    10.0,
-)  # the bank's ports, centred on the left wall (its ports not yet measured)
-USB_W, USB_H = 12.0, 8.0  # around the micro-USB plug's moulding
+BANK_R, BANK_EDGE = 4.0, 2.0  # its corners seen from above, its top and bottom edges (assumed)
+BANK_CLR = 0.5  # around the bank, each side
+L, W, R = 140.0, 82.0, 30.0  # the outline seen from above: length, width, corner radius
+WALL, BOTTOM_R, DECK_T, DECK_EDGE = (
+    2.4,
+    4.0,
+    3.0,
+    1.5,
+)  # shell wall; bottom edge; deck; its top edge
+POST_H, POST_D, PILOT_D = 4.0, 6.0, 2.5  # board posts (room for the soldered leads under the board)
+RIM_GAP, RIM_T, RIM_ABOVE = (
+    1.0,
+    2.0,
+    0.5,
+)  # the rim: gap to the board, thickness, above the board top
+GRIP_SCREWS = [(58.0, 18.0), (58.0, -18.0), (-58.0, 18.0), (-58.0, -18.0)]  # from the centre
+COLUMN_D, SCREW_CLR_D = 7.0, 3.4
+BAY_W, BAY_H = 40.0, 11.0  # the bank's port bay (its ports are not measured yet)
+USB_NOTCH = 14.0  # the rim's opening at the ESP32's USB
+BOARD_T = 1.6
 
 LIB = repo_path("library", "avi_salmon")
 EX = repo_path("examples", "12_tiny_arcade")
@@ -55,13 +60,11 @@ PARTS = {
     "BZ1": "buzzer_tmb12a03",
     **{f"SW{i}": "tact_switch_6x6" for i in range(1, 7)},
 }
-CAPS = {"SW1": "A", "SW2": "B", "SW3": "UP", "SW4": "DOWN", "SW5": "LEFT", "SW6": "RIGHT"}
 COLOURS = {"esp32_devkitc_38": (30, 30, 30), "oled_096_i2c": (20, 60, 140),
            "buzzer_tmb12a03": (25, 25, 25), "tact_switch_6x6": (60, 60, 60)}  # fmt: skip
 
 # --- the board, as board.py placed it ----------------------------------------------------------
-BRD = {}
-PLACE = {}
+BRD, PLACE = {}, {}
 for line in open(f"{EX}/board.py", encoding="utf-8"):
     s = line.strip()
     if s.startswith(("W, H =", "HOLES =")):
@@ -71,23 +74,15 @@ for line in open(f"{EX}/board.py", encoding="utf-8"):
         PLACE[s.split('"')[1]] = tuple(float(v) for v in nums)
 BW, BH, HOLES = BRD["W"], BRD["H"], BRD["HOLES"]
 
-# --- derived heights and positions (case frame: the inside corner of the body at x = y = 0,
-# the underside of the body's floor at z = 0) ---------------------------------------------------
-IX, IY = BANK[0] + 2 * BANK_CLR, BANK[1] + 2 * BANK_CLR  # inside of the body
-BANK_TOP = FLOOR + BANK[2]
-ZB = BANK_TOP + GAP_BANK + UNDER  # underside of the board
-ZT = ZB + BOARD_T  # top of the board
-BX, BY = (IX - BW) / 2, (IY - BH) / 2  # the board, centred between the corner columns
-assert BX >= COL + 0.5 - 1e-6, "the board does not fit between the corner columns"
-COL_Z0 = BANK_TOP + 0.3  # the columns stop just above the bank and keep it down
-
-
-def items(coll):
-    return [coll.item(i) for i in range(coll.count)]
+# --- heights (z = 0 under the body) and the board's place (the outline's centre at x = y = 0) ---
+BODY_H = WALL + BANK[2] + BANK_CLR  # the body's rim = the deck's underside
+ZD = BODY_H + DECK_T  # the deck's top
+ZB = ZD + POST_H  # the board's underside
+ZT = ZB + BOARD_T  # the board's top
+BX, BY = -BW / 2, -BH / 2
 
 
 def place(ref, x, y):
-    """A point of a part's footprint frame, in the case frame."""
     ex, ey, angle = PLACE[ref]
     a = math.radians(angle)
     return BX + ex + x * math.cos(a) - y * math.sin(a), BY + ey + x * math.sin(a) + y * math.cos(a)
@@ -105,11 +100,25 @@ def rod(comp, z0, h, cx, cy, d):
     return extrude(sk, h, comp=comp).bodies.item(0)
 
 
-def rod_x(comp, x0, length, cy, cz, d):
-    """A cylinder along +x, starting at x0."""
-    sk = sketch_on("yz", comp, offset_mm=x0)
-    mcircle(sk, (x0, cy, cz), d)
-    return extrude(sk, length, comp=comp, toward=(1, 0, 0)).bodies.item(0)
+def is_vertical(edge):
+    a, b = edge.startVertex.geometry, edge.endVertex.geometry
+    return abs(a.x - b.x) < 1e-6 and abs(a.y - b.y) < 1e-6 and abs(a.z - b.z) > 1e-6
+
+
+def at_z(z_mm):
+    def pred(edge):
+        bb = edge.boundingBox
+        return abs(bb.minPoint.z * 10 - z_mm) < 1e-3 and abs(bb.maxPoint.z * 10 - z_mm) < 1e-3
+
+    return pred
+
+
+def rounded(comp, z0, h, w, d, r, cx=0.0, cy=0.0):
+    """A box w x d x h centred on (cx, cy), its vertical edges rounded with radius r."""
+    b = block(comp, z0, h, cx - w / 2, cy - d / 2, cx + w / 2, cy + d / 2)
+    if r > 0:
+        fillet_all(b, r, is_vertical)
+    return b
 
 
 def union(target, tools):
@@ -123,24 +132,13 @@ def cut(target, tools):
     return target
 
 
-def outer_corner(x, y):
-    return (
-        min(abs(x + WALL), abs(x - IX - WALL)) < 1e-3
-        and min(abs(y + WALL), abs(y - IY - WALL)) < 1e-3
-    )
-
-
-def vertical_outer_edge(edge):
-    a, b = edge.startVertex.geometry, edge.endVertex.geometry
-    return abs(a.x - b.x) < 1e-6 and abs(a.y - b.y) < 1e-6 and outer_corner(a.x * 10, a.y * 10)
-
-
 new_design("Tiny Arcade case")
 top = root()
 
 # --- the reference: the bank, the board, the parts --------------------------------------------
 ref = new_component("Board and bank (reference)", top)
-bank = block(ref, FLOOR, BANK[2], BANK_CLR, BANK_CLR, BANK_CLR + BANK[0], BANK_CLR + BANK[1])
+bank = rounded(ref, WALL, BANK[2], BANK[0], BANK[1], BANK_R)
+fillet_all(bank, BANK_EDGE, lambda e: not is_vertical(e))
 bank.name = "power bank"
 set_appearance_color(bank, 200, 200, 200)
 board = block(ref, ZB, BOARD_T, BX, BY, BX + BW, BY + BH)
@@ -148,9 +146,7 @@ cut(board, [rod(ref, ZB - 1, BOARD_T + 2, BX + hx, BY + hy, 3.2) for hx, hy in H
 board.name = "board"
 set_appearance_color(board, 20, 110, 50)
 refs = [bank, board]
-tallest = ZT
-usb = None  # the ESP32's micro-USB socket: (y, z) of its centre
-plungers = {}
+usb = None  # the ESP32's micro-USB socket: y of its centre
 for r, pid in PARTS.items():
     model = json.load(open(f"{LIB}/{pid}/part.json", encoding="utf-8-sig"))["model"]
     turned = round(PLACE[r][2]) % 180
@@ -160,136 +156,55 @@ for r, pid in PARTS.items():
         w, d = (d, w) if turned else (w, d)
         made.append(block(ref, ZT + z0, h, x - w / 2, y - d / 2, x + w / 2, y + d / 2))
         if src and str(src[0]).startswith("micro-USB"):
-            usb = (y, ZT + z0 + h / 2)
+            usb = y
     for cx, cy, z0, dia, h, *_ in model["cylinders"]:
         x, y = place(r, cx, cy)
         made.append(rod(ref, ZT + z0, h, x, y, dia))
-        plungers[r] = ZT + z0 + h
     for b in made:
         b.name = r
         set_appearance_color(b, *COLOURS[pid])
-        tallest = max(tallest, b.boundingBox.maxPoint.z * 10)
     refs += made
 
-ZC = tallest + GAP_TOP  # underside of the cover plate = top of the body's walls
-HZ = (COL_Z0 + ZC) / 2  # height of the end-wall screws
-
-# --- the body ------------------------------------------------------------------------------------
 case = new_component("Case", top)
+
+# --- the body: a rounded shell, open on top -----------------------------------------------------
 body_c = new_component("Body", case)
-body = block(body_c, 0, ZC, -WALL, -WALL, IX + WALL, IY + WALL)
-fillet_all(body, CORNER_R, vertical_outer_edge)
-cut(body, [block(body_c, FLOOR, ZC, 0, 0, IX, IY)])
-left = -WALL - 1
-cut(
-    body,
-    [
-        # the bank's ports, lights and the cable's plug
-        block(
-            body_c,
-            FLOOR + (BANK[2] - SLOT_H) / 2,
-            SLOT_H,
-            left,
-            IY / 2 - SLOT_W / 2,
-            1,
-            IY / 2 + SLOT_W / 2,
-        ),
-        # the ESP32's micro-USB: open to the top, the cover closes it
-        block(body_c, usb[1] - USB_H / 2, ZC, left, usb[0] - USB_W / 2, 1, usb[0] + USB_W / 2),
-    ]
-    + [
-        rod_x(body_c, x0, WALL + 2, y, HZ, SCREW_CLR_D)
-        for x0 in (left, IX - 1)
-        for y in (COL / 2, IY - COL / 2)
-    ],
-)
+body = rounded(body_c, 0, BODY_H, L, W, R)
+fillet_all(body, BOTTOM_R, at_z(0))
+shell(body, [top_face(body)], WALL)
+ENDS = BANK[0] / 2 + BANK_CLR  # where the bank's ends are
+columns = [rod(body_c, 0.5, BODY_H - 0.5, x, y, COLUMN_D) for x, y in GRIP_SCREWS]
+ribs = [block(body_c, 0.5, WALL + 8, x0, y - 5, x0 + 2, y + 5)
+        for x0 in (ENDS, -ENDS - 2) for y in (-28, 28)]  # fmt: skip
+union(body, columns + ribs)
+cut(body, [rod(body_c, BODY_H - 8, 9, x, y, PILOT_D) for x, y in GRIP_SCREWS])
+bay_z = WALL + (BANK[2] - BAY_H) / 2
+cut(body, [block(body_c, bay_z, BAY_H, -L / 2 - 1, -BAY_W / 2, -ENDS + 1, BAY_W / 2)])
 body.name = "body"
-set_appearance_color(body, 230, 120, 30)
+set_appearance_color(body, 38, 42, 52)
 
-# --- the cover -----------------------------------------------------------------------------------
-cover_c = new_component("Cover", case)
-cover = block(cover_c, ZC, PLATE, -WALL, -WALL, IX + WALL, IY + WALL)
-fillet_all(cover, CORNER_R, vertical_outer_edge)
-posts = [rod(cover_c, ZT, ZC - ZT + 0.01, BX + hx, BY + hy, POST_D) for hx, hy in HOLES]
-corners = [(COL_CLR, COL_CLR), (IX - COL, COL_CLR), (COL_CLR, IY - COL), (IX - COL, IY - COL)]
-columns = [
-    block(cover_c, COL_Z0, ZC - COL_Z0 + 0.01, x, y, x + COL - COL_CLR, y + COL - COL_CLR)
-    for x, y in corners
-]
-gx, gy = place("DISP1", 0, -12.25)  # the screen's glass: centre (from the OLED's model)
-GW, GD, GTOP = 26.7, 19.26, ZT + 3.7 + 1.4
-bezel = block(
-    cover_c,
-    GTOP + GAP_TOP,
-    ZC - GTOP - GAP_TOP + 0.01,
-    gx - GW / 2 - 1,
-    gy - GD / 2 - 1,
-    gx + GW / 2 + 1,
-    gy + GD / 2 + 1,
+# --- the deck: the lid, the board on posts inside a rim ------------------------------------------
+deck_c = new_component("Deck", case)
+deck = rounded(deck_c, BODY_H, DECK_T, L, W, R)
+fillet_all(deck, DECK_EDGE, at_z(ZD))
+rim_h = ZT + RIM_ABOVE - ZD
+rim = rounded(
+    deck_c, ZD - 0.01, rim_h + 0.01, BW + 2 * (RIM_GAP + RIM_T), BH + 2 * (RIM_GAP + RIM_T), 5.0
 )
-union(cover, posts + columns + [bezel])
-holes = [rod(cover_c, ZT - 1, PILOT_DEPTH + 1, BX + hx, BY + hy, PILOT_D) for hx, hy in HOLES]
-holes += [
-    rod_x(cover_c, -1, COL + 1, COL / 2, HZ, PILOT_D),
-    rod_x(cover_c, -1, COL + 1, IY - COL / 2, HZ, PILOT_D),
-]
-holes += [rod_x(cover_c, IX - COL, COL + 1, y, HZ, PILOT_D) for y in (COL / 2, IY - COL / 2)]
-holes.append(
-    block(
-        cover_c,
-        GTOP,
-        ZC + PLATE - GTOP + 1,
-        gx - GW / 2 + 1.5,
-        gy - GD / 2 + 1.5,
-        gx + GW / 2 - 1.5,
-        gy + GD / 2 - 1.5,
-    )
-)  # the window
-holes += [rod(cover_c, ZC - 1, PLATE + 2, *place(sw, 0, 0), CAP_HOLE_D) for sw in CAPS]
-bzx, bzy = place("BZ1", 0, 0)
-holes.append(rod(cover_c, ZC - 1, PLATE + 2, bzx, bzy, BUZZER_HOLE_D))
-holes += [
-    rod(
-        cover_c,
-        ZC - 1,
-        PLATE + 2,
-        bzx + BUZZER_HOLE_R * math.cos(a),
-        bzy + BUZZER_HOLE_R * math.sin(a),
-        BUZZER_HOLE_D,
-    )
-    for a in (math.radians(45 + 90 * k) for k in range(4))
-]
-cut(cover, holes)
-cover.name = "cover"
-set_appearance_color(cover, 240, 240, 235)
-
-# --- the button caps -----------------------------------------------------------------------------
-caps_c = new_component("Caps", case)
-caps = []
-for sw, label in CAPS.items():
-    x, y = place(sw, 0, 0)
-    z0 = plungers[sw] + CAP_PLAY
-    zf = ZC - CAP_PLAY - CAP_FLANGE_T
-    cap = rod(caps_c, z0, zf - z0, x, y, CAP_BASE_D)
-    union(
-        cap,
-        [
-            rod(caps_c, zf, CAP_FLANGE_T, x, y, CAP_FLANGE_D),
-            rod(
-                caps_c,
-                zf + CAP_FLANGE_T - 0.01,
-                ZC + PLATE + CAP_PROUD - zf - CAP_FLANGE_T + 0.01,
-                x,
-                y,
-                CAP_STEM_D,
-            ),
-        ],
-    )
-    cap.name = f"cap {label}"
-    set_appearance_color(cap, 200, 30, 30) if label in ("A", "B") else set_appearance_color(
-        cap, 40, 40, 40
-    )
-    caps.append(cap)
+inside = rounded(deck_c, ZD - 1, rim_h + 2, BW + 2 * RIM_GAP, BH + 2 * RIM_GAP, 3.0)
+notch = block(
+    deck_c, ZD + 0.5, rim_h + 1, BX - 10, usb - USB_NOTCH / 2, BX + 1, usb + USB_NOTCH / 2
+)
+cut(rim, [inside, notch])
+posts = [rod(deck_c, ZD - 0.01, POST_H + 0.01, BX + hx, BY + hy, POST_D) for hx, hy in HOLES]
+union(deck, [rim] + posts)
+cut(
+    deck,
+    [rod(deck_c, BODY_H - 1, DECK_T + POST_H + 2, BX + hx, BY + hy, PILOT_D) for hx, hy in HOLES],
+)
+cut(deck, [rod(deck_c, BODY_H - 1, DECK_T + 2, x, y, SCREW_CLR_D) for x, y in GRIP_SCREWS])
+deck.name = "deck"
+set_appearance_color(deck, 236, 236, 230)
 
 # --- proof: nothing printed overlaps anything else -----------------------------------------------
 tbm = adsk.fusion.TemporaryBRepManager.get()
@@ -301,7 +216,7 @@ def overlap_mm3(a, b):
     return t.volume * 1000
 
 
-printed = [body, cover, *caps]
+printed = [body, deck]
 clashes = {}
 for i, p in enumerate(printed):
     for other in refs + printed[i + 1 :]:
@@ -314,32 +229,20 @@ fit()
 
 def bbox(b):
     x = b.boundingBox
-    return [
-        round(v * 10, 2)
-        for v in (
-            x.minPoint.x,
-            x.minPoint.y,
-            x.minPoint.z,
-            x.maxPoint.x,
-            x.maxPoint.y,
-            x.maxPoint.z,
-        )
-    ]
+    return [round(v * 10, 2) for v in (x.minPoint.x, x.minPoint.y, x.minPoint.z,
+                                       x.maxPoint.x, x.maxPoint.y, x.maxPoint.z)]  # fmt: skip
 
 
+tallest = max(b.boundingBox.maxPoint.z * 10 for b in refs)
 result = {
-    "outside_mm": [round(IX + 2 * WALL, 2), round(IY + 2 * WALL, 2), round(ZC + PLATE, 2)],
+    "outline_mm": [L, W],
     "heights_mm": {
-        "bank_top": BANK_TOP,
-        "board_under": ZB,
-        "board_top": ZT,
+        "body": BODY_H,
+        "deck_top": ZD,
+        "board_top": round(ZT, 2),
+        "rim_top": round(ZT + RIM_ABOVE, 2),
         "tallest_part": round(tallest, 2),
-        "cover_under": round(ZC, 2),
-        "cover_top": round(ZC + PLATE, 2),
-        "caps_top": round(ZC + PLATE + CAP_PROUD, 2),
-    },
-    "board_offset_mm": [BX, BY],
-    "usb_centre_yz": [round(usb[0], 2), round(usb[1], 2)],
+    },  # fmt: skip
     "bodies": {b.name: {"bbox": bbox(b), "volume_cm3": round(b.volume, 2)} for b in printed},
     "clashes_mm3": clashes,
 }

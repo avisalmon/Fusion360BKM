@@ -64,33 +64,35 @@ with its source):
 
 ## The case (`case.py`)
 
-The ESP32 is soldered straight onto the board, and a power bank lies underneath (the owner's choices,
-2026-11-20). The case is 104.6 x 74.6 x 33.7 mm, plus 1.5 mm of button caps. It is printed in three kinds of
-part, each flat and with no supports:
+The owner's brief (2026-11-20): rounded, modern, the power bank under the board, and the screen and buttons
+left open so they are pressed and seen directly. Version 1 was a closed box with button caps; the owner
+called it "too boxy", so it now lives only in git history. Version 2 is a rounded handheld, 140 x 82 mm and
+21 mm thick to the deck, with the board on top (36 mm to the top of the buzzer). It is printed as two
+parts, each flat and with no supports:
 
-* **Body**: an open box. The bank lies on its floor with its ports at the left wall, where a slot shows them,
-  so you can charge it, see its lights and plug a cable in. The ESP32's micro-USB has its own opening above the
-  slot. A short cable (10 cm) runs outside, from the bank to the ESP32.
-* **Cover**: a flat plate. The board hangs from four posts underneath it (4 x M3 x 8 through the board's holes,
-  from below). Four corner columns come down to just above the bank and keep it in place. Four M3 x 8 screws
-  through the body's end walls hold the columns. Over the screen, a frame comes down to the glass so the window
-  is not a deep hole.
-* **Six button caps**: they stand on the buttons and come 1.5 mm up through the cover, and a flange under the
-  cover keeps them in.
+* **Body**: a rounded shell: corners of radius 30 seen from above, and a rounded bottom edge. The bank lies
+  inside it, and ribs stop it sliding. The two ends are grips, so the thumbs land on A and B (left) and on
+  the direction pad (right). A port bay in the left end shows the bank's ports and lights. It prints open
+  side up.
+* **Deck**: the lid. The board sits on four posts on it (4 x M3 x 8 from above, through the board's holes),
+  inside a raised rim that guards its edges and is open at the ESP32's USB. Four M3 x 10 screws through the
+  deck into columns in the grips hold the deck and the body together. It prints flat side down.
 
-The board and the bank are in the design as reference bodies, and the script intersects every printed part
-with every one of them: all 0 mm3. The check catches real clashes: a cap moved 0.5 mm down gives 2.9 mm3 with
-its button, and the cover moved 3 mm down gives 91.8 mm3 with the ESP32's module.
+A short cable (10 cm) runs from the bank's port bay, over the left grip, to the ESP32's USB.
 
-![The case, closed](media/case_closed.png)
+The board, its parts and the bank are in the design as reference bodies, and the script intersects every
+printed part with every one of them: all 0 mm3. Version 1 proved the check: a part moved 0.5 mm into
+another gave exactly the expected volume.
 
-![The left side: the bank's slot, the ESP32's USB above it](media/case_left_side.png)
+![The case, version 2](media/case_v2.png)
 
-![Inside, the cover off](media/case_open.png)
+![From the front](media/case_v2_front.png)
 
-![The cover from below: posts, corner columns, the screen's frame, the caps](media/case_cover_underside.png)
+![From the left: the bank's port bay, the rim open at the ESP32's USB](media/case_v2_left.png)
 
-![The board on the bank (the board hangs from the cover, hidden here)](media/case_board_on_bank.png)
+![Inside, the deck off: the bank, its ribs, the grip columns](media/case_v2_open.png)
+
+![From above](media/case_v2_top.png)
 
 ## Status
 
@@ -108,7 +110,8 @@ its button, and the cover moved 3 mm down gives 91.8 mm3 with the ESP32's module
 | The board in 3D, with the parts as 3D objects (`board3d.py`: each part's model from its library part.json, at its place on Fusion's 3D board) | 2026-11-19: built; each part's bounding box read back over its footprint; looked at ([media/board3d.png](media/board3d.png)). Heights above the board's underside: ESP32 8.7 mm (soldered straight on, 2026-11-20; it was 17.2 on female headers), buzzer 11.0, screen 6.6, buttons 6.5 (the 5 mm button is assumed): **to be measured** |
 | The ESP32 soldered straight onto the board (no sockets), the owner's choice | 2026-11-20: `board3d.py` and `case.py` model it so; the ESP32's top is 7.2 mm above the board (from its model, not measured) |
 | Printing concept: a power bank underneath, a short cable outside (the owner's direction); bank 100 x 70 x 15 mm (the owner's working size; the AliExpress listing's drawing says 93 x 63.5 x 14) | 2026-11-20 |
-| The case (`case.py`): body, cover, six caps around the board and the bank | 2026-11-20: built in Fusion 2706.1.17; every printed part intersected with the board, every part on it and the bank: 0 mm3 (the check proven on two deliberate clashes); looked at from five views (media/case_*.png). **Waiting for the owner's review**; sizes of the bank, buttons, screen and buzzer assumed, **to be measured** |
+| The case, version 1 (a closed box, button caps) | 2026-11-20: built, 0 mm3 against every part; the owner: "too boxy" |
+| The case, version 2 (`case.py`): a rounded handheld, the board open on top, the bank inside; body and deck | 2026-11-20: built in Fusion 2706.1.17; every printed part intersected with the board, every part on it and the bank: 0 mm3; looked at from five views (media/case_v2*.png). **Waiting for the owner's review**; the bank, the buttons, the screen and the buzzer are assumed sizes, **to be measured** |
 | Printed, fitted | not yet |
 
 ## What it taught this repo (so far)
