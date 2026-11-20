@@ -48,6 +48,8 @@ add it here with its tag, then use it.
 | IGES, SAT, DXF, SVG, OBJ, 3MF import | [unverified] |
 | Camera: `app.activeViewport.camera` with `viewOrientation = adsk.core.ViewOrientations.TopViewOrientation`, assign the camera back, then `fit()` | [verified] |
 | Screenshots: `app.activeViewport.saveAsImageFile(path, width, height)` through `screenshot()` / `fusion.py shot` | [verified] |
+| Does one body hit another? `tbm = adsk.fusion.TemporaryBRepManager.get()`, `t = tbm.copy(a)`, `tbm.booleanOperation(t, tbm.copy(b), adsk.fusion.BooleanTypes.IntersectionBooleanType)`, then `t.volume` (cm3; 0 when apart). Touches nothing in the design. Two 2 cm boxes overlapping by 1 cm gave 1.0, apart 0.0; a cap moved 0.5 mm into a 3.5 mm plunger gave 2.886 mm3 = 0.3 x pi x 1.75^2 (`examples/12_tiny_arcade/case.py`) | [verified] 2026-11-20, 2706.1.17 |
+| In the 3D board design (`Switch3dPcbDocCmd`) setting `component.name` is ignored without an error (stays `ComponentNN`); `component.attributes.add(group, name, value)` and `attributes.itemByName(group, name)` work there (gotcha 50) | [verified] 2026-11-20, 2706.1.17 |
 
 ## Modal dialogs and the main thread
 

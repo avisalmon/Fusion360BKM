@@ -4,6 +4,17 @@ The short version of every lesson in this blueprint, newest first, so you can se
 Each line points to where the full rule lives. Most of them came from something going wrong, or from checking an
 assumption against a running Fusion and finding it was not quite true.
 
+## 2026-11-20
+
+- **A case is proven by intersecting it with what it holds.** Board 12's case script builds the board, every part
+  and the power bank as reference bodies and intersects every printed part with each: all 0 mm3. Two deliberate
+  clashes proved the check sees what it should. [fusion_reference](fusion_reference.md)
+- **"It switched" needs proof of where it landed.** `ecad_open('3d')` took any design for the 3D board and built the
+  parts into the case; a name that Fusion silently refused let a re-run stack a second set of parts. Both were
+  caught by looking at the screenshot. [gotchas 49, 50](procedures/gotchas.md)
+- **The summary page carries the whole flow.** A board's page now shows the board in 3D and its case, captioned
+  with the README's own words.
+
 ## 2026-11-19
 
 - **Check what a command added, not only what it was asked to add.** Each ADD from our own library left an extra copy of the

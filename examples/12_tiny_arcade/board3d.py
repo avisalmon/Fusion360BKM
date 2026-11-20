@@ -23,13 +23,11 @@ PARTS = {  # ref: the library part
     **{f"SW{i}": "tact_switch_6x6" for i in range(1, 7)},
 }
 BOARD_TOP = 1.5  # the 3D board's body is 1.5 mm thick, read from Fusion 2026-11-19
-# the ESP32 plugs into two female headers, as on the owner's Tiny Arcade (8.5 mm, the standard
-# 2.54 mm female header; an assumption until the owner says how this board will be built)
-MOUNT = {"U1": 8.5}
-FEMALE_HEADERS = [  # ref, cx, cy (footprint frame), w, d, h
-    ("U1", -12.7, 0, 2.5, 48.3, 8.5),
-    ("U1", 12.7, 0, 2.5, 48.3, 8.5),
-]
+# the ESP32 is soldered straight onto the board (the owner's choice 2026-11-20), so no part is
+# lifted. Sockets instead would be MOUNT = {"U1": 8.5} and two FEMALE_HEADERS
+# ("U1", +-12.7, 0, 2.5, 48.3, 8.5): ref, cx, cy (footprint frame), w, d, h
+MOUNT = {}
+FEMALE_HEADERS = []
 COLOURS = {"esp32_devkitc_38": (30, 30, 30), "oled_096_i2c": (20, 60, 140),
            "buzzer_tmb12a03": (25, 25, 25), "tact_switch_6x6": (60, 60, 60)}  # fmt: skip
 
@@ -63,10 +61,14 @@ def cylinder(comp, ex, ey, angle, cx, cy, z0, dia, h):
 ecad_open("3d", timeout_s=120)
 des = adsk.fusion.Design.cast(app.activeProduct)
 top = des.rootComponent
-for occ in list(items(top.occurrences)):  # an earlier run's parts
-    if occ.component.name == "Parts 3D":
+TAG = ("Fusion360BKM", "role", "Parts 3D")
+# an earlier run's parts. Found by an attribute, not by name: in the 3D board's design a component
+# keeps its "ComponentNN" name whatever is set (gotcha 50)
+for occ in list(items(top.occurrences)):
+    if occ.component.attributes.itemByName(*TAG[:2]):
         occ.deleteMe()
 holder = new_component("Parts 3D", top)
+holder.attributes.add(*TAG)
 
 # each part's position and angle on the board: board.py's PLACE, which put it there
 PLACE = {}

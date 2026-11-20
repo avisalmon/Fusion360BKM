@@ -915,6 +915,33 @@ def page(folder):
             )
             + "</div>\n"
         )
+    # ---- the board in 3D and its case: the README's own pictures, captioned with its own words
+    readme = folder / "README.md"
+    alts = {}
+    if readme.exists():
+        for m in re.finditer(r"!\[([^\]]*)\]\((media/[^)]+)\)", readme.read_text(encoding="utf-8")):
+            alts.setdefault(m.group(2), m.group(1))
+    solid = [
+        p for p in alts if re.match(r"media/(board3d|case)[^/]*\.png$", p) and (folder / p).exists()
+    ]
+    if solid:
+        made_by = [s for s in ("board3d.py", "case.py") if (folder / s).exists()]
+        h.append(
+            "<h2>The board in 3D, and its case</h2><p>Each part built from the 3D model in its library record"
+            + (", the case around them" if any("case" in p for p in solid) else "")
+            + (
+                " (" + ", ".join(f'<a href="{s}"><code>{s}</code></a>' for s in made_by) + "). "
+                if made_by
+                else ". "
+            )
+            + 'What was checked, and what is still assumed, is in the <a href="README.md">README</a>\'s status table.</p>'
+            '<div class="shots">'
+            + "".join(
+                f'<figure><img src="{p}" alt="{esc(alts[p])}" loading="lazy"><figcaption>{esc(alts[p])}</figcaption></figure>'
+                for p in solid
+            )
+            + "</div>\n"
+        )
     # ---- netlist
     h.append(
         "<h2>The netlist, traced from intent to copper</h2>\n<p>Each net, followed through every stage. The intent is "

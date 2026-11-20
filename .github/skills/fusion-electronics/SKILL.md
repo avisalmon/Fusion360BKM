@@ -5,7 +5,8 @@ description: >
   parts looked up in Fusion's libraries, a readable schematic, a placed and routed board, Fusion's ERC and board
   check, our own netlist and rule check against the fab's limits (JLCPCB), Gerber and drill files from a CAM job,
   and a simulated factory that reads them back (electrical test, BOM, pick-and-place, upload zip). Verified on
-  Fusion 2706.1.17 with examples/10_led_switch_board; the 3D board and its case are the next step, not yet done.
+  Fusion 2706.1.17 with examples/10_led_switch_board; the board in 3D and a case around it with
+  examples/12_tiny_arcade (designed and checked, not yet printed).
   TRIGGER: "schematic", "circuit", "pcb", "board layout", "footprint", "electronics workspace", "eagle", "erc",
   "drc", "design rules", "netlist", "route", "gerber", "drill file", "factory files", "manufacture", "jlcpcb",
   "order the board", "bom", "pick and place", "component library", "3d pcb", "put the board in the box".
@@ -80,8 +81,21 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
    2026-11-18). `tests/test_board_summary.py` fails when a board with a `fusion/*.brd` has a stale or missing page.
 9. **Order** (human): upload the zip to the fab, compare its viewer with the preview. **Not yet done** in this repo:
    say so; the fab's own review and a real electrical test are unverified until the first order.
-10. **The board in 3D and the case**: not yet (backlog E3.7). `Switch3dPcbDocCmd` opens the 3D PCB; outline, holes
-   and connector positions are to feed `templates/parametric_box`.
+10. **The board in 3D and the case** (board 12, 2026-11-20: designed and checked in Fusion, not yet printed).
+   **STOP for the owner's review of the printing concept first** (what holds the board, how it opens, where cables
+   and the battery go, which way each part prints); then:
+   * `board3d.py`: `ecad_open('3d')` (it waits for the 3D board's own "Board" component, gotcha 49), then each
+     part built from the `model` in its library `part.json` (boxes and cylinders, every size with its source) at
+     its place from `board.py`. Mark what you build with an attribute, not a name (gotcha 50).
+   * `case.py`, in a plain new design: the board, its parts and anything else inside (a battery) as reference
+     bodies from the same sources, then the printed parts around them, each printed flat without supports; every
+     number at the top of the script. **Prove the fit by intersecting** every printed part with every reference
+     body (`TemporaryBRepManager`, fusion_reference): all must be 0 mm3. Prove the check once with a deliberate
+     clash. Then screenshots from several sides, the cover off, and the cover from below, and **look at each**.
+   * README pictures with alt text: `board_summary.py` puts `media/board3d*.png` and `media/case*.png` on the
+     summary page with those words.
+   Sizes that are assumed (a part's height, a battery bought online) stay marked "to be measured" until the
+   owner measures them.
 
 ## Rules while in this territory
 
@@ -118,7 +132,8 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
 ## Not done yet (do not claim these)
 
 Our own library (E3.5: parts with checked footprints, 3D models, MPN and supplier numbers), library parts explained
-as a lesson (E3.4), an order placed (E3.6), the 3D PCB and the case (E3.7), SMD parts and copper pours (no board has
+as a lesson (E3.4), an order placed (E3.6), a case printed and fitted to a real board (E3.7: board 12's case is
+designed and checked by intersection only), SMD parts and copper pours (no board has
 used them; the checks report pours as not modelled).
 
 ## Hand-off checklist

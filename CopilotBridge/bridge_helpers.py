@@ -824,8 +824,23 @@ def ecad_open(which, timeout_s=60.0):
         "3d": ("Switch3dPcbDocCmd", "DesignProductType"),
     }[which]
     _app.userInterface.commandDefinitions.itemById(cmd).execute()
-    if not _wait_for(lambda: _product_type() == ptype, timeout_s):
-        raise RuntimeError(f"ecad_open({which!r}): still {_product_type()} after {timeout_s} s")
+
+    def arrived():
+        if _product_type() != ptype:
+            return False
+        if which != "3d":
+            return True
+        # any ordinary design is a "DesignProductType" too: with a case design active, the switch
+        # did nothing and board 12's parts were built into the case (gotcha 49). The 3D board's
+        # design has a component "Board".
+        root_comp = adsk.fusion.Design.cast(_app.activeProduct).rootComponent
+        return any(o.component.name == "Board" for o in root_comp.occurrences)
+
+    if not _wait_for(arrived, timeout_s):
+        raise RuntimeError(
+            f"ecad_open({which!r}): not there after {timeout_s} s ({_product_type()} active); "
+            "is an electronics design the active document?"
+        )
     if which in ("sch", "brd"):
         # coordinates in commands are in the editor's grid unit; a new board is in mil, so
         # "MOVE (100 0)" meant 2.54 mm and dragged the wrong corner (gotcha 24)

@@ -150,3 +150,14 @@ def test_text_is_kept_readable_the_way_eagle_shows_it():
     assert 'text-anchor="end"' in mirrored
     sideways = bs.svg_text(0, 0, 1, "R270", "center", "D1")
     assert "rotate(-90" in sideways
+
+
+def test_the_3d_board_and_the_case_are_on_the_page_with_the_readmes_words():
+    page = bs.page(ROOT / "examples" / "12_tiny_arcade")
+    section = page.split("<h2>The board in 3D, and its case</h2>", 1)[1].split("<h2>", 1)[0]
+    assert 'src="media/board3d.png"' in section
+    assert 'src="media/case_closed.png"' in section
+    assert "<figcaption>The case, closed</figcaption>" in section  # the README's alt text
+    assert 'href="case.py"' in section
+    # a board with no 3D pictures has no such section
+    assert "The board in 3D, and its case" not in bs.page(ROOT / "examples" / "10_led_switch_board")
