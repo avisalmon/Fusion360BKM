@@ -9,7 +9,8 @@ description: >
   examples/12_tiny_arcade (designed and checked, not yet printed).
   TRIGGER: "schematic", "circuit", "pcb", "board layout", "footprint", "electronics workspace", "eagle", "erc",
   "drc", "design rules", "netlist", "route", "gerber", "drill file", "factory files", "manufacture", "jlcpcb",
-  "order the board", "bom", "pick and place", "component library", "3d pcb", "put the board in the box".
+  "order the board", "bom", "pick and place", "component library", "3d pcb", "put the board in the box",
+  "add a part to my library", "part library", "library page", "production package".
 ---
 
 # Fusion electronics: from a circuit in words to files a factory can make
@@ -109,6 +110,17 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
    Sizes that are assumed (a part's height, a battery bought online) stay marked "to be measured" until the
    owner measures them. Comfort is never claimed from the model: the template, then the print, in a hand.
 
+## Our part library (`library/<owner>/<part>/`, the format: [library/README.md](../../../library/README.md))
+
+Every part on our boards is a full library cell, and the library is published as the example of what one looks
+like (the owner's decision 2026-11-20: Avi's is public, with his deal "take one, give back two"; every user keeps
+their own folder). To add a part: the owner shows it (photos through `scripts/library_photo.py`: upright, no
+metadata, never a person's face); identify it and confirm every pin **on the part** with the owner; write
+`part.json` (every size with its source and tag); `python scripts\library_build.py library\<owner>` makes its
+`.lbr`; place it in a fresh Fusion design, read the pads back and screenshot symbol and footprint into `fusion/`;
+add its `model` (boxes and cylinders with sources, so the board in 3D and the case can be built); then
+`python scripts\library_page.py` rewrites `library/index.html` (a test fails when it is stale).
+
 ## Rules while in this territory
 
 * **The repo is the source of truth; Fusion is the vehicle** (the owner's rule, 2026-11-17). A board is its
@@ -143,7 +155,7 @@ Fusion staying quiet (it silently refuses rule-breaking edits, gotcha 29).
 
 ## Not done yet (do not claim these)
 
-Our own library (E3.5: parts with checked footprints, 3D models, MPN and supplier numbers), library parts explained
+MPN and supplier numbers for our library's parts (E3.5), library parts explained
 as a lesson (E3.4), an order placed (E3.6), a case printed and fitted to a real board (E3.7: board 12's case is
 designed and checked by intersection only), SMD parts and copper pours (no board has
 used them; the checks report pours as not modelled).

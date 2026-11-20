@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Part library | Fusion 360 BKM</title>
+<meta name="description" content="Real electronic parts from a real shelf, each a full library cell: photos, pins, footprint, symbol and 3D model, checked in Fusion. Take one, give back two.">
+<style>
+:root { --bg:#f7f8fb; --panel:#fff; --ink:#17202e; --muted:#556173; --line:#dfe4ec; --accent:#c2410c;
+  --accent-ink:#fff; --accent-soft:#fdebe0; --cool:#0a6b8f; --cool-soft:#e2f1f6; --ok:#15803d; --todo:#9aa3b2;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.06); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0e131b; --panel:#161d28;
+  --ink:#e9eef5; --muted:#a3afc0; --line:#273142; --accent:#f59e6b; --accent-ink:#2a1206; --accent-soft:#3a2416;
+  --cool:#4cc9d9; --cool-soft:#11303a; --ok:#4ade80; --todo:#5b6577; --shadow:none; } }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--ink); font-family:"Segoe UI","Heebo",Arial,sans-serif; font-size:16px; line-height:1.6; }
+.he [lang="en"], .en [lang="he"] { display:none !important; }
+a { color:var(--cool); }
+.wrap { max-width:1120px; margin:0 auto; padding:0 16px; }
+.top { position:sticky; top:0; z-index:10; background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+.top .wrap { display:flex; align-items:center; justify-content:space-between; gap:12px; height:56px; }
+.brand { font-weight:700; display:flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none; }
+.brand-dot { width:22px; height:22px; border-radius:6px; background:var(--accent); }
+.lang-switch { display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; }
+.lang-switch button { border:0; background:transparent; color:var(--muted); font:inherit; font-size:14px; padding:4px 14px; cursor:pointer; min-height:32px; }
+.lang-switch button[aria-pressed="true"] { background:var(--accent); color:var(--accent-ink); }
+.hero { padding:44px 0 20px; }
+.hero h1 { font-size:38px; line-height:1.15; margin-bottom:10px; }
+.hero p { font-size:19px; color:var(--muted); max-width:780px; }
+.duo { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin:22px 0 8px; }
+.box { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow); }
+.box.deal { background:var(--accent-soft); border-color:transparent; }
+.box h2 { font-size:22px; margin-bottom:6px; }
+.box ol { margin:8px 0 0; padding-inline-start:22px; }
+.box li { margin:4px 0; }
+.anatomy { font-family:Consolas,"Cascadia Code",ui-monospace,monospace; font-size:13.5px; background:var(--cool-soft);
+  border-radius:10px; padding:10px 12px; margin-top:8px; direction:ltr; text-align:left; white-space:pre; overflow-x:auto; }
+.bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:26px 0 14px; }
+.bar input { flex:1 1 220px; min-height:40px; border:1px solid var(--line); border-radius:999px; padding:6px 16px;
+  font:inherit; background:var(--panel); color:var(--ink); }
+.chip, .bar button { display:inline-block; border:1px solid var(--line); background:var(--panel); color:var(--ink);
+  border-radius:999px; padding:3px 12px; font:inherit; font-size:14px; text-decoration:none; cursor:pointer; }
+.bar button[aria-pressed="true"] { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+.count { color:var(--muted); font-size:14px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; margin-bottom:40px; align-items:start; }
+.part { background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:var(--shadow);
+  display:flex; flex-direction:column; }
+.part[hidden] { display:none; }
+.pic { aspect-ratio:4/3; background:#e9edf3; display:grid; place-items:center; overflow:hidden; }
+.pic img { width:100%; height:100%; object-fit:cover; }
+.noimg { color:var(--muted); }
+.part .body { padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1; }
+.cat { font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--accent); }
+.part h3 { font-size:18px; line-height:1.3; }
+.desc { color:var(--muted); font-size:15px; }
+.where, .used { font-size:14px; }
+.checks { list-style:none; display:flex; flex-wrap:wrap; gap:6px 12px; font-size:14px; }
+.checks .ok b { color:var(--ok); } .checks .todo { color:var(--todo); }
+.actions { padding-top:6px; }
+.btn { display:inline-block; background:var(--accent); color:var(--accent-ink); padding:7px 16px; border-radius:999px;
+  text-decoration:none; font-weight:700; font-size:15px; }
+details { border-top:1px solid var(--line); margin-top:8px; padding-top:8px; font-size:14.5px; }
+summary { cursor:pointer; font-weight:700; color:var(--cool); }
+details h4 { margin:12px 0 4px; font-size:15px; }
+details p { margin:4px 0; }
+.gallery, .drawn { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin:8px 0; }
+.gallery img, .drawn img { width:100%; border-radius:8px; border:1px solid var(--line); background:#fff; }
+figure figcaption { font-size:12.5px; color:var(--muted); }
+.tw { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; font-size:13.5px; }
+th, td { padding:4px 8px; border-bottom:1px solid var(--line); text-align:start; vertical-align:top; }
+th { background:var(--cool-soft); }
+.dims { padding-inline-start:18px; }
+.muted { color:var(--muted); }
+code { font-family:Consolas,ui-monospace,monospace; font-size:13px; background:var(--cool-soft); padding:1px 5px; border-radius:5px; direction:ltr; unicode-bidi:embed; }
+footer { padding:24px 0 40px; color:var(--muted); font-size:14px; border-top:1px solid var(--line); }
+@media (max-width:600px) { .hero h1 { font-size:30px; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+<a class="brand" href="../index.html"><span class="brand-dot"></span><span>Fusion 360 BKM</span></a>
+<div class="lang-switch" role="group" aria-label="Language / שפה">
+<button type="button" data-set-lang="he" aria-pressed="true">עברית</button>
+<button type="button" data-set-lang="en" aria-pressed="false">English</button>
+</div></div></header>
+<main>
+<div class="hero"><div class="wrap">
+<h1><span lang="he">ספריית הרכיבים: חלקים אמיתיים מהמדף</span><span lang="en">The part library: real parts from a real shelf</span></h1>
+<p><span lang="he">4 רכיבים של Avi Salmon. כל אחד הוא תא ספרייה שלם: תמונות, פינים, פוטפרינט וסימבול שנבדקו ב-Fusion, ומודל תלת-מימד. מכאן נבנים הלוחות והקופסאות בדוגמאות.</span><span lang="en">4 parts of Avi Salmon's. Each is a full library cell: photos, pins, a footprint and a symbol checked in Fusion, and a 3D model. The example boards and their cases are built from them.</span></p>
+<div class="duo">
+<div class="box deal">
+<h2><span lang="he">לוקחים אחד, מחזירים שניים</span><span lang="en">Take one, give back two</span></h2>
+<p><span lang="he">צריכים רכיב עכשיו? אין צורך לחכות חודש ל-AliExpress. קחו מהמדף שלי, והזמינו שניים שיחזרו אליי כשיגיעו. הרכיבים זולים, והמדף רק גדל.</span><span lang="en">Need a part now? No need to wait a month for AliExpress. Take it from my shelf, and order two that come back to me when they arrive. The parts are cheap, and the shelf only grows.</span></p>
+<ol>
+<li><span lang="he">מוצאים את הרכיב למטה.</span><span lang="en">Find the part below.</span></li>
+<li><span lang="he">לוחצים "אני רוצה אחד" (נפתחת בקשה ב-GitHub), או פשוט שואלים את אבי.</span><span lang="en">Click "I want one" (it opens a request on GitHub), or just ask Avi.</span></li>
+<li><span lang="he">לוקחים אותו היום, מזמינים שניים, ומביאים אותם כשהם מגיעים.</span><span lang="en">Take it today, order two, and bring them when they arrive.</span></li>
+</ol></div>
+<div class="box">
+<h2><span lang="he">ככה נראית ספרייה</span><span lang="en">What a library looks like</span></h2>
+<p><span lang="he">לכל משתמש ספרייה משלו, במאגר שלו. זו של אבי פתוחה לכולם, כדוגמה. בצ'אט אומרים "הוסף רכיב לספרייה שלי" ומראים לו את הרכיב:</span><span lang="en">Every user keeps their own library, in their own repository. Avi's is public, as an example. In the chat, say "add a part to my library" and show it the part:</span></p>
+<div class="anatomy">library/&lt;your_name&gt;/&lt;part&gt;/
+  part.json     what it is, where it lives, pins, footprint,
+                every size with its source, status, 3D model
+  photos/       your photos, upright, no metadata
+  &lt;part&gt;.lbr    the Fusion library, generated from part.json
+  fusion/       the symbol and footprint as Fusion drew them</div>
+<p style="margin-top:8px"><a href="README.md">library/README.md</a> · <a href="../examples/12_tiny_arcade/index.html"><span lang="he">לוח שנבנה מהספרייה: Tiny Arcade</span><span lang="en">A board built from it: Tiny Arcade</span></a></p>
+</div></div>
+<div class="bar">
+<input id="q" type="search" placeholder="search: esp32, button, i2c, gnd ..." aria-label="search">
+<button type="button" data-cat-filter="" aria-pressed="true"><span lang="he">הכול</span><span lang="en">All</span></button>
+<button type="button" data-cat-filter="Display" aria-pressed="false"><bdi>Display</bdi></button>
+<button type="button" data-cat-filter="Microcontroller module" aria-pressed="false"><bdi>Microcontroller module</bdi></button>
+<button type="button" data-cat-filter="Sound" aria-pressed="false"><bdi>Sound</bdi></button>
+<button type="button" data-cat-filter="Switch" aria-pressed="false"><bdi>Switch</bdi></button>
+<span class="count" id="count"></span>
+</div>
+<div class="grid">
+<article class="part" data-cat="Sound" data-words="active buzzer tmb12a03, 3 v, 12 mm buzzer_tmb12a03 sound active magnetic buzzer: it has its own oscillator, so plain dc on its legs gives a steady tone of about 2.3 to 2.4 khz (no pwm needed). rated 3 v. the + leg is marked on the body and the seal sticker. the seal keeps flux out during washing: peel it off after soldering, or the buzzer stays quiet. + -" id="buzzer_tmb12a03">
+<div class="pic"><img src="avi_salmon/buzzer_tmb12a03/photos/top.jpg" alt="Active buzzer TMB12A03, 3 V, 12 mm" loading="lazy"></div>
+<div class="body">
+<span class="cat"><bdi>Sound</bdi></span>
+<h3><bdi>Active buzzer TMB12A03, 3 V, 12 mm</bdi></h3>
+<p class="desc"><bdi>Active magnetic buzzer: it has its own oscillator, so plain DC on its legs gives a steady tone of about 2.3 to 2.4 kHz (no PWM needed).</bdi></p>
+<p class="where"><span lang="he">איפה</span><span lang="en">Where</span>: <b><bdi>kit</bdi></b></p>
+<ul class="checks">
+<li class="ok" title="2026-11-19: placed in a schematic in Fusion 2706.1.17, pins + and - read back, looked at (fusion/symbol.png)"><b>✓</b> <span lang="he">סימבול</span><span lang="en">symbol</span></li>
+<li class="ok" title="2026-11-19: generated (library_build.py), placed on a board in Fusion 2706.1.17 from this part&#x27;s .lbr, pads read back 7.6 mm apart with pad 1 (+) square, looked at (fusion/footprint.png)"><b>✓</b> <span lang="he">פוטפרינט</span><span lang="en">footprint</span></li>
+<li class="ok" title="2026-11-19: a simple model in part.json (model), built by examples/12_tiny_arcade/board3d.py; from the listings"><b>✓</b> <span lang="he">מודל תלת-מימד</span><span lang="en">3D model</span></li>
+</ul>
+<p class="used"><span lang="he">על הלוחות</span><span lang="en">On boards</span>: <a class="chip" href="../examples/12_tiny_arcade/index.html"><bdi>12 Tiny Arcade</bdi></a></p>
+<div class="actions">
+<a class="btn" href="https://github.com/avisalmon/Fusion360BKM/issues/new?title=Take%20one%2C%20give%20back%20two%3A%20Active%20buzzer%20TMB12A03%2C%203%20V%2C%2012%20mm&amp;body=I%20would%20like%20to%20borrow%3A%20Active%20buzzer%20TMB12A03%2C%203%20V%2C%2012%20mm%20%28library%2Favi_salmon%2Fbuzzer_tmb12a03%29.%0AI%20will%20order%20two%20and%20bring%20them%20back%20when%20they%20arrive."><span lang="he">אני רוצה אחד</span><span lang="en">I want one</span></a>
+</div>
+<details>
+<summary><span lang="he">כל הפרטים</span><span lang="en">All the details</span></summary>
+<p dir="auto">Active magnetic buzzer: it has its own oscillator, so plain DC on its legs gives a steady tone of about 2.3 to 2.4 kHz (no PWM needed). Rated 3 V. The + leg is marked on the body and the seal sticker. The seal keeps flux out during washing: peel it off after soldering, or the buzzer stays quiet.</p>
+<div class="drawn"><figure><img src="avi_salmon/buzzer_tmb12a03/fusion/symbol.png" alt="symbol" loading="lazy"><figcaption>symbol, <span lang="he">כפי ש-Fusion ציירה</span><span lang="en">as Fusion drew it</span></figcaption></figure><figure><img src="avi_salmon/buzzer_tmb12a03/fusion/footprint.png" alt="footprint" loading="lazy"><figcaption>footprint, <span lang="he">כפי ש-Fusion ציירה</span><span lang="en">as Fusion drew it</span></figcaption></figure></div>
+<h4><span lang="he">פינים</span><span lang="en">Pins</span></h4><div class="tw"><table dir="ltr">
+<tr><th>#</th><th>name</th><th>kind</th><th>note</th></tr>
+<tr><td>1</td><td><b>+</b></td><td>pas</td><td>positive: straight to the 3V3 rail</td></tr>
+<tr><td>2</td><td><b>-</b></td><td>pas</td><td>negative: to the transistor&#x27;s collector or drain, which switches it to GND</td></tr>
+</table></div>
+<h4><span lang="he">מידות, ומאיפה כל אחת</span><span lang="en">Dimensions, and where each came from</span></h4><ul class="dims" dir="ltr">
+<li><b>pitch</b>: 7.6 mm <span class="muted">(the sellers&#x27; listings (pitch 7.6 mm) and the footprint name BUZ-TH_BD12.0-P7.60; the owner measured about 8 mm with a ruler, 2026-11-19)</span></li>
+<li><b>diameter</b>: 12.0 mm <span class="muted">(the sellers&#x27; listings (12 mm); not measured on this one)</span></li>
+<li><b>height</b>: 9.5 mm <span class="muted">(the sellers&#x27; listings (9.5 mm above the board); not measured on this one: measure before the box)</span></li>
+</ul>
+<h4><span lang="he">פוטפרינט</span><span lang="en">Footprint</span></h4><p><code>type single_row, name BUZZER_TMB12A03, per_row 2, pitch 7.6, drill 1.0, pad 1.8, body_diameter 12.0</code></p>
+<p class="muted" dir="auto">pitch 7.6 mm from the sellers&#x27; listings and the common footprint BUZ-TH_BD12.0-P7.60; the owner measured about 8 mm with a ruler, which agrees within a ruler&#x27;s reading. Drill 1.0 mm for legs of about 0.6 mm. The circle is the 12 mm body</p>
+<h4><span lang="he">מודל תלת-מימד</span><span lang="en">3D model</span></h4><p><span lang="he">0 תיבות ו-1 גלילים, לכל מידה המקור שלה; ממנו נבנים הלוח בתלת-מימד והקופסה.</span><span lang="en">0 boxes and 1 cylinders, every size with its source; the board in 3D and the case are built from it.</span></p>
+<h4><span lang="he">קבצים</span><span lang="en">Files</span></h4><p class="files"><a href="https://www.lcsc.com/datasheet/lcsc_datasheet_Jiangsu-Huaneng-Elec-TMB12A03_C96222.pdf">datasheet</a> · <a href="avi_salmon/buzzer_tmb12a03/part.json">part.json</a> · <a href="avi_salmon/buzzer_tmb12a03/buzzer_tmb12a03.lbr">buzzer_tmb12a03.lbr</a></p>
+<p class="muted"><span lang="he">יצרן</span><span lang="en">Maker</span>: <bdi>TMB12A03 (made by Huaneng and by YUEXIN, among others; the maker of this one is not marked)</bdi></p>
+</details>
+</div>
+</article>
+<article class="part" data-cat="Microcontroller module" data-words="esp32 devkitc, 38 pins (clone) esp32_devkitc_38 microcontroller module esp32 development board: esp-wroom-32 module, cp2102 usb-to-serial, micro-usb, 3.3 v regulator, rst and boot buttons. pin order equal to espressif&#x27;s esp32-devkitc v4. 3v3 en svp svn g34 g35 g32 g33 g25 g26 g27 g14 g12 gnd g13 sd2 sd3 cmd 5v gnd g23 g22 txd rxd g21 gnd g19 g18 g5 g17 g16 g4 g0 g2 g15 sd1 sd0 clk" id="esp32_devkitc_38">
+<div class="pic"><img src="avi_salmon/esp32_devkitc_38/photos/top.jpg" alt="ESP32 DevKitC, 38 pins (clone)" loading="lazy"></div>
+<div class="body">
+<span class="cat"><bdi>Microcontroller module</bdi></span>
+<h3><bdi>ESP32 DevKitC, 38 pins (clone)</bdi></h3>
+<p class="desc"><bdi>ESP32 development board: ESP-WROOM-32 module, CP2102 USB-to-serial, micro-USB, 3.3 V regulator, RST and BOOT buttons.</bdi></p>
+<p class="where"><span lang="he">איפה</span><span lang="en">Where</span>: <b><bdi>kit</bdi></b></p>
+<ul class="checks">
+<li class="ok" title="2026-11-19: placed in a schematic in Fusion 2706.1.17, every pin name read back in order, looked at (fusion/symbol.png)"><b>✓</b> <span lang="he">סימבול</span><span lang="en">symbol</span></li>
+<li class="ok" title="2026-11-19: generated (library_build.py), placed on a board in Fusion 2706.1.17 from this part&#x27;s .lbr, pads read back (pitch and row spacing exact), looked at (fusion/footprint.png)"><b>✓</b> <span lang="he">פוטפרינט</span><span lang="en">footprint</span></li>
+<li class="ok" title="2026-11-19: a simple model in part.json (model), built by examples/12_tiny_arcade/board3d.py; from the sources in each line; the header and socket sizes are common values, not measured"><b>✓</b> <span lang="he">מודל תלת-מימד</span><span lang="en">3D model</span></li>
+</ul>
+<p class="used"><span lang="he">על הלוחות</span><span lang="en">On boards</span>: <a class="chip" href="../examples/12_tiny_arcade/index.html"><bdi>12 Tiny Arcade</bdi></a></p>
+<div class="actions">
+<a class="btn" href="https://github.com/avisalmon/Fusion360BKM/issues/new?title=Take%20one%2C%20give%20back%20two%3A%20ESP32%20DevKitC%2C%2038%20pins%20%28clone%29&amp;body=I%20would%20like%20to%20borrow%3A%20ESP32%20DevKitC%2C%2038%20pins%20%28clone%29%20%28library%2Favi_salmon%2Fesp32_devkitc_38%29.%0AI%20will%20order%20two%20and%20bring%20them%20back%20when%20they%20arrive."><span lang="he">אני רוצה אחד</span><span lang="en">I want one</span></a>
+</div>
+<details>
+<summary><span lang="he">כל הפרטים</span><span lang="en">All the details</span></summary>
+<p dir="auto">ESP32 development board: ESP-WROOM-32 module, CP2102 USB-to-serial, micro-USB, 3.3 V regulator, RST and BOOT buttons. Pin order equal to Espressif&#x27;s ESP32-DevKitC V4.</p>
+<div class="gallery"><img src="avi_salmon/esp32_devkitc_38/photos/side.jpg" alt="ESP32 DevKitC, 38 pins (clone)" loading="lazy"></div>
+<div class="drawn"><figure><img src="avi_salmon/esp32_devkitc_38/fusion/symbol.png" alt="symbol" loading="lazy"><figcaption>symbol, <span lang="he">כפי ש-Fusion ציירה</span><span lang="en">as Fusion drew it</span></figcaption></figure><figure><img src="avi_salmon/esp32_devkitc_38/fusion/footprint.png" alt="footprint" loading="lazy"><figcaption>footprint, <span lang="he">כפי ש-Fusion ציירה</span><span lang="en">as Fusion drew it</span></figcaption></figure></div>
+<h4><span lang="he">פינים</span><span lang="en">Pins</span></h4><div class="tw"><table dir="ltr">
+<tr><th>#</th><th>name</th><th>kind</th><th>note</th></tr>
+<tr><td>1</td><td><b>3V3</b></td><td>supply</td><td>3.3 V out of the board&#x27;s regulator</td></tr>
+<tr><td>2</td><td><b>EN</b></td><td>input</td><td>reset, low = reset (RST button)</td></tr>
+<tr><td>3</td><td><b>SVP</b></td><td>input</td><td>GPIO36, input only, no pull-up</td></tr>
+<tr><td>4</td><td><b>SVN</b></td><td>input</td><td>GPIO39, input only, no pull-up</td></tr>
+<tr><td>5</td><td><b>G34</b></td><td>input</td><td>GPIO34, input only, no pull-up</td></tr>
+<tr><td>6</td><td><b>G35</b></td><td>input</td><td>GPIO35, input only, no pull-up</td></tr>
+<tr><td>7</td><td><b>G32</b></td><td>io</td><td>GPIO32</td></tr>
+<tr><td>8</td><td><b>G33</b></td><td>io</td><td>GPIO33</td></tr>
+<tr><td>9</td><td><b>G25</b></td><td>io</td><td>GPIO25, DAC1</td></tr>
+<tr><td>10</td><td><b>G26</b></td><td>io</td><td>GPIO26, DAC2</td></tr>
+<tr><td>11</td><td><b>G27</b></td><td>io</td><td>GPIO27</td></tr>
+<tr><td>12</td><td><b>G14</b></td><td>io</td><td>GPIO14</td></tr>
+<tr><td>13</td><td><b>G12</b></td><td>io</td><td>GPIO12, strapping pin: keep low at boot</td></tr>
+<tr><td>14</td><td><b>GND</b></td><td>power</td><td>ground</td></tr>
+<tr><td>15</td><td><b>G13</b></td><td>io</td><td>GPIO13</td></tr>
+<tr><td>16</td><td><b>SD2</b></td><td>nc</td><td>GPIO9, wired to the module&#x27;s flash: do not use</td></tr>
+<tr><td>17</td><td><b>SD3</b></td><td>nc</td><td>GPIO10, wired to the module&#x27;s flash: do not use</td></tr>
+<tr><td>18</td><td><b>CMD</b></td><td>nc</td><td>GPIO11, wired to the module&#x27;s flash: do not use</td></tr>
+<tr><td>19</td><td><b>5V</b></td><td>supply</td><td>5 V from USB, or 5 V in</td></tr>
+<tr><td>20</td><td><b>GND</b></td><td>power</td><td>ground</td></tr>
+<tr><td>21</td><td><b>G23</b></td><td>io</td><td>GPIO23, VSPI MOSI</td></tr>
+<tr><td>22</td><td><b>G22</b></td><td>io</td><td>GPIO22, I2C SCL by convention</td></tr>
+<tr><td>23</td><td><b>TXD</b></td><td>io</td><td>GPIO1, UART0 TX to the USB chip</td></tr>
+<tr><td>24</td><td><b>RXD</b></td><td>io</td><td>GPIO3, UART0 RX from the USB chip</td></tr>
+<tr><td>25</td><td><b>G21</b></td><td>io</td><td>GPIO21, I2C SDA by convention</td></tr>
+<tr><td>26</td><td><b>GND</b></td><td>power</td><td>ground</td></tr>
+<tr><td>27</td><td><b>G19</b></td><td>io</td><td>GPIO19, VSPI MISO</td></tr>
+<tr><td>28</td><td><b>G18</b></td><td>io</td><td>GPIO18, VSPI SCK</td></tr>
+<tr><td>29</td><td><b>G5</b></td><td>io</td><td>GPIO5, strapping pin</td></tr>
+<tr><td>30</td><td><b>G17</b></td><td>io</td><td>GPIO17</td></tr>
+<tr><td>31</td><td><b>G16</b></td><td>io</td><td>GPIO16</td></tr>
+<tr><td>32</td><td><b>G4</b></td><td>io</td><td>GPIO4</td></tr>
+<tr><td>33</td><td><b>G0</b></td><td>io</td><td>GPIO0, strapping pin: low at reset = download mode (BOOT button)</td></tr>
+<tr><td>34</td><td><b>G2</b></td><td>io</td><td>GPIO2, strapping pin; an LED on many clones</td></tr>
+<tr><td>35</td><td><b>G15</b></td><td>io</td><td>GPIO15, strapping pin</td></tr>
+<tr><td>36</td><td><b>SD1</b></td><td>nc</td><td>GPIO8, wired to the module&#x27;s flash: do not use</td></tr>
+<tr><td>37</td><td><b>SD0</b></td><td>nc</td><td>GPIO7, wired to the module&#x27;s flash: do not use</td></tr>
+<tr><td>38</td><td><b>CLK</b></td><td>nc</td><td>GPIO6, wired to the module&#x27;s flash: do not use</td></tr>
+</table></div>
+<h4><span lang="he">מידות, ומאיפה כל אחת</span><span lang="en">Dimensions, and where each came from</span></h4><ul class="dims" dir="ltr">
+<li><b>pitch</b>: 2.54 mm <span class="muted">(the owner, 2026-11-19)</span></li>
+<li><b>row_spacing</b>: 25.4 mm <span class="muted">(the owner, 2026-11-19; the top photo, scaled by the pitch, agrees)</span></li>
+<li><b>board</b>: [27.9, 54.4] mm <span class="muted">(Espressif&#x27;s DevKitC V4 guide; the top photo, scaled by the pitch, gives about 27.5 x 53 (rough): not measured on this board yet)</span></li>
+<li><b>pcb_thickness</b>: 1.6 mm <span class="muted">(estimate from photos/side.jpg, not measured)</span></li>
+<li><b>tallest_above_board</b>: 3.2 mm <span class="muted">(estimate (the ESP-WROOM-32 can and the micro-USB socket), not measured)</span></li>
+</ul>
+<h4><span lang="he">פוטפרינט</span><span lang="en">Footprint</span></h4><p><code>type dual_row, name ESP32_DEVKITC_38, per_row 19, pitch 2.54, row_spacing 25.4, drill 1.0, pad 1.7, body [27.9, 54.4]</code></p>
+<p class="muted" dir="auto">drill 1.0 mm for 0.64 mm square header pins (diagonal 0.9 mm), pad 1.7 mm: the common 2.54 mm header land; the body outline is drawn centred on the pins</p>
+<h4><span lang="he">מודל תלת-מימד</span><span lang="en">3D model</span></h4><p><span lang="he">5 תיבות ו-0 גלילים, לכל מידה המקור שלה; ממנו נבנים הלוח בתלת-מימד והקופסה.</span><span lang="en">5 boxes and 0 cylinders, every size with its source; the board in 3D and the case are built from it.</span></p>
+<h4><span lang="he">קבצים</span><span lang="en">Files</span></h4><p class="files"><a href="https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitc/user_guide.html">datasheet</a> · <a href="avi_salmon/esp32_devkitc_38/part.json">part.json</a> · <a href="avi_salmon/esp32_devkitc_38/esp32_devkitc_38.lbr">esp32_devkitc_38.lbr</a></p>
+<p class="muted"><span lang="he">יצרן</span><span lang="en">Maker</span>: <bdi>unknown (clone of Espressif ESP32-DevKitC V4)</bdi></p>
+</details>
+</div>
+</article>
+<article class="part" data-cat="Display" data-words="oled display 0.96 inch, 128 x 64, i2c (4 pins) oled_096_i2c display monochrome oled module with a 4-pin i2c header (gnd, vcc, scl, sda), four corner mounting holes, the glass panel&#x27;s flex cable folded behind the board. most modules like this use the ssd1306 controller at i2c address 0x3c; the controller on this one is not read yet. gnd vcc scl sda" id="oled_096_i2c">
+<div class="pic"><img src="avi_salmon/oled_096_i2c/photos/top.jpg" alt="OLED display 0.96 inch, 128 x 64, I2C (4 pins)" loading="lazy"></div>
+<div class="body">
+<span class="cat"><bdi>Display</bdi></span>
+<h3><bdi>OLED display 0.96 inch, 128 x 64, I2C (4 pins)</bdi></h3>
+<p class="desc"><bdi>Monochrome OLED module with a 4-pin I2C header (GND, VCC, SCL, SDA), four corner mounting holes, the glass panel&#x27;s flex cable folded behind the board.</bdi></p>
+<p class="where"><span lang="he">איפה</span><span lang="en">Where</span>: <b><bdi>kit</bdi></b></p>
+<ul class="checks">
+<li class="ok" title="2026-11-19: placed in a schematic in Fusion 2706.1.17, every pin name read back in order, looked at (fusion/symbol.png)"><b>✓</b> <span lang="he">סימבול</span><span lang="en">symbol</span></li>
+<li class="ok" title="2026-11-19: generated (library_build.py), placed on a board in Fusion 2706.1.17 from this part&#x27;s .lbr, pads read back (pitch and row spacing exact), looked at (fusion/footprint.png)"><b>✓</b> <span lang="he">פוטפרינט</span><span lang="en">footprint</span></li>
+<li class="ok" title="2026-11-19: a simple model in part.json (model), built by examples/12_tiny_arcade/board3d.py; the glass size and position are the common panel&#x27;s, not measured on this one"><b>✓</b> <span lang="he">מודל תלת-מימד</span><span lang="en">3D model</span></li>
+</ul>
+<p class="used"><span lang="he">על הלוחות</span><span lang="en">On boards</span>: <a class="chip" href="../examples/12_tiny_arcade/index.html"><bdi>12 Tiny Arcade</bdi></a></p>
+<div class="actions">
+<a class="btn" href="https://github.com/avisalmon/Fusion360BKM/issues/new?title=Take%20one%2C%20give%20back%20two%3A%20OLED%20display%200.96%20inch%2C%20128%20x%2064%2C%20I2C%20%284%20pins%29&amp;body=I%20would%20like%20to%20borrow%3A%20OLED%20display%200.96%20inch%2C%20128%20x%2064%2C%20I2C%20%284%20pins%29%20%28library%2Favi_salmon%2Foled_096_i2c%29.%0AI%20will%20order%20two%20and%20bring%20them%20back%20when%20they%20arrive."><span lang="he">אני רוצה אחד</span><span lang="en">I want one</span></a>
+</div>
+<details>
+<summary><span lang="he">כל הפרטים</span><span lang="en">All the details</span></summary>
+<p dir="auto">Monochrome OLED module with a 4-pin I2C header (GND, VCC, SCL, SDA), four corner mounting holes, the glass panel&#x27;s flex cable folded behind the board. Most modules like this use the SSD1306 controller at I2C address 0x3C; the controller on this one is not read yet.</p>
+<div class="gallery"><img src="avi_salmon/oled_096_i2c/photos/side.jpg" alt="OLED display 0.96 inch, 128 x 64, I2C (4 pins)" loading="lazy"></div>
+<div class="drawn"><figure><img src="avi_salmon/oled_096_i2c/fusion/symbol.png" alt="symbol" loading="lazy"><figcaption>symbol, <span lang="he">כפי ש-Fusion ציירה</span><span lang="en">as Fusion drew it</span></figcaption></figure><figure><img src="avi_salmon/oled_096_i2c/fusion/footprint.png" alt="footprint" loading="lazy"><figcaption>footprint, <span lang="he">כפי ש-Fusion ציירה</span><span lang="en">as Fusion drew it</span></figcaption></figure></div>
+<h4><span lang="he">פינים</span><span lang="en">Pins</span></h4><div class="tw"><table dir="ltr">
+<tr><th>#</th><th>name</th><th>kind</th><th>note</th></tr>
+<tr><td>1</td><td><b>GND</b></td><td>power</td><td>ground. Check the label: on some modules VCC comes first, and swapping them can kill the display</td></tr>
+<tr><td>2</td><td><b>VCC</b></td><td>supply</td><td>supply, 3.3 V to 5 V on most modules (a regulator on the back); not checked on this one</td></tr>
+<tr><td>3</td><td><b>SCL</b></td><td>input</td><td>I2C clock (on the ESP32 by convention G22)</td></tr>
+<tr><td>4</td><td><b>SDA</b></td><td>io</td><td>I2C data (on the ESP32 by convention G21)</td></tr>
+</table></div>
+<h4><span lang="he">מידות, ומאיפה כל אחת</span><span lang="en">Dimensions, and where each came from</span></h4><ul class="dims" dir="ltr">
+<li><b>pitch</b>: 2.54 mm <span class="muted">(a standard 2.54 mm header (the photo, scaled by the board&#x27;s holes, agrees); not measured)</span></li>
+<li><b>board</b>: [27.3, 27.3] mm <span class="muted">(the common size of this module in sellers&#x27; listings (27.3 x 27.3, 27.3 x 27.8; other makers 26 or 28 square); the owner: a standard 0.96 inch module, 2026-11-19; not measured on this one)</span></li>
+<li><b>holes</b>: &quot;4, 2.0 mm diameter, near the corners; spacing not known&quot; mm <span class="muted">(diameter from DFRobot&#x27;s SSD1306 module page (a similar module); no listing gives the spacing: measure before the box)</span></li>
+</ul>
+<h4><span lang="he">פוטפרינט</span><span lang="en">Footprint</span></h4><p><code>type single_row, name OLED_096_I2C_4P, per_row 4, pitch 2.54, drill 1.0, pad 1.7, body [27.3, 27.3]</code></p>
+<p class="muted" dir="auto">drill 1.0 mm, pad 1.7 mm: the common 2.54 mm header land. The outline, 27.3 x 27.3 mm (the common size of this module) with the pins 1.4 mm below its top edge (from the top photo): not measured on this one</p>
+<h4><span lang="he">מודל תלת-מימד</span><span lang="en">3D model</span></h4><p><span lang="he">3 תיבות ו-0 גלילים, לכל מידה המקור שלה; ממנו נבנים הלוח בתלת-מימד והקופסה.</span><span lang="en">3 boxes and 0 cylinders, every size with its source; the board in 3D and the case are built from it.</span></p>
+<h4><span lang="he">קבצים</span><span lang="en">Files</span></h4><p class="files"><a href="avi_salmon/oled_096_i2c/part.json">part.json</a> · <a href="avi_salmon/oled_096_i2c/oled_096_i2c.lbr">oled_096_i2c.lbr</a></p>
+<p class="muted"><span lang="he">יצרן</span><span lang="en">Maker</span>: <bdi>unknown (generic module)</bdi></p>
+</details>
+</div>
+</article>
+<article class="part" data-cat="Switch" data-words="tactile push button 6 x 6 mm, through-hole, 4 legs tact_switch_6x6 switch momentary push button: pressing it connects its two contacts, letting go opens them. four legs in a 6.5 x 4.5 mm rectangle; each leg is joined inside to the leg straight across the body (6.5 mm), and the two legs on the same side (4.5 mm) are the switch. on an esp32: one contact to a gpio, the other to gnd, with the pin&#x27;s internal pull-up on (pressed reads 0). 1 2" id="tact_switch_6x6">
+<div class="pic"><img src="avi_salmon/tact_switch_6x6/photos/top_and_pinout.jpg" alt="Tactile push button 6 x 6 mm, through-hole, 4 legs" loading="lazy"></div>
+<div class="body">
+<span class="cat"><bdi>Switch</bdi></span>
+<h3><bdi>Tactile push button 6 x 6 mm, through-hole, 4 legs</bdi></h3>
+<p class="desc"><bdi>Momentary push button: pressing it connects its two contacts, letting go opens them.</bdi></p>
+<p class="where"><span lang="he">איפה</span><span lang="en">Where</span>: <b><bdi>kit</bdi></b></p>
+<ul class="checks">
+<li class="ok" title="2026-11-19: placed in a schematic in Fusion 2706.1.17, pins 1 and 2 wired and read back (Fusion labels each 1*2 / 2*2: one pin on two pads), looked at (fusion/symbol.png)"><b>✓</b> <span lang="he">סימבול</span><span lang="en">symbol</span></li>
+<li class="ok" title="2026-11-19: placed on a board in Fusion 2706.1.17 from this part&#x27;s .lbr; pads read back 6.5 x 4.5 mm; with pin 1 on net BTN and pin 2 on GND the board&#x27;s signals were BTN = pads 1 and 3, GND = pads 2 and 4 (read from the signals&#x27; contactRefs); looked at (fusion/footprint.png)"><b>✓</b> <span lang="he">פוטפרינט</span><span lang="en">footprint</span></li>
+<li class="ok" title="2026-11-19: a simple model in part.json (model), built by examples/12_tiny_arcade/board3d.py; the height is an assumption until measured"><b>✓</b> <span lang="he">מודל תלת-מימד</span><span lang="en">3D model</span></li>
+</ul>
+<p class="used"><span lang="he">על הלוחות</span><span lang="en">On boards</span>: <a class="chip" href="../examples/12_tiny_arcade/index.html"><bdi>12 Tiny Arcade</bdi></a></p>
+<div class="actions">
+<a class="btn" href="https://github.com/avisalmon/Fusion360BKM/issues/new?title=Take%20one%2C%20give%20back%20two%3A%20Tactile%20push%20button%206%20x%206%20mm%2C%20through-hole%2C%204%20legs&amp;body=I%20would%20like%20to%20borrow%3A%20Tactile%20push%20button%206%20x%206%20mm%2C%20through-hole%2C%204%20legs%20%28library%2Favi_salmon%2Ftact_switch_6x6%29.%0AI%20will%20order%20two%20and%20bring%20them%20back%20when%20they%20arrive."><span lang="he">אני רוצה אחד</span><span lang="en">I want one</span></a>
+</div>
+<details>
+<summary><span lang="he">כל הפרטים</span><span lang="en">All the details</span></summary>
+<p dir="auto">Momentary push button: pressing it connects its two contacts, letting go opens them. Four legs in a 6.5 x 4.5 mm rectangle; each leg is joined inside to the leg straight across the body (6.5 mm), and the two legs on the same side (4.5 mm) are the switch. On an ESP32: one contact to a GPIO, the other to GND, with the pin&#x27;s internal pull-up on (pressed reads 0).</p>
+<div class="drawn"><figure><img src="avi_salmon/tact_switch_6x6/fusion/symbol.png" alt="symbol" loading="lazy"><figcaption>symbol, <span lang="he">כפי ש-Fusion ציירה</span><span lang="en">as Fusion drew it</span></figcaption></figure><figure><img src="avi_salmon/tact_switch_6x6/fusion/footprint.png" alt="footprint" loading="lazy"><figcaption>footprint, <span lang="he">כפי ש-Fusion ציירה</span><span lang="en">as Fusion drew it</span></figcaption></figure></div>
+<h4><span lang="he">פינים</span><span lang="en">Pins</span></h4><div class="tw"><table dir="ltr">
+<tr><th>#</th><th>name</th><th>kind</th><th>note</th></tr>
+<tr><td>1</td><td><b>1</b></td><td>pas</td><td>one contact: to the GPIO (with its pull-up on)</td></tr>
+<tr><td>2</td><td><b>2</b></td><td>pas</td><td>the other contact: to GND</td></tr>
+</table></div>
+<h4><span lang="he">מידות, ומאיפה כל אחת</span><span lang="en">Dimensions, and where each came from</span></h4><ul class="dims" dir="ltr">
+<li><b>legs</b>: [6.5, 4.5] mm <span class="muted">(the common 6 x 6 mm tact switch (6.5 mm across the body, 4.5 mm along a side); the owner&#x27;s photo, scaled by the 6 mm body, agrees (about 4.4 mm along a side); not measured with calipers)</span></li>
+<li><b>body</b>: [6.0, 6.0] mm <span class="muted">(the size the part is sold as; the owner&#x27;s photo agrees)</span></li>
+<li><b>height</b>: null mm <span class="muted">(not known: these come with plungers from 4.3 to 13 mm above the board; measure before the box)</span></li>
+</ul>
+<h4><span lang="he">פוטפרינט</span><span lang="en">Footprint</span></h4><p><code>type dual_row, name TACT_SWITCH_6X6, per_row 2, pitch 4.5, row_spacing 6.5, drill 1.0, pad 1.8, body [6.0, 6.0]</code></p>
+<p class="muted" dir="auto">pads 1 and 2 are the two legs on one side (4.5 mm apart, the switch); 3 and 4 the legs on the other side, 6.5 mm across. Pin 1 is pads 1 and 3 (joined inside), pin 2 is pads 2 and 4. Drill 1.0 mm, the usual hole for these legs</p>
+<h4><span lang="he">מודל תלת-מימד</span><span lang="en">3D model</span></h4><p><span lang="he">1 תיבות ו-1 גלילים, לכל מידה המקור שלה; ממנו נבנים הלוח בתלת-מימד והקופסה.</span><span lang="en">1 boxes and 1 cylinders, every size with its source; the board in 3D and the case are built from it.</span></p>
+<h4><span lang="he">קבצים</span><span lang="en">Files</span></h4><p class="files"><a href="avi_salmon/tact_switch_6x6/part.json">part.json</a> · <a href="avi_salmon/tact_switch_6x6/tact_switch_6x6.lbr">tact_switch_6x6.lbr</a></p>
+<p class="muted"><span lang="he">יצרן</span><span lang="en">Maker</span>: <bdi>unknown (generic, the common 6 x 6 mm size)</bdi></p>
+</details>
+</div>
+</article>
+</div>
+</div></div>
+</main>
+<footer><div class="wrap">
+<span lang="he">הדף נכתב מקבצי הספרייה עצמם (<code>python scripts\library_page.py</code>); אף מילה לא מוקלדת בו ביד.</span><span lang="en">Written from the library's own files (<code>python scripts\library_page.py</code>); nothing on it is typed by hand.</span>
+ · <a href="https://github.com/avisalmon/Fusion360BKM">github.com/avisalmon/Fusion360BKM</a>
+</div></footer>
+<script>
+(function () {
+  var root = document.documentElement, buttons = document.querySelectorAll("[data-set-lang]");
+  function setLang(lang, remember) {
+    root.classList.remove("he", "en"); root.classList.add(lang);
+    root.setAttribute("lang", lang); root.setAttribute("dir", lang === "he" ? "rtl" : "ltr");
+    buttons.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-set-lang") === lang ? "true" : "false"); });
+    if (remember) { try { localStorage.setItem("fusion-lang", lang); } catch (e) {} }
+  }
+  var wanted = null;
+  try { wanted = localStorage.getItem("fusion-lang"); } catch (e) {}
+  setLang(wanted || "he", false);
+  buttons.forEach(function (b) { b.addEventListener("click", function () { setLang(b.getAttribute("data-set-lang"), true); }); });
+
+  var q = document.getElementById("q"), cats = document.querySelectorAll("[data-cat-filter]"), cat = "";
+  var cards = document.querySelectorAll(".part"), count = document.getElementById("count");
+  function apply() {
+    var words = (q.value || "").toLowerCase().trim().split(/\s+/).filter(Boolean), shown = 0;
+    cards.forEach(function (c) {
+      var ok = (!cat || c.getAttribute("data-cat") === cat) &&
+        words.every(function (w) { return c.getAttribute("data-words").indexOf(w) >= 0; });
+      c.hidden = !ok; if (ok) shown++;
+    });
+    count.textContent = shown + " / " + cards.length;
+  }
+  q.addEventListener("input", apply);
+  cats.forEach(function (b) {
+    b.addEventListener("click", function () {
+      cat = b.getAttribute("data-cat-filter");
+      cats.forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      apply();
+    });
+  });
+  apply();
+})();
+</script>
+</body>
+</html>

@@ -1,9 +1,9 @@
 # Fusion360BKM
 
-### Learn Fusion 360 by hand, then design parts (and later circuits) by talking to an AI that drives Fusion for you.
+### Design a whole product with an AI that drives Fusion 360 for you: 3D parts, circuit boards a factory can make, and the case and production files that join them.
 
 <!-- last-updated:start -->
-**Last updated 20 November 2026** · 7 new lessons · [See what's new](docs/lessons_log.md)
+**Last updated 20 November 2026** · 8 new lessons · [See what's new](docs/lessons_log.md)
 <!-- last-updated:end -->
 
 **Start page (Hebrew / English): https://avisalmon.github.io/Fusion360BKM/**
@@ -37,9 +37,30 @@ Open the repo in VS Code with **Claude Code** or **GitHub Copilot** (Agent mode)
    vacuum-cleaner nozzle, a mug). Optional; the chat suggests the lesson that matches what you are about to build.
 3. **The AI magic** (this repo): in the chat, type `Tell me what to do` / `תגיד לי מה לעשות`. The whole road is
    [docs/journey_checklist.md](docs/journey_checklist.md).
-4. **Examples**: [examples/](examples/README.md) mirrors the course's objects as scripts, each with its `.f3d`, pictures,
-   what was verified, and what it taught this guide. First one built:
-   [a box from a paper note](examples/06_sketched_box/README.md) (hand-drawn, photographed, read back, built, verified).
+4. **Examples**: [examples/](examples/README.md), each with its scripts, files, pictures, what was verified, and what it
+   taught this guide: [a box from a paper note](examples/06_sketched_box/README.md), three circuit boards, and the demo
+   product below.
+
+## Three tracks (and a fourth coming)
+
+* **3D parts**: from words, a hand sketch or a real object, to a spec in mm, a script, checks, and STL to print.
+* **Circuit design**: the circuit in words, a schematic, a placement *you* review, routing, then three layers of
+  checks (Fusion's, ours against JLCPCB's limits, a simulated factory that reads the Gerbers) and one summary page
+  per board with the zip to upload. Boards [10](examples/10_led_switch_board/index.html),
+  [11](examples/11_blinker_555/index.html), [12](examples/12_tiny_arcade/index.html).
+* **A whole product**: the board in 3D (every part's model comes from the library), a case designed around it and
+  proven by intersecting every printed part with every part, screw, battery and cable, and a production package:
+  STL, Gerbers, the assembly as STEP and `.f3d`, assembly steps, one bill of materials for everything. The demo:
+  **[Tiny Arcade](examples/12_tiny_arcade/index.html)**, an ESP32 game board in a rounded handheld with a power
+  bank inside (an example for learning, not for production).
+* **Software** (coming later): the code that runs on the board, as part of the product.
+
+## The part library
+
+**[library/](library/index.html)**: real parts from a real shelf, each a full library cell (photos, pins checked on
+the part, a footprint and symbol checked in Fusion, a 3D model). Every user keeps their own; Avi's is public, as the
+example of what a library should look like. **Take one, give back two:** borrow a part from Avi's shelf today
+instead of waiting for AliExpress, and order two that come back to him.
 
 ## What's in the box
 
@@ -55,8 +76,10 @@ CopilotBridge/             The Fusion add-in: HTTP server + helpers in millimetr
 scripts/fusion.py          One tool: doctor | install | launch | ping | new | run | exec | info | shot | export | dialog
 scripts/fusion_dialog.ps1  Reads and clicks Fusion's modal dialogs when they block the bridge
 templates/parametric_box/  A known-good start: a shelled box with a lid, eight parameters, verified
-examples/                  Objects built from the chat, with evidence: 06_sketched_box (from a paper note);
-                           the course's coin, tweezers, key, nozzle and mug are the next slots
+examples/                  Built from the chat, with evidence: 06_sketched_box (from a paper note); boards
+                           10, 11 and 12; 12_tiny_arcade is a whole product with its production package
+library/                   The part library: one folder per owner, one per part; index.html is its page
+                           (scripts/library_page.py)
 my_designs/                YOUR work (git-ignored, so updates never touch it)
 exports/                   STL / STEP / F3D / PNG output (git-ignored)
 docs/                      Setup, the journey, architecture, the Fusion reference, procedures, gotchas, what's new

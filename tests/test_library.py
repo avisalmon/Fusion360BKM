@@ -2,6 +2,7 @@
 metadata (phone photos carry the phone's model and often the GPS position)."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -61,3 +62,20 @@ def test_supply_pins_must_be_wired_and_only_ground_joins_by_name():
         for num, name, kind, *_ in rec["pins"]:
             if kind == "power":
                 assert name.upper() == "GND", f"{part.name} pin {num} {name}: use 'supply'"
+
+
+def test_the_library_page_is_current_and_shows_every_part():
+    """library/index.html is written by scripts/library_page.py from the parts' own files."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import library_page as lp
+
+    assert lp.main(["--check"]) == 0, "run: python scripts/library_page.py"
+    page = (ROOT / "library" / "index.html").read_text(encoding="utf-8")
+    for pj in (ROOT / "library").glob("*/*/part.json"):
+        assert f'id="{pj.parent.name}"' in page, pj.parent.name
+    assert "Take one, give back two" in page and "לוקחים אחד, מחזירים שניים" in page
+    assert "/issues/new?title=Take%20one%2C%20give%20back%20two" in page
+    # every local link and image on it exists
+    for href in re.findall(r'(?:href|src)="([^"#][^"]*)"', page):
+        if not href.startswith(("http://", "https://")):
+            assert (ROOT / "library" / href).exists(), href

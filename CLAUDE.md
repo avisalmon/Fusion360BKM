@@ -33,8 +33,10 @@ grows: every one teaches the skills, the gotchas and the reference something new
 * The owner asks to *understand* something (why a fillet before a shell, what tolerance for a snap fit, is this
   printable?), wants design advice, or asks "did I do it right?" -> `fusion-mentor` skill. **Teach as you build**
   (rule 9).
-* Anything about schematics, PCBs, footprints, design rules, Gerbers, ordering a board, Fusion's Electronics workspace
-  -> `fusion-electronics` skill (schematic to checked factory files verified on board 10; the 3D board and case not yet).
+* Anything about schematics, PCBs, footprints, design rules, Gerbers, ordering a board, Fusion's Electronics workspace,
+  the part library ("add a part to my library"), a board's case and production package
+  -> `fusion-electronics` skill (verified: board 10 to checked factory files; board 12 to its case and production
+  package, not printed).
 * Creating the GitHub repo, `gh` login, pushing, sharing a part -> `publish-to-github` skill (asks before anything
   irreversible or public).
 * (Maintainer) building the next example in `examples/NN_name/` (script, page, media, archive, badge, catalogue card,

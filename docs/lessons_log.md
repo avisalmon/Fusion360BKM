@@ -6,6 +6,10 @@ assumption against a running Fusion and finding it was not quite true.
 
 ## 2026-11-20
 
+- **The start page now tells the whole road**: 3D parts, circuit design, a whole product (Tiny Arcade as the demo,
+  with its production package), and software as the next stage. The part library has its own page, written from
+  the parts' files, with the owner's deal: take one, give back two. [library](../library/index.html)
+
 - **A case is proven by intersecting it with what it holds.** Board 12's case script builds the board, every part
   and the power bank as reference bodies and intersects every printed part with each: all 0 mm3. Two deliberate
   clashes proved the check sees what it should. [fusion_reference](fusion_reference.md)

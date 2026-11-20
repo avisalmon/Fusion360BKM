@@ -28,4 +28,9 @@ In a circuit script: `ecad("USE '<repo>/library/<owner>/<part>/<part>.lbr'")`, t
 Round parts (a buzzer) give `body_diameter` instead of `body`; `symbol_half_width` (grid steps, default 5)
 narrows the symbol of a part with few pins.
 
-Not done yet: the 3D models, and the browsable page of the whole library.
+Each part's 3D model lives in its `part.json` (`model`: boxes and cylinders, every size with its source); the
+board in 3D and the case are built from it (`examples/12_tiny_arcade/board3d.py`, `case.py`).
+
+The library's page, [index.html](index.html), is written from these files:
+`python scripts\library_page.py` (a test fails when it is stale). Avi's library is public, and so is his deal:
+**take one, give back two** (borrow a part today, order two that come back to him).

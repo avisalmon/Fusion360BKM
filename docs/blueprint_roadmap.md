@@ -70,8 +70,10 @@ first person to do each should record the evidence here and in the relevant READ
   route chosen 2026-11-16: EAGLE commands through `Electron.run` write, `adsk.electron` reads back. Verified: a new
   electronics design, a schematic and a routed board (`examples/10_led_switch_board`), Fusion's ERC and board check,
   our own netlist and rule check against JLCPCB's limits, Gerber and drill files from a CAM job read back by a
-  simulated factory (2026-11-17, [board_checks_and_factory.md](procedures/board_checks_and_factory.md)). Not yet: an
-  order placed (JLCPCB's review and a real electrical test), our own library, the 3D PCB and its case.
+  simulated factory (2026-11-17, [board_checks_and_factory.md](procedures/board_checks_and_factory.md)). Then (board
+  12, 2026-11-19/20): a board built only from our own library, the board in 3D, a case around it with the fit
+  proven by intersection, and a production package (STL, Gerbers, STEP, assembly, BOM). Not yet: an order placed
+  (JLCPCB's review and a real electrical test), a case printed and fitted to a real board, the product's software.
 * **Assemblies**: components exist (`new_component`), joints and motion do not.
 * **macOS**: `install` would make a symlink and `launch` would need the macOS path; `fusion_dialog.ps1` is Windows
   only.
